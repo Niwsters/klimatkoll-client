@@ -1,0 +1,20 @@
+Before anything: MAKE INTO GIT REPOSITORY DANGIT
+
+React/UI:
+- Show all them buttonz and inputs
+- Join game
+- Create game
+
+Canvas:
+- Separate Card and CardSprite
+- Render array of cards containing positions, scales and rotations
+- Static hand (oval shape!)
+- Static emission line
+- Static opponent hand (just reverse the other hand)
+- Rearrange hand cards
+- Rearrange emission line cards
+- Rearrange opponent hand cards
+- Deck
+- Discard pile
+- Move card between hands, emission line, deck, and discard pile
+- Zoom in on cards on hover
