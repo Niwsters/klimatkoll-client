@@ -6,6 +6,10 @@ export interface ServerEvent {
   payload: any
 }
 
+const WIDTH = 960
+const HEIGHT = 540
+const HAND_POSITION = [WIDTH / 2, HEIGHT-20]
+
 export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
   // containers being actual arrays
@@ -30,8 +34,10 @@ export class GameState {
           break
         case "draw_card":
           // { socketID, card }
-          const card = event.payload.card
-          state.cards.push(new Card(card.id, card.name, "hand"))
+          const server_card = event.payload.card
+          const card = new Card(server_card.id, server_card.name, "hand")
+          card.position = HAND_POSITION
+          state.cards.push(card)
           break
         case "return_opponent_hand":
           // No payload
@@ -56,6 +62,17 @@ export class GameState {
           break
         case "next_card":
           // { card }
+          break
+        case "mouse_moved":
+          const x = event.payload.x
+          const y = event.payload.y
+          state.cards = state.cards.map((card: Card) => {
+            return {
+              ...card,
+              position: [x, y]
+            }
+          })
+          break
       }
 
       return state

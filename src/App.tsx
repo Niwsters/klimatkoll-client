@@ -1,8 +1,11 @@
 import React from 'react'
 import { ServerEvent, GameState } from './game/gamestate'
-import { initCanvas } from './canvas/canvas'
+import { Canvas } from './canvas/canvas'
+import { Observable, BehaviorSubject } from 'rxjs'
+import { map } from 'rxjs/operators'
 
 function App() {
+  const events$: BehaviorSubject<ServerEvent[]> = new BehaviorSubject<ServerEvent[]>([])
   const events: ServerEvent[] = [
     {
       event_id: 0,
@@ -19,12 +22,49 @@ function App() {
       }
     }
   ]
-  const state = GameState.fromEvents(events)
-  window.onload = () => initCanvas(state)
+  const gamestate$: Observable<GameState> = events$.pipe(
+    map((events: ServerEvent[]) => {
+      return GameState.fromEvents(events)
+    })
+  )
+
+  events$.next(events)
+
+  window.onload = () => {
+    Canvas.prepare().then(() => {
+      const canvas = new Canvas()
+
+      const canvasElem = document.getElementById('klimatkoll-canvas') as HTMLCanvasElement
+      if (!canvasElem) throw new Error("Can't find canvas element")
+      let i = 0
+      canvasElem.onmousemove = (e: MouseEvent) => {
+        const elem = e.target as HTMLElement
+        if (!elem) throw new Error("e.target is null")
+        const rect = elem.getBoundingClientRect()
+
+        const events = [
+          ...events$.value,
+          {
+            event_id: 99999 + i,
+            event_type: "mouse_moved",
+            payload: {
+              x: e.clientX - rect.left,
+              y: e.clientY - rect.top
+            }
+          }
+        ]
+        events$.next(events)
+      }
+
+      gamestate$.subscribe((state: GameState) => {
+        canvas.render(state)
+      })
+    })
+  }
 
   return (
     <div>
-      <canvas id="klimatkoll-canvas" width="1920" height="1080" />
+      <canvas id="klimatkoll-canvas" width="960" height="540" />
     </div>
   );
 }

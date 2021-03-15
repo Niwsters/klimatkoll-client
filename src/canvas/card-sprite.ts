@@ -11,11 +11,13 @@ const TEXTURE_HEIGHT = 2048/2
 
 const CARD_WIDTH = IMAGE_WIDTH - IMAGE_MARGIN
 const CARD_HEIGHT = IMAGE_HEIGHT - IMAGE_MARGIN
+console.log(CARD_WIDTH, CARD_HEIGHT)
 
 export class CardSprite {
   card: Card
   gl: WebGLRenderingContext
   translationLocation: WebGLUniformLocation
+  scaleLocation: WebGLUniformLocation
   program: WebGLProgram
   static images = new Map<string, HTMLImageElement>()
 
@@ -23,13 +25,18 @@ export class CardSprite {
     this.card = card
     this.gl = gl
 
+    const x1 = -CARD_WIDTH/2
+    const x2 = CARD_WIDTH/2
+    const y1 = -CARD_HEIGHT/2
+    const y2 = CARD_HEIGHT/2
+
     const positions = [
-      0, 0,
-      CARD_WIDTH, 0,
-      0, CARD_HEIGHT,
-      0, CARD_HEIGHT,
-      CARD_WIDTH, 0,
-      CARD_WIDTH, CARD_HEIGHT,
+      x1, y1,
+      x2, y1,
+      x1, y2,
+      x1, y2,
+      x2, y1,
+      x2, y2,
     ]    
     const image = CardSprite.images.get(card.name)
     if (!image) {
@@ -43,6 +50,7 @@ export class CardSprite {
     const positionAttributeLocation = gl.getAttribLocation(program, "a_position")
     const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution")
     const translationLocation = gl.getUniformLocation(program, "u_translation")
+    const scaleLocation = gl.getUniformLocation(program, "u_scale")
     const texCoordLocation = gl.getAttribLocation(program, "a_texcoord")
 
     const positionBuffer = gl.createBuffer()
@@ -91,14 +99,15 @@ export class CardSprite {
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
 
-    if (!translationLocation) {
-      throw new Error("Translation location is null")
+    if (!translationLocation || !scaleLocation) {
+      throw new Error("One or more uniform locations are null")
     }
     this.program = program
     this.translationLocation = translationLocation
+    this.scaleLocation = scaleLocation
   }
 
-  static prepareImages() {
+  static prepareImages(): Promise<null> {
     return new Promise((resolve, reject) => {
       let loadedCardImages = 0
       cards.forEach((cardData: CardData) => {
@@ -118,6 +127,7 @@ export class CardSprite {
   static render(sprite: CardSprite) {
     const gl = sprite.gl
     const translationLocation = sprite.translationLocation
+    const scaleLocation = sprite.scaleLocation
     const program = sprite.program
 
     gl.useProgram(program)
@@ -126,6 +136,7 @@ export class CardSprite {
       throw new Error("Could not find WebGL translation location")
     }
     gl.uniform2fv(translationLocation, sprite.card.position)
+    gl.uniform1f(scaleLocation, sprite.card.scale)
     gl.drawArrays(gl.TRIANGLES, 0, 6)
   }
 }
