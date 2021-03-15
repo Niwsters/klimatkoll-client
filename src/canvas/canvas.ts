@@ -1,7 +1,6 @@
 import { Card } from '../game/card'
 import { CardSprite } from './card-sprite'
 import { GameState } from '../game/gamestate'
-import { Observable } from 'rxjs'
 
 const cardSprites: CardSprite[] = []
 
