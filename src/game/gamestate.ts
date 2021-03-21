@@ -23,7 +23,7 @@ export class GameState {
   */
   isMyTurn: boolean = false
 
-  static fromEvents(events: ServerEvent[]): GameState {
+  static fromEvents(events: ServerEvent[], currentTime: number = Date.now()): GameState {
     return events.reduce((state: GameState, event: ServerEvent) => {
       switch(event.event_type) {
         case "waiting_for_players":
@@ -63,7 +63,8 @@ export class GameState {
         case "next_card":
           // { card }
           break
-        case "mouse_moved":
+        case "mouse_moved": {
+          /*
           const x = event.payload.x
           const y = event.payload.y
           state.cards = state.cards.map((card: Card) => {
@@ -72,7 +73,34 @@ export class GameState {
               position: [x, y]
             }
           })
+          */
           break
+        }
+        case "mouse_clicked": {
+          const x = event.payload.x
+          const y = event.payload.y
+          const timePassed = currentTime - event.payload.timestamp
+          const animationTimeMillis = 300
+          state.cards = state.cards.map((card: Card) => {
+            const start_x = card.position[0]
+            const start_y = card.position[1]
+            let new_pos = [x,y]
+            if (timePassed < animationTimeMillis) {
+              const fraction = timePassed/animationTimeMillis
+              const mult = 1 - (1 - fraction) ** 2
+              new_pos = [
+                start_x + (x - start_x)*mult,
+                start_y + (y - start_y)*mult
+              ]
+            }
+
+            return {
+              ...card,
+              position: new_pos
+            }
+          })
+          break
+        }
       }
 
       return state

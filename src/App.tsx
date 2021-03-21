@@ -49,16 +49,47 @@ function App() {
             event_type: "mouse_moved",
             payload: {
               x: e.clientX - rect.left,
-              y: e.clientY - rect.top
+              y: e.clientY - rect.top,
+              timestamp: Date.now()
             }
           }
         ]
+        i += 1
         events$.next(events)
       }
 
+      canvasElem.onclick = (e: MouseEvent) => {
+        const elem = e.target as HTMLElement
+        if (!elem) throw new Error("e.target is null")
+        const rect = elem.getBoundingClientRect()
+
+        const events = [
+          ...events$.value,
+          {
+            event_id: 99999 + i,
+            event_type: "mouse_clicked",
+            payload: {
+              x: e.clientX - rect.left,
+              y: e.clientY - rect.top,
+              timestamp: Date.now()
+            }
+          }
+        ]
+        i += 1
+        console.log(events[events.length - 1])
+        events$.next(events)
+      }
+
+      setInterval(() => {
+        const state = GameState.fromEvents(events$.value)
+        canvas.render(state)
+      }, 1000/60)
+
+      /*
       gamestate$.subscribe((state: GameState) => {
         canvas.render(state)
       })
+      */
     })
   }
 

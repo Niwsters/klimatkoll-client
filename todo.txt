@@ -1,4 +1,8 @@
-Before anything: MAKE INTO GIT REPOSITORY DANGIT
+Current
+- On hover
+
+
+
 
 React/UI:
 - Show all them buttonz and inputs
@@ -6,7 +10,6 @@ React/UI:
 - Create game
 
 Canvas:
-- Separate Card and CardSprite
 - Render array of cards containing positions, scales and rotations
 - Static hand (oval shape!)
 - Static emission line
