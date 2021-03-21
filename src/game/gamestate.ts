@@ -4,23 +4,58 @@ export interface ServerEvent {
   event_id: number
   event_type: string
   payload: any
+  timestamp: number
 }
 
 const WIDTH = 960
 const HEIGHT = 540
 const HAND_POSITION = [WIDTH / 2, HEIGHT-20]
+const DECK_POSITION = [702, HEIGHT/2]
+const ANIMATION_DURATION_MS = 300
+
+interface TransposeGoal {
+  position?: number[]
+  rotation?: number
+  scale?: number
+}
+
+function transpose(from: number, to: number, timePassed: number) {
+  if (timePassed > ANIMATION_DURATION_MS) return to
+
+  const fraction = timePassed/ANIMATION_DURATION_MS
+  const mult = 1 - (1 - fraction) ** 2 // easeOutQuad easing function
+  return from + (to - from)*mult
+}
+
+export function transposeCard(
+  card: Card,
+  goal: TransposeGoal,
+  timePassed: number
+): Card {
+  const newCard = { ...card }
+
+  if (goal.position) {
+    newCard.position = [
+      transpose(card.position[0], goal.position[0], timePassed),
+      transpose(card.position[1], goal.position[1], timePassed)
+    ]
+  }
+
+  if (goal.rotation) {
+    newCard.rotation = transpose(card.rotation, goal.rotation, timePassed)
+  }
+  
+  if (goal.scale) {
+    newCard.scale = transpose(card.scale, goal.scale, timePassed)
+  }
+
+  return newCard
+}
 
 export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
   // containers being actual arrays
   cards: Card[] = []
-  /*
-  hand: Card[] = []
-  opponentHand: Card[] = []
-  emissionLine: Card[] = []
-  deck: Card[] = []
-  discardPile: Card[] = []
-  */
   isMyTurn: boolean = false
 
   static fromEvents(events: ServerEvent[], currentTime: number = Date.now()): GameState {
@@ -35,8 +70,10 @@ export class GameState {
         case "draw_card":
           // { socketID, card }
           const server_card = event.payload.card
-          const card = new Card(server_card.id, server_card.name, "hand")
-          card.position = HAND_POSITION
+          let card = new Card(server_card.id, server_card.name, "hand")
+          card.position = DECK_POSITION
+          const timePassed = currentTime - event.timestamp
+          card = transposeCard(card, { position: HAND_POSITION }, timePassed)
           state.cards.push(card)
           break
         case "return_opponent_hand":
@@ -79,25 +116,9 @@ export class GameState {
         case "mouse_clicked": {
           const x = event.payload.x
           const y = event.payload.y
-          const timePassed = currentTime - event.payload.timestamp
-          const animationTimeMillis = 300
+          const timePassed = currentTime - event.timestamp
           state.cards = state.cards.map((card: Card) => {
-            const start_x = card.position[0]
-            const start_y = card.position[1]
-            let new_pos = [x,y]
-            if (timePassed < animationTimeMillis) {
-              const fraction = timePassed/animationTimeMillis
-              const mult = 1 - (1 - fraction) ** 2
-              new_pos = [
-                start_x + (x - start_x)*mult,
-                start_y + (y - start_y)*mult
-              ]
-            }
-
-            return {
-              ...card,
-              position: new_pos
-            }
+            return transposeCard(card, { position: [x, y] }, timePassed)
           })
           break
         }

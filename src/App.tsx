@@ -1,8 +1,7 @@
 import React from 'react'
 import { ServerEvent, GameState } from './game/gamestate'
 import { Canvas } from './canvas/canvas'
-import { Observable, BehaviorSubject } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { BehaviorSubject } from 'rxjs'
 
 function App() {
   const events$: BehaviorSubject<ServerEvent[]> = new BehaviorSubject<ServerEvent[]>([])
@@ -10,23 +9,25 @@ function App() {
     {
       event_id: 0,
       event_type: 'waiting_for_players',
-      payload: {}
+      payload: {},
+      timestamp: Date.now()
     },
-    { event_id: 1, event_type: 'playing', payload: {} },
+    {
+      event_id: 1,
+      event_type: 'playing',
+      payload: {},
+      timestamp: Date.now()
+    },
     {
       event_id: 2,
       event_type: 'draw_card',
       payload: {
         card: { name: 'bussresa-malmo-chamonix', emissions: 60, id: 7 },
-        socketID: 0
-      }
+        socketID: 0,
+      },
+      timestamp: Date.now()
     }
   ]
-  const gamestate$: Observable<GameState> = events$.pipe(
-    map((events: ServerEvent[]) => {
-      return GameState.fromEvents(events)
-    })
-  )
 
   events$.next(events)
 
@@ -50,8 +51,8 @@ function App() {
             payload: {
               x: e.clientX - rect.left,
               y: e.clientY - rect.top,
-              timestamp: Date.now()
-            }
+            },
+            timestamp: Date.now()
           }
         ]
         i += 1
@@ -66,6 +67,16 @@ function App() {
         const events = [
           ...events$.value,
           {
+            event_id: 99999+i,
+            event_type: 'draw_card',
+            payload: {
+              card: { name: 'grot', emissions: 60, id: 7 },
+              socketID: 0,
+            },
+            timestamp: Date.now()
+          }
+          /*
+          {
             event_id: 99999 + i,
             event_type: "mouse_clicked",
             payload: {
@@ -74,6 +85,7 @@ function App() {
               timestamp: Date.now()
             }
           }
+          */
         ]
         i += 1
         console.log(events[events.length - 1])
