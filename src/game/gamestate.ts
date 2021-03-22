@@ -9,9 +9,13 @@ export interface ServerEvent {
 
 const WIDTH = 960
 const HEIGHT = 540
-const HAND_POSITION = [WIDTH / 2, HEIGHT-20]
+const HAND_POSITION = [WIDTH / 2, HEIGHT+50]
 const DECK_POSITION = [702, HEIGHT/2]
 const ANIMATION_DURATION_MS = 300
+const HAND_CARD_ANGLE = Math.PI/5
+const HAND_X_RADIUS = 200
+const HAND_Y_RADIUS = 100
+const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
 
 interface TransposeGoal {
   position?: number[]
@@ -75,6 +79,19 @@ export class GameState {
           const timePassed = currentTime - event.timestamp
           card = transposeCard(card, { position: HAND_POSITION }, timePassed)
           state.cards.push(card)
+
+          // Move all hand cards to their respective positions
+          // forEach instead of map for optimisation reasons
+          const handCards = state.cards.filter((c: Card) => c.container === "hand")
+          handCards.forEach((card: Card, i: number) => {
+            const n = handCards.length - 1
+            const angle = HAND_CARD_ANGLE * (i - n/2)
+            const x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
+            const y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
+            card.position = [x,y]
+            card.rotation = angle * HAND_ANGLE_FACTOR
+          })
+
           break
         case "return_opponent_hand":
           // No payload

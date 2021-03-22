@@ -5,10 +5,15 @@ attribute vec2 a_texcoord;
 uniform vec2 u_resolution;
 uniform vec2 u_translation;
 uniform float u_scale;
+uniform float u_rotation;
 varying vec2 v_texcoord;
 
 void main() {
-  vec2 position = a_position * vec2(u_scale) + u_translation;
+  mat2 rotation_matrix = mat2(
+    cos(u_rotation), -sin(u_rotation),
+    sin(u_rotation), cos(u_rotation)
+  );
+  vec2 position = a_position * rotation_matrix * vec2(u_scale) + u_translation;
 
   vec2 zeroToOne = position / u_resolution;
 

@@ -18,7 +18,9 @@ export class CardSprite {
   gl: WebGLRenderingContext
   translationLocation: WebGLUniformLocation
   scaleLocation: WebGLUniformLocation
+  rotationLocation: WebGLUniformLocation
   program: WebGLProgram
+  texture: WebGLTexture
   static images = new Map<string, HTMLImageElement>()
 
   constructor(gl: WebGLRenderingContext, card: Card) {
@@ -51,6 +53,7 @@ export class CardSprite {
     const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution")
     const translationLocation = gl.getUniformLocation(program, "u_translation")
     const scaleLocation = gl.getUniformLocation(program, "u_scale")
+    const rotationLocation = gl.getUniformLocation(program, "u_rotation")
     const texCoordLocation = gl.getAttribLocation(program, "a_texcoord")
 
     const positionBuffer = gl.createBuffer()
@@ -88,23 +91,38 @@ export class CardSprite {
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0)
 
     // Create a texture.
-    var texture = gl.createTexture();
+    const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
    
     // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+//    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+//    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+//    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_LINEAR)
 
-    if (!translationLocation || !scaleLocation) {
-      throw new Error("One or more uniform locations are null")
+    const ext = (
+      gl.getExtension('EXT_texture_filter_anisotropic') ||
+      gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
+      gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
+    )
+    if (ext){
+      var max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+      gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
+    }
+    gl.generateMipmap(gl.TEXTURE_2D)
+
+    if (!translationLocation || !scaleLocation || !rotationLocation || !texture) {
+      throw new Error("One or more shader locations are null")
     }
     this.program = program
     this.translationLocation = translationLocation
     this.scaleLocation = scaleLocation
+    this.rotationLocation = rotationLocation
+    this.texture = texture
   }
 
   static prepareImages(): Promise<null> {
@@ -128,6 +146,7 @@ export class CardSprite {
     const gl = sprite.gl
     const translationLocation = sprite.translationLocation
     const scaleLocation = sprite.scaleLocation
+    const rotationLocation = sprite.rotationLocation
     const program = sprite.program
 
     gl.useProgram(program)
@@ -137,6 +156,8 @@ export class CardSprite {
     }
     gl.uniform2fv(translationLocation, sprite.card.position)
     gl.uniform1f(scaleLocation, sprite.card.scale)
+    gl.uniform1f(rotationLocation, sprite.card.rotation)
+    gl.bindTexture(gl.TEXTURE_2D, sprite.texture);
     gl.drawArrays(gl.TRIANGLES, 0, 6)
   }
 }

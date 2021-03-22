@@ -1,7 +1,9 @@
 import React from 'react'
+import { BehaviorSubject } from 'rxjs'
+
 import { ServerEvent, GameState } from './game/gamestate'
 import { Canvas } from './canvas/canvas'
-import { BehaviorSubject } from 'rxjs'
+import { cards } from './cards'
 
 function App() {
   const events$: BehaviorSubject<ServerEvent[]> = new BehaviorSubject<ServerEvent[]>([])
@@ -64,13 +66,14 @@ function App() {
         if (!elem) throw new Error("e.target is null")
         const rect = elem.getBoundingClientRect()
 
+        const card_i = Math.floor(Math.random()*cards.length)
         const events = [
           ...events$.value,
           {
             event_id: 99999+i,
             event_type: 'draw_card',
             payload: {
-              card: { name: 'grot', emissions: 60, id: 7 },
+              card: cards[card_i],
               socketID: 0,
             },
             timestamp: Date.now()

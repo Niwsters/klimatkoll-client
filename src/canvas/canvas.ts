@@ -61,7 +61,7 @@ export class Canvas {
   render(state: GameState) {
     const gl = this.gl
 
-    gl.clearColor(0, 0, 0, 1)
+    gl.clearColor(1, 1, 1, 1)
     gl.clear(gl.COLOR_BUFFER_BIT)
 
     // Map new cards to card sprites

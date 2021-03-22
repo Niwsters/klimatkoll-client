@@ -1,9 +1,10 @@
 export interface CardData {
+  id: number
   name: string
   emissions: number
 }
 
-export const cards = [
+export const cards: CardData[] = [
 	{
 		"name": "aggmackor",
 		"emissions": 120
@@ -220,4 +221,9 @@ export const cards = [
 		"name": "yoghurt",
 		"emissions": 200
 	}
-]
+].map((c: any, i: number) => {
+  return {
+    ...c,
+    id: i
+  }
+})

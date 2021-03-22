@@ -1,7 +1,7 @@
 export class Card {
   static DEFAULT_WIDTH = 445
   static DEFAULT_HEIGHT = 656
-  static DEFAULT_SCALE = 0.35
+  static DEFAULT_SCALE = 0.275
 
   id: number
   name: string
