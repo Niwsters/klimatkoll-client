@@ -73,7 +73,7 @@ export class CardSprite {
     gl.vertexAttribPointer(
       positionAttributeLocation, size, type, normalize, stride, offset)
 
-    var texCoordBuffer = gl.createBuffer()
+    const texCoordBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
     const x0 = IMAGE_MARGIN / TEXTURE_WIDTH
     const y0 = IMAGE_MARGIN / TEXTURE_HEIGHT
@@ -110,7 +110,7 @@ export class CardSprite {
       gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
     )
     if (ext){
-      var max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+      const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
       gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
     }
     gl.generateMipmap(gl.TEXTURE_2D)
