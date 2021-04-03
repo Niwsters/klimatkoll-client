@@ -11,7 +11,7 @@ const WIDTH = 960
 const HEIGHT = 540
 const HAND_POSITION = [WIDTH / 2, HEIGHT+50]
 const DECK_POSITION = [702, HEIGHT/2]
-const ANIMATION_DURATION_MS = 300
+const ANIMATION_DURATION_MS = 200
 const HAND_CARD_ANGLE = Math.PI/5
 const HAND_X_RADIUS = 200
 const HAND_Y_RADIUS = 100
@@ -117,17 +117,33 @@ export class GameState {
         case "next_card":
           // { card }
           break
-        case "mouse_moved": {
-          /*
-          const x = event.payload.x
-          const y = event.payload.y
-          state.cards = state.cards.map((card: Card) => {
-            return {
-              ...card,
-              position: [x, y]
-            }
-          })
-          */
+        case "card_hovered": {
+          const card_id = event.payload.card_id
+          const timePassed = currentTime - event.timestamp
+
+          state.cards = state.cards
+            .map(c => {
+              if (c.id === card_id) {
+                return transposeCard(c, { scale: Card.DEFAULT_SCALE * 2 }, timePassed)
+              }
+
+              return c
+            })
+
+          break
+        }
+        case "card_unhovered": {
+          const card_id = event.payload.card_id
+          const timePassed = currentTime - event.timestamp
+
+          state.cards = state.cards
+            .map(c => {
+              if (c.id === card_id) {
+                return transposeCard(c, { scale: Card.DEFAULT_SCALE }, timePassed)
+              }
+
+              return c
+            })
           break
         }
         case "mouse_clicked": {

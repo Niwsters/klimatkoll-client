@@ -15,4 +15,14 @@ export class Card {
     this.name = name
     this.container = container
   }
+
+  static getRectangle(card: Card): number[][] {
+    const width = Card.DEFAULT_WIDTH*card.scale
+    const height = Card.DEFAULT_HEIGHT*card.scale
+
+    return [
+      [-width/2, -height/2],
+      [width/2, height/2]
+    ]
+  }
 }
