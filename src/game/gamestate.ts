@@ -1,6 +1,6 @@
 import { Card } from './card'
 
-export interface ServerEvent {
+export interface ClientEvent {
   event_id: number
   event_type: string
   payload: any
@@ -62,8 +62,8 @@ export class GameState {
   cards: Card[] = []
   isMyTurn: boolean = false
 
-  static fromEvents(events: ServerEvent[], currentTime: number = Date.now()): GameState {
-    return events.reduce((state: GameState, event: ServerEvent) => {
+  static fromEvents(events: ClientEvent[], currentTime: number = Date.now()): GameState {
+    return events.reduce((state: GameState, event: ClientEvent) => {
       switch(event.event_type) {
         case "waiting_for_players":
           // No payload

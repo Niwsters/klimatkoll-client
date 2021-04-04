@@ -1,3 +1,8 @@
+@font-face {
+  src: url(fonts/Poppins-Medium.ttf);
+  font-family: 'Poppins';
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -5,10 +10,45 @@ html, body {
 
 body {
   background: #e5e5e5;
+  font-family: 'Poppins', sans-serif;
 }
 
-canvas {
+canvas, #app {
   display: block;
   margin: auto;
   margin-top: 200px;
+
+  width: 960px;
+  height: 540px;
+  background: white;
+}
+
+input, button {
+  display: block;
+  margin: auto;
+  border: none;
+  border-radius: 0;
+  padding: 5px 10px;
+  width: 260px;
+  box-sizing: border-box;
+  margin-top: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+}
+
+button.pink {
+  background: #f4ccc5;
+}
+
+button.yellow {
+  background: #fdd76b;
+}
+
+button:hover {
+  background: #cef0ea;
+}
+
+button:active {
+  background: #7c918e;
+  color: black;
 }
