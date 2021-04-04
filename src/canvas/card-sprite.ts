@@ -156,7 +156,7 @@ export class CardSprite {
     }
     gl.uniform2fv(translationLocation, sprite.card.position)
     gl.uniform1f(scaleLocation, sprite.card.scale)
-    gl.uniform1f(rotationLocation, sprite.card.rotation)
+    gl.uniform1f(rotationLocation, sprite.card.rotation + sprite.card.addedRotation)
     gl.bindTexture(gl.TEXTURE_2D, sprite.texture);
     gl.drawArrays(gl.TRIANGLES, 0, 6)
   }

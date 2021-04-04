@@ -11,18 +11,12 @@ import { Game } from './Game'
 import { Menu } from './ui/Menu'
 
 class App extends Component<{}, { currentPage: string }> {
+
+  events$: BehaviorSubject<ClientEvent[]> = new BehaviorSubject<ClientEvent[]>([])
+
   constructor(props: {}) {
     super(props)
 
-    this.state = {
-      currentPage: 'menu'
-    }
-  }
-
-  render() {
-    const currentPage = this.state.currentPage
-
-    const events$: BehaviorSubject<ClientEvent[]> = new BehaviorSubject<ClientEvent[]>([])
     const events: ClientEvent[] = [
       {
         event_id: 0,
@@ -47,7 +41,16 @@ class App extends Component<{}, { currentPage: string }> {
       }
     ]
 
-    events$.next(events)
+    this.events$.next(events)
+
+    this.state = {
+      currentPage: 'menu'
+    }
+  }
+
+  render() {
+    const currentPage = this.state.currentPage
+    const events$ = this.events$
 
     return (
       <div id="app">
@@ -61,7 +64,7 @@ class App extends Component<{}, { currentPage: string }> {
           id="klimatkoll-canvas"
           width="960"
           height="540" />
-        <Game events={events$.value} nextEvents={(e: ClientEvent[]) => events$.next(e)} />
+        <Game events$={events$} />
       </div>
     );
   }

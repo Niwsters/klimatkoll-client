@@ -20,6 +20,7 @@ const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not 
 interface TransposeGoal {
   position?: number[]
   rotation?: number
+  addedRotation?: number
   scale?: number
 }
 
@@ -38,18 +39,22 @@ export function transposeCard(
 ): Card {
   const newCard = { ...card }
 
-  if (goal.position) {
+  if (goal.position != undefined) {
     newCard.position = [
       transpose(card.position[0], goal.position[0], timePassed),
       transpose(card.position[1], goal.position[1], timePassed)
     ]
   }
 
-  if (goal.rotation) {
+  if (goal.rotation != undefined) {
     newCard.rotation = transpose(card.rotation, goal.rotation, timePassed)
   }
+
+  if (goal.addedRotation != undefined) {
+    newCard.addedRotation = transpose(card.addedRotation, goal.addedRotation, timePassed)
+  }
   
-  if (goal.scale) {
+  if (goal.scale != undefined) {
     newCard.scale = transpose(card.scale, goal.scale, timePassed)
   }
 
@@ -124,7 +129,14 @@ export class GameState {
           state.cards = state.cards
             .map(c => {
               if (c.id === card_id) {
-                return transposeCard(c, { scale: Card.DEFAULT_SCALE * 2 }, timePassed)
+                return transposeCard(c, {
+                  scale: Card.DEFAULT_SCALE * 2,
+                  position: [
+                    c.position[0],
+                    c.position[1]-130
+                  ],
+                  addedRotation: -c.rotation
+                }, timePassed)
               }
 
               return c
@@ -139,7 +151,14 @@ export class GameState {
           state.cards = state.cards
             .map(c => {
               if (c.id === card_id) {
-                return transposeCard(c, { scale: Card.DEFAULT_SCALE }, timePassed)
+                return transposeCard(c, {
+                  scale: Card.DEFAULT_SCALE,
+                  position: [
+                    c.position[0],
+                    c.position[1]+130
+                  ],
+                  addedRotation: 0
+                }, timePassed)
               }
 
               return c

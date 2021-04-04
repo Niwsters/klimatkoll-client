@@ -9,23 +9,18 @@ import { cards } from './cards'
 import { Mouse } from './ui/mouse'
 
 interface Props {
-  events: ClientEvent[],
-  nextEvents: (e: ClientEvent[]) => void
+  events$: BehaviorSubject<ClientEvent[]>,
 }
 
 export function Game(props: Props) {
-  const events = props.events
-  console.log(events)
-  const nextEvents = props.nextEvents
+  const events$ = props.events$
 
-  const canvasElem = <canvas id="klimatkoll-canvas" width="960" height="540" />
-
+  let i = 0
   Canvas.prepare().then(() => {
     const canvas = new Canvas()
 
     const canvasElem = document.getElementById('klimatkoll-canvas') as HTMLCanvasElement
     if (!canvasElem) throw new Error("Can't find canvas element")
-    let i = 0
     const hoveredCardIDs = new Set<number>();
     canvasElem.onmousemove = (e: MouseEvent) => {
       const elem = e.target as HTMLElement
@@ -33,13 +28,13 @@ export function Game(props: Props) {
       const rect = elem.getBoundingClientRect()
       const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
 
-      const state = GameState.fromEvents(events)
-      let newEvents = [...events]
+      const state = GameState.fromEvents(events$.value)
+      let newEvents = [...events$.value]
       state.cards.forEach((card: Card) => {
         if (Mouse.intersects(card, mousePosition)) {
           // If card not already hovered, add card_hovered event
           if (!hoveredCardIDs.has(card.id)) {
-            events.push({
+            newEvents.push({
               event_id: 99999 + i,
               event_type: "card_hovered",
               payload: {
@@ -54,7 +49,7 @@ export function Game(props: Props) {
         } else {
           // If card is hovered, add card_unhovered event
           if (hoveredCardIDs.has(card.id)) {
-            events.push({
+            newEvents.push({
               event_id: 99999 + i,
               event_type: "card_unhovered",
               payload: {
@@ -69,7 +64,7 @@ export function Game(props: Props) {
         }
       })
 
-      nextEvents(newEvents)
+      events$.next(newEvents)
     }
 
     canvasElem.onclick = (e: MouseEvent) => {
@@ -78,7 +73,7 @@ export function Game(props: Props) {
 
       const card_i = Math.floor(Math.random()*cards.length)
       const newEvents = [
-        ...events,
+        ...events$.value,
         {
           event_id: 99999+i,
           event_type: 'draw_card',
@@ -101,11 +96,11 @@ export function Game(props: Props) {
         */
       ]
       i += 1
-      nextEvents(newEvents)
+      events$.next(newEvents)
     }
 
     setInterval(() => {
-      const state = GameState.fromEvents(events)
+      const state = GameState.fromEvents(events$.value)
       canvas.render(state)
     }, 1000/60)
 
