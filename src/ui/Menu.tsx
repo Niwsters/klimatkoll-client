@@ -39,7 +39,7 @@ export function Menu(props: Props) {
       <button onClick={() => createGame()} className="pink">
         Skapa spel
       </button>
-      <button className="yellow">
+      <button onClick={() => joinGame()} className="yellow">
         Gå med i spel
       </button>
     </div>

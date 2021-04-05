@@ -10,6 +10,7 @@ export interface ClientEvent {
 const WIDTH = 960
 const HEIGHT = 540
 const HAND_POSITION = [WIDTH / 2, HEIGHT+50]
+const OPPONENT_HAND_POSITION = [WIDTH / 2, 0]
 const DECK_POSITION = [702, HEIGHT/2]
 const ANIMATION_DURATION_MS = 200
 const HAND_CARD_ANGLE = Math.PI/5
@@ -66,6 +67,7 @@ export class GameState {
   // containers being actual arrays
   cards: Card[] = []
   isMyTurn: boolean = false
+  socketID: number = -1
 
   static fromEvents(events: ClientEvent[], currentTime: number = Date.now()): GameState {
     return events.reduce((state: GameState, event: ClientEvent) => {
@@ -82,20 +84,26 @@ export class GameState {
           let card = new Card(server_card.id, server_card.name, "hand")
           card.position = DECK_POSITION
           const timePassed = currentTime - event.timestamp
-          card = transposeCard(card, { position: HAND_POSITION }, timePassed)
-          state.cards.push(card)
 
-          // Move all hand cards to their respective positions
-          // forEach instead of map for optimisation reasons
-          const handCards = state.cards.filter((c: Card) => c.container === "hand")
-          handCards.forEach((card: Card, i: number) => {
-            const n = handCards.length - 1
-            const angle = HAND_CARD_ANGLE * (i - n/2)
-            const x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
-            const y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
-            card.position = [x,y]
-            card.rotation = angle * HAND_ANGLE_FACTOR
-          })
+          // If player's card, draw card to player's hand. Otherwise draw to opponents hand.
+          if (event.payload.socketID == state.socketID) {
+            card = transposeCard(card, { position: HAND_POSITION }, timePassed)
+
+            // Move all hand cards to their respective positions
+            // forEach instead of map for optimisation reasons
+            const handCards = state.cards.filter((c: Card) => c.container === "hand")
+            handCards.forEach((card: Card, i: number) => {
+              const n = handCards.length - 1
+              const angle = HAND_CARD_ANGLE * (i - n/2)
+              const x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
+              const y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
+              card.position = [x,y]
+              card.rotation = angle * HAND_ANGLE_FACTOR
+            })
+          } else {
+            card = transposeCard(card, { position: OPPONENT_HAND_POSITION }, timePassed)
+          }
+          state.cards.push(card)
 
           break
         case "return_opponent_hand":
@@ -172,6 +180,10 @@ export class GameState {
           state.cards = state.cards.map((card: Card) => {
             return transposeCard(card, { position: [x, y] }, timePassed)
           })
+          break
+        }
+        case "socket_id": {
+          state.socketID = event.payload.socketID
           break
         }
       }

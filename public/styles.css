@@ -16,7 +16,6 @@ body {
 canvas, #app {
   display: block;
   margin: auto;
-  margin-top: 200px;
 
   width: 960px;
   height: 540px;
@@ -51,4 +50,27 @@ button:hover {
 button:active {
   background: #7c918e;
   color: black;
+}
+
+.notification-container {
+  margin-top: -34px;
+}
+
+.notification {
+  width: 100%;
+  background: #333;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  z-index: 999;
+  margin-top: -34px;
+  width: 960px;
+  transition: margin-top 0.2s;
+}
+
+.notification.show {
+  margin-top: 0;
 }

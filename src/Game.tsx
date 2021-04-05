@@ -103,12 +103,6 @@ export function Game(props: Props) {
       const state = GameState.fromEvents(events$.value)
       canvas.render(state)
     }, 1000/60)
-
-    /*
-    gamestate$.subscribe((state: GameState) => {
-      canvas.render(state)
-    })
-    */
   })
 
   return (
