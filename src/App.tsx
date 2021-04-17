@@ -9,6 +9,7 @@ import { cards } from './cards'
 import { Mouse } from './ui/mouse'
 import { Game } from './Game'
 import { Menu } from './ui/Menu'
+import { DebugConsole } from './devtools/console'
 
 interface ServerEvent {
   event_id: number
@@ -37,6 +38,8 @@ class App extends Component<{}, {
     socket.onopen = (e: Event) => {
       console.log("Socket connected!")
     }
+
+    DebugConsole.setupCommands(this.events$)
 
     socket.onmessage = (e: MessageEvent) => {
       const event = JSON.parse(e.data)
@@ -104,32 +107,6 @@ class App extends Component<{}, {
         }
       }
     }
-
-    const events: ClientEvent[] = [
-      {
-        event_id: 0,
-        event_type: 'waiting_for_players',
-        payload: {},
-        timestamp: Date.now()
-      },
-      {
-        event_id: 1,
-        event_type: 'playing',
-        payload: {},
-        timestamp: Date.now()
-      },
-      {
-        event_id: 2,
-        event_type: 'draw_card',
-        payload: {
-          card: { name: 'bussresa-malmo-chamonix', emissions: 60, id: 7 },
-          socketID: 0,
-        },
-        timestamp: Date.now()
-      }
-    ]
-
-    this.events$.next(events)
 
     this.state = {
       currentPage: 'menu',

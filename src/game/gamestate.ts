@@ -1,4 +1,11 @@
 import { Card } from './card'
+import { Hand, OpponentHand } from './hand'
+import {
+  WIDTH,
+  HEIGHT,
+  DECK_POSITION,
+  ANIMATION_DURATION_MS
+} from './constants'
 
 export interface ClientEvent {
   event_id: number
@@ -6,17 +13,6 @@ export interface ClientEvent {
   payload: any
   timestamp: number
 }
-
-const WIDTH = 960
-const HEIGHT = 540
-const HAND_POSITION = [WIDTH / 2, HEIGHT+50]
-const OPPONENT_HAND_POSITION = [WIDTH / 2, 0]
-const DECK_POSITION = [702, HEIGHT/2]
-const ANIMATION_DURATION_MS = 200
-const HAND_CARD_ANGLE = Math.PI/5
-const HAND_X_RADIUS = 200
-const HAND_Y_RADIUS = 100
-const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
 
 interface TransposeGoal {
   position?: number[]
@@ -80,30 +76,19 @@ export class GameState {
           break
         case "draw_card":
           // { socketID, card }
+          // Draw card into correct hand
           const server_card = event.payload.card
-          let card = new Card(server_card.id, server_card.name, "hand")
-          card.position = DECK_POSITION
           const timePassed = currentTime - event.timestamp
 
-          // If player's card, draw card to player's hand. Otherwise draw to opponents hand.
           if (event.payload.socketID == state.socketID) {
-            card = transposeCard(card, { position: HAND_POSITION }, timePassed)
-
-            // Move all hand cards to their respective positions
-            // forEach instead of map for optimisation reasons
-            const handCards = state.cards.filter((c: Card) => c.container === "hand")
-            handCards.forEach((card: Card, i: number) => {
-              const n = handCards.length - 1
-              const angle = HAND_CARD_ANGLE * (i - n/2)
-              const x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
-              const y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
-              card.position = [x,y]
-              card.rotation = angle * HAND_ANGLE_FACTOR
-            })
+            state.cards.push(new Card(server_card.id, server_card.name, "hand"))
           } else {
-            card = transposeCard(card, { position: OPPONENT_HAND_POSITION }, timePassed)
+            state.cards.push(new Card(server_card.id, server_card.name, "opponent-hand"))
           }
-          state.cards.push(card)
+
+          // Rearrange cards
+          state = Hand.rearrange(state)
+          state = OpponentHand.rearrange(state)
 
           break
         case "return_opponent_hand":
@@ -134,52 +119,17 @@ export class GameState {
           const card_id = event.payload.card_id
           const timePassed = currentTime - event.timestamp
 
-          state.cards = state.cards
-            .map(c => {
-              if (c.id === card_id) {
-                return transposeCard(c, {
-                  scale: Card.DEFAULT_SCALE * 2,
-                  position: [
-                    c.position[0],
-                    c.position[1]-130
-                  ],
-                  addedRotation: -c.rotation
-                }, timePassed)
-              }
-
-              return c
-            })
-
+          state = Hand.rearrange(state, card_id)
           break
         }
         case "card_unhovered": {
           const card_id = event.payload.card_id
           const timePassed = currentTime - event.timestamp
 
-          state.cards = state.cards
-            .map(c => {
-              if (c.id === card_id) {
-                return transposeCard(c, {
-                  scale: Card.DEFAULT_SCALE,
-                  position: [
-                    c.position[0],
-                    c.position[1]+130
-                  ],
-                  addedRotation: 0
-                }, timePassed)
-              }
-
-              return c
-            })
+          state = Hand.rearrange(state)
           break
         }
         case "mouse_clicked": {
-          const x = event.payload.x
-          const y = event.payload.y
-          const timePassed = currentTime - event.timestamp
-          state.cards = state.cards.map((card: Card) => {
-            return transposeCard(card, { position: [x, y] }, timePassed)
-          })
           break
         }
         case "socket_id": {

@@ -1,12 +1,8 @@
 Current
-
-
-
-
-React/UI:
 - Show all them buttonz and inputs
 - Join game
 - Create game
+
 
 Canvas:
 - Render array of cards containing positions, scales and rotations

@@ -1,0 +1,10 @@
+export const WIDTH = 960
+export const HEIGHT = 540
+export const DECK_POSITION = [702, HEIGHT/2]
+export const ANIMATION_DURATION_MS = 200
+export const HAND_POSITION = [WIDTH / 2, HEIGHT+50]
+export const OPPONENT_HAND_POSITION = [WIDTH / 2, 0]
+export const HAND_CARD_ANGLE = Math.PI/5
+export const HAND_X_RADIUS = 200
+export const HAND_Y_RADIUS = 100
+export const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position

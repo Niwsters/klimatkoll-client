@@ -67,6 +67,7 @@ export function Game(props: Props) {
       events$.next(newEvents)
     }
 
+    /*
     canvasElem.onclick = (e: MouseEvent) => {
       const elem = e.target as HTMLElement
       if (!elem) throw new Error("e.target is null")
@@ -74,16 +75,6 @@ export function Game(props: Props) {
       const card_i = Math.floor(Math.random()*cards.length)
       const newEvents = [
         ...events$.value,
-        {
-          event_id: 99999+i,
-          event_type: 'draw_card',
-          payload: {
-            card: cards[card_i],
-            socketID: 0,
-          },
-          timestamp: Date.now()
-        }
-        /*
         {
           event_id: 99999 + i,
           event_type: "mouse_clicked",
@@ -93,11 +84,11 @@ export function Game(props: Props) {
             timestamp: Date.now()
           }
         }
-        */
       ]
       i += 1
       events$.next(newEvents)
     }
+    */
 
     setInterval(() => {
       const state = GameState.fromEvents(events$.value)
