@@ -6,7 +6,7 @@ import { ClientEvent, GameState } from './game/gamestate'
 import { Card } from './game/card'
 import { Canvas } from './canvas/canvas'
 import { cards } from './cards'
-import { Mouse } from './ui/mouse'
+import { Mouse } from './game/mouse'
 
 interface Props {
   events$: BehaviorSubject<ClientEvent[]>,
@@ -67,12 +67,11 @@ export function Game(props: Props) {
       events$.next(newEvents)
     }
 
-    /*
     canvasElem.onclick = (e: MouseEvent) => {
       const elem = e.target as HTMLElement
       if (!elem) throw new Error("e.target is null")
+      const rect = elem.getBoundingClientRect()
 
-      const card_i = Math.floor(Math.random()*cards.length)
       const newEvents = [
         ...events$.value,
         {
@@ -81,14 +80,13 @@ export function Game(props: Props) {
           payload: {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top,
-            timestamp: Date.now()
-          }
+          },
+          timestamp: Date.now()
         }
       ]
       i += 1
       events$.next(newEvents)
     }
-    */
 
     setInterval(() => {
       const state = GameState.fromEvents(events$.value)

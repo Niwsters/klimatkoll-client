@@ -19,6 +19,8 @@ export class CardSprite {
   translationLocation: WebGLUniformLocation
   scaleLocation: WebGLUniformLocation
   rotationLocation: WebGLUniformLocation
+  selectedLocation: WebGLUniformLocation
+  selected: boolean = false
   program: WebGLProgram
   texture: WebGLTexture
   static images = new Map<string, HTMLImageElement>()
@@ -55,6 +57,7 @@ export class CardSprite {
     const scaleLocation = gl.getUniformLocation(program, "u_scale")
     const rotationLocation = gl.getUniformLocation(program, "u_rotation")
     const texCoordLocation = gl.getAttribLocation(program, "a_texcoord")
+    const selectedLocation = gl.getUniformLocation(program, "u_selected")
 
     const positionBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
@@ -115,13 +118,22 @@ export class CardSprite {
     }
     gl.generateMipmap(gl.TEXTURE_2D)
 
-    if (!translationLocation || !scaleLocation || !rotationLocation || !texture) {
+    gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height)
+
+    if (
+      !translationLocation ||
+      !scaleLocation ||
+      !rotationLocation ||
+      !selectedLocation ||
+      !texture
+    ) {
       throw new Error("One or more shader locations are null")
     }
     this.program = program
     this.translationLocation = translationLocation
     this.scaleLocation = scaleLocation
     this.rotationLocation = rotationLocation
+    this.selectedLocation = selectedLocation
     this.texture = texture
   }
 
@@ -147,6 +159,7 @@ export class CardSprite {
     const translationLocation = sprite.translationLocation
     const scaleLocation = sprite.scaleLocation
     const rotationLocation = sprite.rotationLocation
+    const selectedLocation = sprite.selectedLocation
     const program = sprite.program
 
     gl.useProgram(program)
@@ -157,6 +170,7 @@ export class CardSprite {
     gl.uniform2fv(translationLocation, sprite.card.position)
     gl.uniform1f(scaleLocation, sprite.card.scale)
     gl.uniform1f(rotationLocation, sprite.card.rotation + sprite.card.addedRotation)
+    gl.uniform1i(selectedLocation, sprite.selected ? 1 : 0)
     gl.bindTexture(gl.TEXTURE_2D, sprite.texture);
     gl.drawArrays(gl.TRIANGLES, 0, 6)
   }

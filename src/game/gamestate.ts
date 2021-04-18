@@ -21,6 +21,10 @@ export class GameState {
   isMyTurn: boolean = false
   socketID: number = -1
   hoveredCardIDs = new Set<number>()
+  selectedCardID?: number
+  get focusedCardID(): number | undefined {
+    return Array.from(this.hoveredCardIDs)[0]
+  }
 
   static fromEvents(events: ClientEvent[], currentTime: number = Date.now()): GameState {
     return events.reduce((state: GameState, event: ClientEvent) => {
@@ -87,6 +91,9 @@ export class GameState {
           break
         }
         case "mouse_clicked": {
+          if (state.focusedCardID) {
+            state.selectedCardID = state.focusedCardID
+          }
           break
         }
         case "socket_id": {

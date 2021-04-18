@@ -76,6 +76,7 @@ export class Canvas {
         } else {
           // Update card data
           sprite.card = card
+          sprite.selected = state.selectedCardID === card.id
         }
       })
 
