@@ -14,56 +14,13 @@ export interface ClientEvent {
   timestamp: number
 }
 
-interface TransposeGoal {
-  position?: number[]
-  rotation?: number
-  addedRotation?: number
-  scale?: number
-}
-
-function transpose(from: number, to: number, timePassed: number) {
-  if (timePassed > ANIMATION_DURATION_MS) return to
-
-  const fraction = timePassed/ANIMATION_DURATION_MS
-  const mult = 1 - (1 - fraction) ** 2 // easeOutQuad easing function
-  return from + (to - from)*mult
-}
-
-export function transposeCard(
-  card: Card,
-  goal: TransposeGoal,
-  timePassed: number
-): Card {
-  const newCard = { ...card }
-
-  if (goal.position != undefined) {
-    newCard.position = [
-      transpose(card.position[0], goal.position[0], timePassed),
-      transpose(card.position[1], goal.position[1], timePassed)
-    ]
-  }
-
-  if (goal.rotation != undefined) {
-    newCard.rotation = transpose(card.rotation, goal.rotation, timePassed)
-  }
-
-  if (goal.addedRotation != undefined) {
-    newCard.addedRotation = transpose(card.addedRotation, goal.addedRotation, timePassed)
-  }
-  
-  if (goal.scale != undefined) {
-    newCard.scale = transpose(card.scale, goal.scale, timePassed)
-  }
-
-  return newCard
-}
-
 export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
   // containers being actual arrays
   cards: Card[] = []
   isMyTurn: boolean = false
   socketID: number = -1
+  hoveredCardIDs = new Set<number>()
 
   static fromEvents(events: ClientEvent[], currentTime: number = Date.now()): GameState {
     return events.reduce((state: GameState, event: ClientEvent) => {
@@ -87,7 +44,7 @@ export class GameState {
           }
 
           // Rearrange cards
-          state = Hand.rearrange(state)
+          state = Hand.rearrange(state, timePassed)
           state = OpponentHand.rearrange(state)
 
           break
@@ -118,15 +75,15 @@ export class GameState {
         case "card_hovered": {
           const card_id = event.payload.card_id
           const timePassed = currentTime - event.timestamp
-
-          state = Hand.rearrange(state, card_id)
+          state.hoveredCardIDs.add(card_id)
+          state = Hand.rearrange(state, timePassed)
           break
         }
         case "card_unhovered": {
           const card_id = event.payload.card_id
           const timePassed = currentTime - event.timestamp
-
-          state = Hand.rearrange(state)
+          state.hoveredCardIDs.delete(card_id)
+          state = Hand.rearrange(state, timePassed)
           break
         }
         case "mouse_clicked": {

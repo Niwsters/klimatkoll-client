@@ -1,5 +1,5 @@
 import { GameState } from './gamestate'
-import { Card } from './card'
+import { Card, TransposeGoal } from './card'
 import {
   HAND_POSITION,
   OPPONENT_HAND_POSITION,
@@ -12,7 +12,7 @@ import {
 export class Hand {
   static rearrange(
     state: GameState,
-    hoveredCardID: number | null = null
+    timePassed: number
   ): GameState {
     let i = 0
     const n = state.cards.filter(c => c.container == "hand").length - 1
@@ -22,15 +22,22 @@ export class Hand {
       let angle = HAND_CARD_ANGLE * (i - n/2)
       let x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
       let y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
+      let scale = Card.DEFAULT_SCALE
 
-      if (hoveredCardID == card.id) {
-        y = HAND_POSITION[1] - 130
+      const focusedCardID = Array.from(state.hoveredCardIDs)[0]
+      if (focusedCardID == card.id) {
+        y = HAND_POSITION[1] - 230
+        scale = Card.DEFAULT_SCALE * 2
+        angle = 0
       }
 
-      card.position = [x,y]
-      card.rotation = angle * HAND_ANGLE_FACTOR
+      const goal: TransposeGoal = {
+        position: [x,y],
+        rotation: angle * HAND_ANGLE_FACTOR,
+        scale: scale
+      }
       i += 1
-      return card
+      return Card.transpose(card, goal, timePassed)
     })
 
     return state
