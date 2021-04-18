@@ -23,12 +23,14 @@ export class Hand {
       let x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
       let y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
       let scale = Card.DEFAULT_SCALE
+      card.zLevel = 0
 
       const focusedCardID = Array.from(state.hoveredCardIDs)[0]
       if (focusedCardID == card.id) {
         y = HAND_POSITION[1] - 230
         scale = Card.DEFAULT_SCALE * 2
         angle = 0
+        card.zLevel = 999
       }
 
       const goal: TransposeGoal = {

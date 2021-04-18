@@ -12,6 +12,7 @@ export class Card {
   scale: number = Card.DEFAULT_SCALE
   rotation: number = 0
   addedRotation: number = 0
+  zLevel: number = 0
 
   constructor(id: number, name: string, container: "hand" | "opponent-hand" | "emission-line") {
     this.id = id

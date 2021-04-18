@@ -66,20 +66,27 @@ export class Canvas {
 
     // Map new cards to card sprites
     // TODO: Remove unused card sprites
-    state.cards.forEach((card: Card) => {
-      let sprite = cardSprites.find((s: CardSprite) => s.card.id === card.id)
+    state.cards
+      .forEach((card: Card) => {
+        let sprite = cardSprites.find((s: CardSprite) => s.card.id === card.id)
 
-      if (!sprite) {
-        sprite = new CardSprite(gl, card)
-        cardSprites.push(sprite)
-      } else {
-        // Update card data
-        sprite.card = card
-      }
-    })
+        if (!sprite) {
+          sprite = new CardSprite(gl, card)
+          cardSprites.push(sprite)
+        } else {
+          // Update card data
+          sprite.card = card
+        }
+      })
 
-    cardSprites.forEach((sprite: CardSprite) => {
-      CardSprite.render(sprite)
-    })   
+    cardSprites
+      .sort((a,b) => {
+        if (a.card.zLevel < b.card.zLevel) return -1;
+        if (a.card.zLevel > b.card.zLevel) return 1;
+        return 0;
+      })
+      .forEach((sprite: CardSprite) => {
+        CardSprite.render(sprite)
+      })   
   }
 }
