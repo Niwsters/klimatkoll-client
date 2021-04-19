@@ -25,7 +25,7 @@ export class Hand {
       let scale = Card.DEFAULT_SCALE
       card.zLevel = i
 
-      const focusedCardID = state.focusedCardID
+      const focusedCardID = GameState.getFocusedCardID(state)
       if (focusedCardID == card.id) {
         y = HAND_POSITION[1] - 230
         scale = Card.DEFAULT_SCALE * 2

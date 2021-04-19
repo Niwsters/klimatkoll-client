@@ -1,5 +1,6 @@
-import { Card } from './card'
+import { Card, SpaceCard } from './card'
 import { Hand, OpponentHand } from './hand'
+import { EmissionsLine } from './emissions-line'
 import {
   WIDTH,
   HEIGHT,
@@ -17,13 +18,14 @@ export interface ClientEvent {
 export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
   // containers being actual arrays
-  cards: Card[] = []
+  cards: Card[] = []//[new SpaceCard()]
   isMyTurn: boolean = false
   socketID: number = -1
   hoveredCardIDs = new Set<number>()
   selectedCardID?: number
-  get focusedCardID(): number | undefined {
-    return Array.from(this.hoveredCardIDs)[0]
+
+  static getFocusedCardID(state: GameState): number | undefined {
+    return Array.from(state.hoveredCardIDs)[0]
   }
 
   static fromEvents(events: ClientEvent[], currentTime: number = Date.now()): GameState {
@@ -34,8 +36,9 @@ export class GameState {
           break
         case "playing":
           // No payload
+          state.cards.push(new SpaceCard(state))
           break
-        case "draw_card":
+        case "draw_card": {
           // { socketID, card }
           // Draw card into correct hand
           const server_card = event.payload.card
@@ -43,21 +46,25 @@ export class GameState {
 
           if (event.payload.socketID == state.socketID) {
             state.cards.push(new Card(server_card.id, server_card.name, "hand"))
+            state = Hand.rearrange(state, timePassed)
           } else {
             state.cards.push(new Card(server_card.id, server_card.name, "opponent-hand"))
+            state = OpponentHand.rearrange(state)
           }
 
-          // Rearrange cards
-          state = Hand.rearrange(state, timePassed)
-          state = OpponentHand.rearrange(state)
-
           break
+        }
         case "return_opponent_hand":
           // No payload
           break
-        case "card_played_from_deck":
+        case "card_played_from_deck": {
           // { card, position }
+          const serverCard = event.payload.card
+          const timePassed = currentTime - event.timestamp
+          state = EmissionsLine.add(state, new Card(serverCard.id, serverCard.name, "emissions-line"))
+          state = EmissionsLine.rearrange(state, timePassed)
           break
+        }
         case "card_played_from_hand":
           // { socketID, cardID, position }
           break
@@ -81,6 +88,7 @@ export class GameState {
           const timePassed = currentTime - event.timestamp
           state.hoveredCardIDs.add(card_id)
           state = Hand.rearrange(state, timePassed)
+          state = EmissionsLine.rearrange(state, timePassed)
           break
         }
         case "card_unhovered": {
@@ -88,11 +96,17 @@ export class GameState {
           const timePassed = currentTime - event.timestamp
           state.hoveredCardIDs.delete(card_id)
           state = Hand.rearrange(state, timePassed)
+          state = EmissionsLine.rearrange(state, timePassed)
           break
         }
         case "mouse_clicked": {
-          if (state.focusedCardID) {
-            state.selectedCardID = state.focusedCardID
+          const focusedCardID = GameState.getFocusedCardID(state)
+          if (focusedCardID) {
+            const card = state.cards.find(c => c.id === focusedCardID)
+
+            if (card && card.container == "hand") {
+              state.selectedCardID = focusedCardID
+            }
           }
           break
         }

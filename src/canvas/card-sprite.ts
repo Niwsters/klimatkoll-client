@@ -44,7 +44,7 @@ export class CardSprite {
     ]    
     const image = CardSprite.images.get(card.name)
     if (!image) {
-      throw new Error("No card image exists with name " + card.name)
+      throw new Error("No card image exists with name '" + card.name + "'")
     }
 
     const vs = createShader(gl, gl.VERTEX_SHADER, vsSource)
@@ -139,8 +139,9 @@ export class CardSprite {
 
   static prepareImages(): Promise<null> {
     return new Promise((resolve, reject) => {
-      let loadedCardImages = 0
-      cards.forEach((cardData: CardData) => {
+      let loadedCardImages = 0;
+      const cardsToLoad: CardData[] = [...cards, { id: -1, name: "space", emissions: 0 }]
+      cardsToLoad.forEach((cardData: CardData) => {
         const image = new Image()
         image.src = `cards/${cardData.name}-pair.small.png`
         image.onload = () => {

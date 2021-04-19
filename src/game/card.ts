@@ -1,4 +1,5 @@
 import { ANIMATION_DURATION_MS } from './constants'
+import { GameState } from './gamestate'
 
 export class Card {
   static DEFAULT_WIDTH = 445
@@ -14,7 +15,7 @@ export class Card {
   addedRotation: number = 0
   zLevel: number = 0
 
-  constructor(id: number, name: string, container: "hand" | "opponent-hand" | "emission-line") {
+  constructor(id: number, name: string, container: "hand" | "opponent-hand" | "emissions-line") {
     this.id = id
     this.name = name
     this.container = container
@@ -73,4 +74,11 @@ export function transpose(from: number, to: number, timePassed: number) {
   const fraction = timePassed/ANIMATION_DURATION_MS
   const mult = 1 - (1 - fraction) ** 2 // easeOutQuad easing function
   return from + (to - from)*mult
+}
+
+export class SpaceCard extends Card {
+  constructor(state: GameState) {
+    const spaceCardCount = state.cards.filter(c => c.name === "space").length
+    super(-1 - spaceCardCount, "space", "emissions-line")
+  }
 }
