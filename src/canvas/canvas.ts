@@ -33,15 +33,10 @@ const cardSprites: CardSprite[] = []
 export class Canvas {
   gl: WebGLRenderingContext
 
-  constructor() {
-    const canvasID = 'klimatkoll-canvas'
-    const canvas = document.getElementById(canvasID) as HTMLCanvasElement
-
-    if (!canvas) {
-      throw new Error("Can't find canvas element with ID: " + canvasID)
-    }
-
+  constructor(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext("webgl")
+    if (!gl) throw new Error("gl is null")
+    this.gl = gl
 
     if (!gl) {
       throw new Error("Failed to initialize WebGL")
@@ -54,8 +49,8 @@ export class Canvas {
     this.gl = gl
   }
 
-  static prepare() {
-    return CardSprite.prepareImages()
+  prepare(): Promise<null> {
+    return CardSprite.prepareTextures(this.gl)
   }
 
   render(state: GameState) {
@@ -76,7 +71,10 @@ export class Canvas {
         } else {
           // Update card data
           sprite.card = card
-          sprite.selected = state.selectedCardID === card.id
+          const texture = CardSprite.textures.get(card.name)
+          if (!texture) throw new Error("Could not find texture with name '" + card.name + "'")
+          sprite.selected = state.selectedCardID == sprite.card.id
+          sprite.texture = texture
         }
       })
 

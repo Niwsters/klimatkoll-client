@@ -20,10 +20,11 @@ export class CardSprite {
   scaleLocation: WebGLUniformLocation
   rotationLocation: WebGLUniformLocation
   selectedLocation: WebGLUniformLocation
-  selected: boolean = false
+  isSpaceLocation: WebGLUniformLocation
   program: WebGLProgram
   texture: WebGLTexture
-  static images = new Map<string, HTMLImageElement>()
+  selected: boolean = false
+  static textures = new Map<string, WebGLTexture>()
 
   constructor(gl: WebGLRenderingContext, card: Card) {
     this.card = card
@@ -42,9 +43,9 @@ export class CardSprite {
       x2, y1,
       x2, y2,
     ]    
-    const image = CardSprite.images.get(card.name)
-    if (!image) {
-      throw new Error("No card image exists with name '" + card.name + "'")
+    const texture = CardSprite.textures.get(card.name)
+    if (!texture) {
+      throw new Error("No card texture exists with name '" + card.name + "'")
     }
 
     const vs = createShader(gl, gl.VERTEX_SHADER, vsSource)
@@ -58,6 +59,7 @@ export class CardSprite {
     const rotationLocation = gl.getUniformLocation(program, "u_rotation")
     const texCoordLocation = gl.getAttribLocation(program, "a_texcoord")
     const selectedLocation = gl.getUniformLocation(program, "u_selected")
+    const isSpaceLocation = gl.getUniformLocation(program, "u_isspace")
 
     const positionBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
@@ -93,31 +95,6 @@ export class CardSprite {
     gl.enableVertexAttribArray(texCoordLocation)
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0)
 
-    // Create a texture.
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-   
-    // Set the parameters so we can render any size image.
-//    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-//    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-//    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-
-    const ext = (
-      gl.getExtension('EXT_texture_filter_anisotropic') ||
-      gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
-      gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
-    )
-    if (ext){
-      const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-      gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
-    }
-    gl.generateMipmap(gl.TEXTURE_2D)
-
     gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height)
 
     if (
@@ -125,6 +102,7 @@ export class CardSprite {
       !scaleLocation ||
       !rotationLocation ||
       !selectedLocation ||
+      !isSpaceLocation ||
       !texture
     ) {
       throw new Error("One or more shader locations are null")
@@ -134,10 +112,11 @@ export class CardSprite {
     this.scaleLocation = scaleLocation
     this.rotationLocation = rotationLocation
     this.selectedLocation = selectedLocation
+    this.isSpaceLocation = isSpaceLocation
     this.texture = texture
   }
 
-  static prepareImages(): Promise<null> {
+  static prepareTextures(gl: WebGLRenderingContext): Promise<null> {
     return new Promise((resolve, reject) => {
       let loadedCardImages = 0;
       const cardsToLoad: CardData[] = [...cards, { id: -1, name: "space", emissions: 0 }]
@@ -145,7 +124,33 @@ export class CardSprite {
         const image = new Image()
         image.src = `cards/${cardData.name}-pair.small.png`
         image.onload = () => {
-          CardSprite.images.set(cardData.name, image)
+          // Create a texture.
+          const texture = gl.createTexture();
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+         
+          // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+          // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+
+          const ext = (
+            gl.getExtension('EXT_texture_filter_anisotropic') ||
+            gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
+            gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
+          )
+          if (ext){
+            const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+            gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
+          }
+          gl.generateMipmap(gl.TEXTURE_2D)
+
+          if (!texture) throw new Error("texture is null")
+
+          CardSprite.textures.set(cardData.name, texture)
           loadedCardImages++;
           if (loadedCardImages === cards.length) {
             resolve(null)
@@ -161,6 +166,7 @@ export class CardSprite {
     const scaleLocation = sprite.scaleLocation
     const rotationLocation = sprite.rotationLocation
     const selectedLocation = sprite.selectedLocation
+    const isSpaceLocation = sprite.isSpaceLocation
     const program = sprite.program
 
     gl.useProgram(program)
@@ -172,6 +178,7 @@ export class CardSprite {
     gl.uniform1f(scaleLocation, sprite.card.scale)
     gl.uniform1f(rotationLocation, sprite.card.rotation + sprite.card.addedRotation)
     gl.uniform1i(selectedLocation, sprite.selected ? 1 : 0)
+    gl.uniform1i(isSpaceLocation, sprite.card.isSpace ? 1 : 0)
     gl.bindTexture(gl.TEXTURE_2D, sprite.texture);
     gl.drawArrays(gl.TRIANGLES, 0, 6)
   }

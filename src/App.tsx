@@ -23,7 +23,8 @@ const socket = new WebSocket('ws://localhost:4200', 'echo-protocol')
 class App extends Component<{}, {
   currentPage: string,
   notification: string,
-  showNotification: boolean
+  showNotification: boolean,
+  canvasElem?: HTMLCanvasElement
 }> {
 
   events$: BehaviorSubject<ClientEvent[]> = new BehaviorSubject<ClientEvent[]>([])
@@ -151,11 +152,18 @@ class App extends Component<{}, {
     }, 1000)
   }
 
+  componentDidMount() {
+    const canvasElem = document.getElementById("klimatkoll-canvas") as HTMLCanvasElement
+    if (!canvasElem) throw new Error("Element with ID 'klimatkoll-canvas' not found")
+    this.setState({ canvasElem: canvasElem })
+  }
+
   render() {
     const currentPage = this.state.currentPage
     const events$ = this.events$
     const notificationMsg = this.state.notification
     const showNotification = this.state.showNotification
+    const canvasElem = this.state.canvasElem
 
     return (
       <div id="app">
@@ -172,7 +180,7 @@ class App extends Component<{}, {
           id="klimatkoll-canvas"
           width="960"
           height="540" />
-        <Game events$={events$} />
+        <Game canvasElem={canvasElem} events$={events$} />
       </div>
     );
   }

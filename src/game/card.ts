@@ -14,10 +14,12 @@ export class Card {
   rotation: number = 0
   addedRotation: number = 0
   zLevel: number = 0
+  isSpace: boolean = false
 
   constructor(id: number, name: string, container: "hand" | "opponent-hand" | "emissions-line") {
     this.id = id
     this.name = name
+    if (name == "space") this.isSpace = true
     this.container = container
   }
 
