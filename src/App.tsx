@@ -7,7 +7,6 @@ import { Card } from './game/card'
 import { Canvas } from './canvas/canvas'
 import { cards } from './cards'
 import { Mouse } from './game/mouse'
-import { Game } from './Game'
 import { Menu } from './ui/Menu'
 import { DebugConsole } from './devtools/console'
 
@@ -32,6 +31,33 @@ class App extends Component<{}, {
   roomID?: string
   timeout?: ReturnType<typeof setTimeout>
   handledServerEventIDs: Set<number> = new Set<number>()
+  hoveredCardIDs: Set<number> = new Set<number>()
+
+  addServerEvents(events: ServerEvent[]) {
+    const clientEvents = [...this.events$.value]
+
+    events.forEach((e: ServerEvent, i: number) => {
+      if (!this.handledServerEventIDs.has(e.event_id)) {
+        this.handledServerEventIDs.add(e.event_id)
+        clientEvents.push({
+          ...e,
+          event_id: clientEvents.length + i,
+          timestamp: Date.now()
+        })
+      }
+    })
+
+    this.events$.next(clientEvents)
+  }
+
+  addClientEvent(event_type: string, payload: any = {}) {
+    const clientEvents = GameState.addClientEvent(
+      event_type,
+      payload,
+      this.events$.value,
+      Date.now())
+    this.events$.next(clientEvents)
+  }
 
   constructor(props: {}) {
     super(props)
@@ -48,19 +74,7 @@ class App extends Component<{}, {
       switch(event.type) {
         case "socketID": {
           this.socketID = event.payload
-          const clientEvents = [
-            ...this.events$.value,
-            {
-              event_id: this.events$.value.length,
-              event_type: "socket_id",
-              payload: {
-                socketID: this.socketID
-              },
-              timestamp: Date.now()
-            }
-          ]
-          this.events$.next(clientEvents)
-
+          this.addClientEvent("socket_id", { socketID: this.socketID })
           break
         }
         case "room_joined": {
@@ -92,18 +106,7 @@ class App extends Component<{}, {
           break
         }
         case "events": {
-          const clientEvents = [...this.events$.value]
-          event.payload.forEach((e: ServerEvent, i: number) => {
-            if (!this.handledServerEventIDs.has(e.event_id)) {
-              this.handledServerEventIDs.add(e.event_id)
-              clientEvents.push({
-                ...e,
-                event_id: clientEvents.length + i,
-                timestamp: Date.now()
-              })
-            }
-          })
-          this.events$.next(clientEvents)
+          this.addServerEvents(event.payload)
           break
         }
       }
@@ -155,7 +158,45 @@ class App extends Component<{}, {
   componentDidMount() {
     const canvasElem = document.getElementById("klimatkoll-canvas") as HTMLCanvasElement
     if (!canvasElem) throw new Error("Element with ID 'klimatkoll-canvas' not found")
+    canvasElem.onmousemove = (e: MouseEvent) => {
+      const elem = e.target as HTMLElement
+      if (!elem) throw new Error("e.target is null")
+      const rect = elem.getBoundingClientRect()
+      const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
+      const state = GameState.fromEvents(this.events$.value)
+
+      const result = Mouse.onMoved(
+        state,
+        this.hoveredCardIDs,
+        mousePosition,
+        this.events$.value,
+        Date.now())
+
+      const clientEvents = result.clientEvents
+      console.log(clientEvents[clientEvents.length - 1])
+      this.events$.next(result.clientEvents)
+      this.hoveredCardIDs = result.hoveredCardIDs
+    }
+    canvasElem.onclick = (e: MouseEvent) => {
+      const elem = e.target as HTMLElement
+      if (!elem) throw new Error("e.target is null")
+      const rect = elem.getBoundingClientRect()
+      const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
+
+      const state = GameState.fromEvents(this.events$.value)
+      const clientEvents = Mouse.onClicked(state, mousePosition, this.events$.value, Date.now())
+      this.events$.next(clientEvents)
+    }
+
     this.setState({ canvasElem: canvasElem })
+
+    const canvas = new Canvas(canvasElem)
+    canvas.prepare().then(() => {
+      setInterval(() => {
+        const state = GameState.fromEvents(this.events$.value)
+        canvas.render(state)
+      }, 1000/60)
+    })
   }
 
   render() {
@@ -180,7 +221,6 @@ class App extends Component<{}, {
           id="klimatkoll-canvas"
           width="960"
           height="540" />
-        <Game canvasElem={canvasElem} events$={events$} />
       </div>
     );
   }

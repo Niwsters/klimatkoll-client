@@ -21,6 +21,7 @@ export class CardSprite {
   rotationLocation: WebGLUniformLocation
   selectedLocation: WebGLUniformLocation
   isSpaceLocation: WebGLUniformLocation
+  visibleLocation: WebGLUniformLocation
   program: WebGLProgram
   texture: WebGLTexture
   selected: boolean = false
@@ -60,6 +61,7 @@ export class CardSprite {
     const texCoordLocation = gl.getAttribLocation(program, "a_texcoord")
     const selectedLocation = gl.getUniformLocation(program, "u_selected")
     const isSpaceLocation = gl.getUniformLocation(program, "u_isspace")
+    const visibleLocation = gl.getUniformLocation(program, "u_visible")
 
     const positionBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
@@ -103,6 +105,7 @@ export class CardSprite {
       !rotationLocation ||
       !selectedLocation ||
       !isSpaceLocation ||
+      !visibleLocation ||
       !texture
     ) {
       throw new Error("One or more shader locations are null")
@@ -113,6 +116,7 @@ export class CardSprite {
     this.rotationLocation = rotationLocation
     this.selectedLocation = selectedLocation
     this.isSpaceLocation = isSpaceLocation
+    this.visibleLocation = visibleLocation
     this.texture = texture
   }
 
@@ -134,18 +138,12 @@ export class CardSprite {
 
           gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          /*
+          TODO: Currently this filter stuff produces a bunch of errors in WebGL that causes browser and/or computer freeze. Please find the right filters.
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+          */
 
-          const ext = (
-            gl.getExtension('EXT_texture_filter_anisotropic') ||
-            gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
-            gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
-          )
-          if (ext){
-            const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-            gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
-          }
           gl.generateMipmap(gl.TEXTURE_2D)
 
           if (!texture) throw new Error("texture is null")
@@ -167,6 +165,7 @@ export class CardSprite {
     const rotationLocation = sprite.rotationLocation
     const selectedLocation = sprite.selectedLocation
     const isSpaceLocation = sprite.isSpaceLocation
+    const visibleLocation = sprite.visibleLocation
     const program = sprite.program
 
     gl.useProgram(program)
@@ -179,6 +178,7 @@ export class CardSprite {
     gl.uniform1f(rotationLocation, sprite.card.rotation + sprite.card.addedRotation)
     gl.uniform1i(selectedLocation, sprite.selected ? 1 : 0)
     gl.uniform1i(isSpaceLocation, sprite.card.isSpace ? 1 : 0)
+    gl.uniform1i(visibleLocation, sprite.card.visible ? 1 : 0)
     gl.bindTexture(gl.TEXTURE_2D, sprite.texture);
     gl.drawArrays(gl.TRIANGLES, 0, 6)
   }

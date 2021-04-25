@@ -29,8 +29,10 @@ export class EmissionsLine {
       ]
 
       card.zLevel = i
-
+      card.visible = true
       if (card.isSpace) {
+        if (!state.selectedCardID) card.visible = false
+
         card.name = "space"
         const selectedCard = state.cards.find(c => c.id == state.selectedCardID)
         if (selectedCard && GameState.getFocusedCardID(state) == card.id) {

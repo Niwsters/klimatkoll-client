@@ -24,6 +24,23 @@ export class GameState {
   hoveredCardIDs = new Set<number>()
   selectedCardID?: number
 
+  static addClientEvent(
+    event_type: string,
+    payload: any = {},
+    clientEvents: ClientEvent[],
+    currentTime: number
+  ): ClientEvent[] {
+    const lastClientEvent = clientEvents[clientEvents.length - 1]
+    const lastClientEventID = lastClientEvent ? lastClientEvent.event_id : 0
+
+    return [...clientEvents, {
+      event_id: lastClientEventID + 1,
+      event_type: event_type,
+      payload: payload,
+      timestamp: currentTime
+    }]
+  }
+
   static getFocusedCardID(state: GameState): number | undefined {
     return Array.from(state.hoveredCardIDs)[0]
   }

@@ -1,5 +1,6 @@
 import { vec2, mat2 } from 'gl-matrix'
 import { Card } from '../game/card'
+import { ClientEvent, GameState } from './gamestate'
 
 export class Mouse {
   static intersects(card: Card, original_mouse_position: vec2): boolean {
@@ -26,5 +27,73 @@ export class Mouse {
     }
 
     return false
+  }
+
+  static onClicked(
+    state: GameState,
+    mousePosition: vec2,
+    clientEvents: ClientEvent[],
+    currentTime: number
+  ): ClientEvent[] {
+    return GameState.addClientEvent(
+      "mouse_clicked",
+      {
+        x: mousePosition[0],
+        y: mousePosition[1]
+      },
+      clientEvents,
+      currentTime)
+  }
+
+  static onMoved(
+    state: GameState,
+    hoveredCardIDs: Set<number>,
+    mousePosition: vec2,
+    clientEvents: ClientEvent[],
+    currentTime: number
+  ): {
+    clientEvents: ClientEvent[],
+    hoveredCardIDs: Set<number>
+  } {
+    clientEvents = [...clientEvents]
+    state.cards.forEach((card: Card) => {
+      if (Mouse.intersects(card, mousePosition)) {
+        // If card not already hovered, add card_hovered event
+        if (!hoveredCardIDs.has(card.id)) {
+
+          // If hand card is selected, ignore non-space cards
+          if (state.selectedCardID) {
+            if (card.container == "emissions-line" && !card.isSpace) return
+          // Else, ignore space cards
+          } else {
+            if (card.container == "emissions-line" && card.isSpace) return
+          }
+
+          clientEvents = GameState.addClientEvent(
+            "card_hovered",
+            { card_id: card.id },
+            clientEvents,
+            currentTime)
+        }
+
+        hoveredCardIDs.add(card.id)
+      } else {
+        // If card is hovered, add card_unhovered event
+        if (hoveredCardIDs.has(card.id)) {
+          clientEvents = GameState.addClientEvent(
+            "card_unhovered",
+            { card_id: card.id },
+            clientEvents,
+            currentTime)
+        }
+
+        hoveredCardIDs.delete(card.id)
+      }
+    })
+
+    return {
+      clientEvents: clientEvents,
+      hoveredCardIDs: hoveredCardIDs
+    }
   }
 }

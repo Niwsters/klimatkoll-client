@@ -15,6 +15,7 @@ export class Card {
   addedRotation: number = 0
   zLevel: number = 0
   isSpace: boolean = false
+  visible: boolean = true
 
   constructor(id: number, name: string, container: "hand" | "opponent-hand" | "emissions-line") {
     this.id = id

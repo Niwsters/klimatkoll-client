@@ -4,6 +4,7 @@ precision mediump float;
 uniform sampler2D u_texture;
 uniform bool u_selected;
 uniform bool u_isspace;
+uniform bool u_visible;
 
 varying vec2 v_texcoord;
 
@@ -11,6 +12,12 @@ vec2 CARD_SIZE = vec2(445, 656);
 vec2 TEXTURE_SIZE = vec2(1024, 1024);
 
 void main() {
+  if (u_visible == false)
+  {
+    gl_FragColor = vec4(0.0);
+    return;
+  }
+
   vec4 color = texture2D(u_texture, v_texcoord);
 
   vec2 uv = v_texcoord * TEXTURE_SIZE;
