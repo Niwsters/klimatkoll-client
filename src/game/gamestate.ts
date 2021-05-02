@@ -8,6 +8,18 @@ import {
   ANIMATION_DURATION_MS
 } from './constants'
 
+export interface ServerEvent {
+  event_id: number
+  event_type: string
+  payload: any
+}
+
+export interface ServerCommand {
+  context: string
+  type: string
+  payload: any
+}
+
 export interface ClientEvent {
   event_id: number
   event_type: string
@@ -15,20 +27,27 @@ export interface ClientEvent {
   timestamp: number
 }
 
+// Command represents user/client input, defined by the server and client events it generates
+export interface Command {
+  serverCommand?: ServerCommand
+  clientEvents: ClientEvent[]
+}
+
 export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
   // containers being actual arrays
-  cards: Card[] = []//[new SpaceCard()]
+  cards: Card[] = []
+  emissionsLineCardOrder: number[] = []
   isMyTurn: boolean = false
   socketID: number = -1
   hoveredCardIDs = new Set<number>()
   selectedCardID?: number
 
   static addClientEvent(
-    event_type: string,
-    payload: any = {},
     clientEvents: ClientEvent[],
-    currentTime: number
+    currentTime: number,
+    event_type: string,
+    payload: any = {}
   ): ClientEvent[] {
     const lastClientEvent = clientEvents[clientEvents.length - 1]
     const lastClientEventID = lastClientEvent ? lastClientEvent.event_id : 0
@@ -41,25 +60,78 @@ export class GameState {
     }]
   }
 
+  static newCommand(
+    state: GameState,
+    clientEvents: ClientEvent[],
+    currentTime: number,
+    event_type: string,
+    payload: any = {}
+  ): Command {
+    clientEvents = [...clientEvents]
+    let serverCommand: ServerCommand | undefined
+
+    const addCE = (): ClientEvent[] => GameState.addClientEvent(
+        clientEvents,
+        currentTime,
+        event_type,
+        payload)
+
+    switch(event_type) {
+      case "mouse_clicked": {
+        clientEvents = addCE()
+
+        const focusedCard = GameState.getFocusedCard(state)
+        if (state.isMyTurn && state.selectedCardID && focusedCard && focusedCard.isSpace) {
+          const position = state.emissionsLineCardOrder.findIndex(cardID => focusedCard.id === cardID)
+          serverCommand = {
+            context: "game",
+            type: "card_played_from_hand",
+            payload: {
+              cardID: state.selectedCardID,
+              position: position
+            }
+          }
+        }
+      }
+    }
+
+    return {
+      clientEvents: clientEvents,
+      serverCommand: serverCommand
+    }
+  }
+
   static getFocusedCardID(state: GameState): number | undefined {
     return Array.from(state.hoveredCardIDs)[0]
   }
 
+  static getFocusedCard(state: GameState): Card | undefined {
+    const id = GameState.getFocusedCardID(state)
+    return state.cards.find(c => c.id == id)
+  }
+
+
+  static getSelectedCard(state: GameState): Card | undefined {
+    return state.cards.find(c => c.id == state.selectedCardID)
+  }
+
   static fromEvents(events: ClientEvent[], currentTime: number = Date.now()): GameState {
     return events.reduce((state: GameState, event: ClientEvent) => {
+      const timePassed = currentTime - event.timestamp
       switch(event.event_type) {
         case "waiting_for_players":
           // No payload
           break
         case "playing":
           // No payload
-          state.cards.push(new SpaceCard(state))
+          const sc = new SpaceCard(state)
+          state.cards.push(sc)
+          state.emissionsLineCardOrder.push(sc.id)
           break
         case "draw_card": {
           // { socketID, card }
           // Draw card into correct hand
           const server_card = event.payload.card
-          const timePassed = currentTime - event.timestamp
 
           if (event.payload.socketID == state.socketID) {
             state.cards.push(new Card(server_card.id, server_card.name, "hand"))
@@ -77,19 +149,56 @@ export class GameState {
         case "card_played_from_deck": {
           // { card, position }
           const serverCard = event.payload.card
-          const timePassed = currentTime - event.timestamp
-          state = EmissionsLine.add(state, new Card(serverCard.id, serverCard.name, "emissions-line"))
+          state = EmissionsLine.add(
+            state,
+            new Card(serverCard.id, serverCard.name, "emissions-line"),
+            1)
           state = EmissionsLine.rearrange(state, timePassed)
           break
         }
         case "card_played_from_hand":
           // { socketID, cardID, position }
+          // Move card to emissions line
+          const playedCard = state.cards.find(c => c.id == event.payload.cardID)
+          const position = event.payload.position+1
+          if (!playedCard) {
+            throw new Error("Played card does not exist with ID: " + event.payload.cardID)
+          }
+          state.selectedCardID = undefined
+          const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
+          movedCard.position = playedCard.position
+          state.cards = state.cards.filter(c => c !== playedCard)
+          state = EmissionsLine.add(state, movedCard, position)
+          state = EmissionsLine.rearrange(state, timePassed)
+          state = Hand.rearrange(state, timePassed)
+
+          /*
+          const spaceCard = new SpaceCard(state)
+          let i = 0;
+          state.cards = state.cards.reduce((cards: Card[], card: Card) => {
+            if (c.container != "emissions-line") return [...cards, c];
+
+            if (i === position) {
+              i += 1
+              return [...cards, c, movedCard, spaceCard]
+            }
+
+            i += 1
+            return [...cards, c];
+          }, [])
+          */
+
           break
         case "incorrect_card_placement":
           // { cardID, socketID }
           break
         case "player_turn":
           // { socketID }
+          if (state.socketID === event.payload.socketID) {
+            state.isMyTurn = true
+          } else {
+            state.isMyTurn = false
+          }
           break
         case "game_won":
           // { socketID }
@@ -102,7 +211,6 @@ export class GameState {
           break
         case "card_hovered": {
           const card_id = event.payload.card_id
-          const timePassed = currentTime - event.timestamp
           state.hoveredCardIDs.add(card_id)
           state = Hand.rearrange(state, timePassed)
           state = EmissionsLine.rearrange(state, timePassed)
@@ -110,7 +218,6 @@ export class GameState {
         }
         case "card_unhovered": {
           const card_id = event.payload.card_id
-          const timePassed = currentTime - event.timestamp
           state.hoveredCardIDs.delete(card_id)
           state = Hand.rearrange(state, timePassed)
           state = EmissionsLine.rearrange(state, timePassed)

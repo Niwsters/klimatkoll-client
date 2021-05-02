@@ -16,67 +16,61 @@ export class EmissionsLine {
     const cardCount = state.cards.filter(c => c.container === "emissions-line").length
     const startOffset = 0 - cardWidth*cardCount/4 - cardWidth/4
 
-    let i = 0
     state.cards = state.cards.map((card: Card) => {
       if (card.container != "emissions-line") return card;
 
-      const goal: TransposeGoal = {}
+      const elPosition = state.emissionsLineCardOrder.findIndex(cardID => cardID === card.id)
+      if (elPosition > -1) {
+        const i = elPosition
 
-      goal.scale = Card.DEFAULT_SCALE
-      goal.position = [
-        EMISSIONS_LINE_POSITION[0] + startOffset + cardWidth/2 * (i+1),
-        EMISSIONS_LINE_POSITION[1]
-      ]
+        const goal: TransposeGoal = {}
 
-      card.zLevel = i
-      card.visible = true
-      if (card.isSpace) {
-        if (!state.selectedCardID) card.visible = false
+        goal.scale = Card.DEFAULT_SCALE
+        goal.position = [
+          EMISSIONS_LINE_POSITION[0] + startOffset + cardWidth/2 * (i+1),
+          EMISSIONS_LINE_POSITION[1]
+        ]
 
-        card.name = "space"
-        const selectedCard = state.cards.find(c => c.id == state.selectedCardID)
-        if (selectedCard && GameState.getFocusedCardID(state) == card.id) {
-          card.name = selectedCard.name
+        card.zLevel = i
+        card.visible = true
+        if (card.isSpace) {
+          if (!state.selectedCardID) card.visible = false
+
+          card.name = "space"
+          const selectedCard = state.cards.find(c => c.id == state.selectedCardID)
+          if (selectedCard && GameState.getFocusedCardID(state) == card.id) {
+            card.name = selectedCard.name
+          }
+        } else {
+          if (!state.selectedCardID && GameState.getFocusedCardID(state) == card.id) {
+            goal.scale = Card.DEFAULT_SCALE * 2
+            card.zLevel = 999
+          }
         }
-      } else {
-        if (!state.selectedCardID && GameState.getFocusedCardID(state) == card.id) {
-          goal.scale = Card.DEFAULT_SCALE * 2
-          card.zLevel = 999
-        }
+
+        return Card.transpose(card, goal, timePassed)
       }
 
-      i += 1
-      return Card.transpose(card, goal, timePassed)
+      return card;
     })
 
     return state
   }
 
   static add(state: GameState, card: Card, position: number = 0): GameState {
+    state = {...state}
     const spaceCard = new SpaceCard(state)
+    state.cards.push(card)
+    state.cards.push(spaceCard)
+    const cardOrder: number[] = state.emissionsLineCardOrder
 
-    if (state.cards.filter(c => c.container === "emissions-line").length == 0) {
-      return {
-        ...state,
-        cards: [...state.cards, card, spaceCard]
-      }
-    }
+    state.emissionsLineCardOrder = [
+      ...cardOrder.slice(0, position),
+      card.id,
+      spaceCard.id,
+      ...cardOrder.slice(position, cardOrder.length)
+    ]
 
-    let i = 0;
-    state.cards = state.cards.reduce((cards: Card[], c: Card) => {
-      if (c.container != "emissions-line") return [...cards, c];
-
-      if (i === position) {
-        i += 1
-        return [...cards, c, card, spaceCard]
-      }
-
-      i += 1
-      return [...cards, c];
-    }, [])
-
-    return {
-      ...state
-    }
+    return state
   }
 }

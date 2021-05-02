@@ -1,6 +1,6 @@
 import { vec2, mat2 } from 'gl-matrix'
 import { Card } from '../game/card'
-import { ClientEvent, GameState } from './gamestate'
+import { ClientEvent, Command, GameState } from './gamestate'
 
 export class Mouse {
   static intersects(card: Card, original_mouse_position: vec2): boolean {
@@ -34,15 +34,16 @@ export class Mouse {
     mousePosition: vec2,
     clientEvents: ClientEvent[],
     currentTime: number
-  ): ClientEvent[] {
-    return GameState.addClientEvent(
+  ): Command {
+    return GameState.newCommand(
+      state,
+      clientEvents,
+      currentTime,
       "mouse_clicked",
       {
         x: mousePosition[0],
         y: mousePosition[1]
-      },
-      clientEvents,
-      currentTime)
+      })
   }
 
   static onMoved(
@@ -63,17 +64,17 @@ export class Mouse {
 
           // If hand card is selected, ignore non-space cards
           if (state.selectedCardID) {
-            if (card.container == "emissions-line" && !card.isSpace) return
+            if (card.container === "emissions-line" && !card.isSpace) return
           // Else, ignore space cards
           } else {
-            if (card.container == "emissions-line" && card.isSpace) return
+            if (card.container === "emissions-line" && card.isSpace) return
           }
 
           clientEvents = GameState.addClientEvent(
-            "card_hovered",
-            { card_id: card.id },
             clientEvents,
-            currentTime)
+            currentTime,
+            "card_hovered",
+            { card_id: card.id })
         }
 
         hoveredCardIDs.add(card.id)
@@ -81,10 +82,10 @@ export class Mouse {
         // If card is hovered, add card_unhovered event
         if (hoveredCardIDs.has(card.id)) {
           clientEvents = GameState.addClientEvent(
-            "card_unhovered",
-            { card_id: card.id },
             clientEvents,
-            currentTime)
+            currentTime,
+            "card_unhovered",
+            { card_id: card.id })
         }
 
         hoveredCardIDs.delete(card.id)

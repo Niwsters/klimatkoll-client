@@ -2,19 +2,13 @@ import React, { Component } from 'react'
 import { BehaviorSubject } from 'rxjs'
 import { vec2 } from 'gl-matrix'
 
-import { ClientEvent, GameState } from './game/gamestate'
+import { ClientEvent, ServerEvent, ServerCommand, GameState } from './game/gamestate'
 import { Card } from './game/card'
 import { Canvas } from './canvas/canvas'
 import { cards } from './cards'
 import { Mouse } from './game/mouse'
 import { Menu } from './ui/Menu'
 import { DebugConsole } from './devtools/console'
-
-interface ServerEvent {
-  event_id: number
-  event_type: string
-  payload: any
-}
 
 // Initialise outside constructor to avoid reconnecting socket due to ReactJS stuff
 const socket = new WebSocket('ws://localhost:4200', 'echo-protocol')
@@ -52,10 +46,10 @@ class App extends Component<{}, {
 
   addClientEvent(event_type: string, payload: any = {}) {
     const clientEvents = GameState.addClientEvent(
-      event_type,
-      payload,
       this.events$.value,
-      Date.now())
+      Date.now(),
+      event_type,
+      payload)
     this.events$.next(clientEvents)
   }
 
@@ -119,12 +113,12 @@ class App extends Component<{}, {
     }
   }
 
-  sendToSocket(data: Object) {
-    socket.send(JSON.stringify(data))
+  sendCommand(command: ServerCommand) {
+    socket.send(JSON.stringify(command))
   }
 
   joinGame(roomID: string) {
-    this.sendToSocket({
+    this.sendCommand({
       "context": "menu",
       "type": "join_game",
       "payload": {
@@ -134,7 +128,7 @@ class App extends Component<{}, {
   }
 
   createGame(roomID: string) {
-    this.sendToSocket({
+    this.sendCommand({
       "context": "menu",
       "type": "create_game",
       "payload": {
@@ -172,8 +166,6 @@ class App extends Component<{}, {
         this.events$.value,
         Date.now())
 
-      const clientEvents = result.clientEvents
-      console.log(clientEvents[clientEvents.length - 1])
       this.events$.next(result.clientEvents)
       this.hoveredCardIDs = result.hoveredCardIDs
     }
@@ -184,8 +176,11 @@ class App extends Component<{}, {
       const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
 
       const state = GameState.fromEvents(this.events$.value)
-      const clientEvents = Mouse.onClicked(state, mousePosition, this.events$.value, Date.now())
-      this.events$.next(clientEvents)
+      const command = Mouse.onClicked(state, mousePosition, this.events$.value, Date.now())
+      this.events$.next(command.clientEvents)
+      if (command.serverCommand) {
+        this.sendCommand(command.serverCommand)
+      }
     }
 
     this.setState({ canvasElem: canvasElem })
