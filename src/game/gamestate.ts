@@ -27,67 +27,6 @@ export class GameState {
   hoveredCardIDs = new Set<number>()
   selectedCardID?: number
 
-  /*
-  static addEvent(
-    clientEvents: Event[],
-    currentTime: number,
-    event_type: string,
-    payload: any = {}
-  ): Event[] {
-    const lastEvent = clientEvents[clientEvents.length - 1]
-    const lastEventID = lastEvent ? lastEvent.event_id : 0
-
-    return [...clientEvents, {
-      event_id: lastEventID + 1,
-      event_type: event_type,
-      payload: payload,
-      timestamp: currentTime
-    }]
-  }
-
-  static newCommand(
-    state: GameState,
-    clientEvents: Event[],
-    currentTime: number,
-    event_type: string,
-    payload: any = {}
-  ): void {//Command {
-    /*
-    clientEvents = [...clientEvents]
-    let serverCommand: ServerCommand | undefined
-
-    const addCE = (): Event[] => GameState.addEvent(
-        clientEvents,
-        currentTime,
-        event_type,
-        payload)
-
-    switch(event_type) {
-      case "mouse_clicked": {
-        clientEvents = addCE()
-
-        const focusedCard = GameState.getFocusedCard(state)
-        if (state.isMyTurn && state.selectedCardID && focusedCard && focusedCard.isSpace) {
-          const position = state.emissionsLineCardOrder.findIndex(cardID => focusedCard.id === cardID)
-          serverCommand = {
-            context: "game",
-            type: "card_played_from_hand",
-            payload: {
-              cardID: state.selectedCardID,
-              position: position
-            }
-          }
-        }
-      }
-    }
-
-    return {
-      clientEvents: clientEvents,
-      serverCommand: serverCommand
-    }
-  }
-  */
-
   static getFocusedCardID(state: GameState): number | undefined {
     return Array.from(state.hoveredCardIDs)[0]
   }
@@ -100,6 +39,16 @@ export class GameState {
 
   static getSelectedCard(state: GameState): Card | undefined {
     return state.cards.find(c => c.id == state.selectedCardID)
+  }
+
+  static updateCards(state: GameState, updated: Card[]): GameState {
+    state.cards = state.cards.map(card => {
+      const updatedCard = updated.find(c => c.id === card.id)
+
+      return updatedCard ? updatedCard : card
+    })
+
+    return state
   }
 
   static fromEvents(events: Event[], currentTime: number = Date.now()): GameState {

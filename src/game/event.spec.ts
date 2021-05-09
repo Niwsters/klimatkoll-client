@@ -40,18 +40,6 @@ describe('Event', () => {
     })
   })
 
-  describe('pipe()', () => {
-    it('adds pipes to builder', () => {
-      const func = (events: Event[]) => events.filter(e => event.type == "test")
-
-      const builder = Event
-        .from(streams$)
-        .pipe(func)
-
-      expect(builder.pipes).toEqual([func])
-    })
-  })
-
   describe('get()', () => {
     it('merges Event and Event streams', () => {
       const result = Event
@@ -133,21 +121,6 @@ describe('Event', () => {
 
       expect(result).toEqual(expected)
     })
-
-    it('pipes streams', () => {
-      const func = (events: Event[]) => events.filter(e => e.event_type == "test")
-
-      const events = Event
-        .from(streams$)
-        .pipe(func)
-        .get()
-
-      const expected = serverEvents$.value.map((event, i) => {
-        return { ...event, event_id: i }
-      })
-
-      expect(events).toEqual(expected)
-    })
   })
 
   describe('observable()', () => {
@@ -179,75 +152,6 @@ describe('Event', () => {
         ...expected,
         newEvent
       ])
-    })
-
-    it('pipes streams', () => {
-      const func = (events: Event[]) => events.filter(e => e.event_type == "test")
-
-      let result: Event[] | undefined
-      const builder = Event
-        .from(streams$)
-        .pipe(func)
-
-      const obs = builder
-        .observable()
-        .subscribe((events: Event[]) => result = events)
-
-      const expected = builder.get()
-
-      expect(result).toEqual(expected)
-
-      const newEvent = {
-        event_id: 3,
-        event_type: "test",
-        payload: { blargh: "honk" },
-        timestamp: 20.0
-      }
-      serverEvents$.next([
-        ...serverEvents$.value,
-        newEvent
-      ])
-
-      expect(result).toEqual([
-        ...expected,
-        { ...newEvent, event_id: 1 }
-      ])
-
-    })
-  })
-
-  describe('on()', () => {
-    it('replaces given event type with events returned from pipe', () => {
-      const newEvents = [
-        {
-          event_id: 3,
-          event_type: "test3",
-          payload: { blargh: "honk" },
-          timestamp: 20.0
-        },
-        {
-          event_id: 7,
-          event_type: "test3",
-          payload: { blargh: "honk" },
-          timestamp: 23.1
-        }
-      ]
-
-      const func = (event: Event) => newEvents
-
-      const result = Event
-        .from(streams$)
-        .on('test', func)
-        .get()
-
-      const expected = [
-        ...commands$.value,
-        ...newEvents
-      ].map((event, i) => {
-        return { ...event, event_id: i }
-      })
-
-      expect(result).toEqual(expected)
     })
   })
 })

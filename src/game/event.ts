@@ -17,25 +17,6 @@ export class EventBuilder {
     this.streams$ = streams$
   }
 
-  pipe(func: (events: Event[]) => Event[]): EventBuilder {
-    this.pipes.push(func)
-
-    return this
-  }
-
-  on(type: string, func: (event: Event) => Event[]): EventBuilder {
-    return this.pipe((events: Event[]) => {
-      return events.reduce((events: Event[], event: Event) => {
-        if (event.event_type !== type) return [...events, event];
-
-        return [
-          ...events,
-          ...func(event)
-        ]
-      }, [])
-    })
-  }
-
   get(): Event[] {
     let events: Event[] = this.streams$
       .reduce((events: Event[], stream$: BehaviorSubject<Event[]>) => {
