@@ -12,49 +12,41 @@ export class EmissionsLine {
   ): GameState {
     state = {...state}
 
+    let elCards = state.cards.filter(c => c.container === "emissions-line")
+    const cardCount = elCards.length
     const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
-    const cardCount = state.cards.filter(c => c.container === "emissions-line").length
     const startOffset = 0 - cardWidth*cardCount/4 - cardWidth/4
 
-    state.cards = state.cards.map((card: Card) => {
-      if (card.container != "emissions-line") return card;
+    elCards = elCards.map((card: Card, i: number) => {
+      const goal: TransposeGoal = {}
 
-      const elPosition = state.emissionsLineCardOrder.findIndex(cardID => cardID === card.id)
-      if (elPosition > -1) {
-        const i = elPosition
+      goal.scale = Card.DEFAULT_SCALE
+      goal.position = [
+        EMISSIONS_LINE_POSITION[0] + startOffset + cardWidth/2 * (i+1),
+        EMISSIONS_LINE_POSITION[1]
+      ]
 
-        const goal: TransposeGoal = {}
+      card.zLevel = i
+      card.visible = true
+      if (card.isSpace) {
+        if (!state.selectedCardID) card.visible = false
 
-        goal.scale = Card.DEFAULT_SCALE
-        goal.position = [
-          EMISSIONS_LINE_POSITION[0] + startOffset + cardWidth/2 * (i+1),
-          EMISSIONS_LINE_POSITION[1]
-        ]
-
-        card.zLevel = i
-        card.visible = true
-        if (card.isSpace) {
-          if (!state.selectedCardID) card.visible = false
-
-          card.name = "space"
-          const selectedCard = state.cards.find(c => c.id == state.selectedCardID)
-          if (selectedCard && GameState.getFocusedCardID(state) == card.id) {
-            card.name = selectedCard.name
-          }
-        } else {
-          if (!state.selectedCardID && GameState.getFocusedCardID(state) == card.id) {
-            goal.scale = Card.DEFAULT_SCALE * 2
-            card.zLevel = 999
-          }
+        card.name = "space"
+        const selectedCard = state.cards.find(c => c.id == state.selectedCardID)
+        if (selectedCard && GameState.getFocusedCardID(state) == card.id) {
+          card.name = selectedCard.name
         }
-
-        return Card.transpose(card, goal, timePassed)
+      } else {
+        if (!state.selectedCardID && GameState.getFocusedCardID(state) == card.id) {
+          goal.scale = Card.DEFAULT_SCALE * 2
+          card.zLevel = 999
+        }
       }
 
-      return card;
+      return Card.transpose(card, goal, timePassed)
     })
 
-    return state
+    return GameState.updateCards(state, elCards)
   }
 
   static add(state: GameState, card: Card, position: number = 0): GameState {
