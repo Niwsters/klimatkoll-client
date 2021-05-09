@@ -1,6 +1,6 @@
 import { Observable, BehaviorSubject } from 'rxjs'
 import { merge } from 'rxjs/operators'
-import { Card, SpaceCard } from './card'
+import { Card, SpaceCard, TransposeGoal } from './card'
 import { Hand, OpponentHand } from './hand'
 import { EmissionsLine } from './emissions-line'
 import { Event } from './event'
@@ -8,7 +8,8 @@ import {
   WIDTH,
   HEIGHT,
   DECK_POSITION,
-  ANIMATION_DURATION_MS
+  ANIMATION_DURATION_MS,
+  DISCARD_PILE_POSITION
 } from './constants'
 
 export interface ServerCommand {
@@ -39,6 +40,27 @@ export class GameState {
 
   static getSelectedCard(state: GameState): Card | undefined {
     return state.cards.find(c => c.id == state.selectedCardID)
+  }
+
+  static incorrectCardPlacement(state: GameState, event: Event, timePassed: number): GameState {
+    state =  { ...state }
+
+    const card = state.cards.find(c => c.id === event.payload.cardID)
+
+    const goal: TransposeGoal = {
+      position: DISCARD_PILE_POSITION
+    }
+
+    state.cards = state.cards.map(card => {
+      if (card.id !== event.payload.cardID) return card
+
+      return Card.transpose({
+        ...card,
+        container: "discard-pile"
+      }, goal, timePassed)
+    })
+
+    return state
   }
 
   static updateCards(state: GameState, updated: Card[]): GameState {
@@ -125,9 +147,11 @@ export class GameState {
           */
 
           break
-        case "incorrect_card_placement":
+        case "incorrect_card_placement": {
           // { cardID, socketID }
+          state = GameState.incorrectCardPlacement(state, event, timePassed)
           break
+        }
         case "player_turn":
           // { socketID }
           if (state.socketID === event.payload.socketID) {

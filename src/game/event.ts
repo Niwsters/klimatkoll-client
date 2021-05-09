@@ -9,7 +9,6 @@ export interface ServerEvent {
 
 export class EventBuilder {
   streams$: BehaviorSubject<Event[]>[]
-  pipes: ((events: Event[]) => Event[])[] = []
 
   constructor(
     streams$: BehaviorSubject<Event[]>[]
@@ -18,16 +17,13 @@ export class EventBuilder {
   }
 
   get(): Event[] {
-    let events: Event[] = this.streams$
+    return this.streams$
       .reduce((events: Event[], stream$: BehaviorSubject<Event[]>) => {
         return [
           ...events,
           ...stream$.value
         ]
       }, [])
-
-    return this.pipes
-      .reduce((events, pipe) => pipe(events), events)
       .sort((a: Event, b: Event) => (a.event_id || 0) - (b.event_id || 0))
       .sort((a: Event, b: Event) => a.timestamp - b.timestamp)
       .map((event: Event, i: number) => {
@@ -56,8 +52,6 @@ export class EventBuilder {
       const bs$ = new BehaviorSubject(events)
       let builder = Event
         .from([bs$])
-
-      this.pipes.forEach(pipe => builder = builder.pipe(pipe))
 
       return builder.get()
     }))

@@ -10,3 +10,4 @@ export const HAND_Y_RADIUS = 100
 export const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
 export const EMISSIONS_LINE_POSITION = [WIDTH/2, HEIGHT/2]
 export const EMISSIONS_LINE_MAX_LENGTH = 200
+export const DISCARD_PILE_POSITION = [WIDTH-100, HEIGHT/2]
