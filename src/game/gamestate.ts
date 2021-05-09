@@ -1,6 +1,9 @@
+import { Observable, BehaviorSubject } from 'rxjs'
+import { merge } from 'rxjs/operators'
 import { Card, SpaceCard } from './card'
 import { Hand, OpponentHand } from './hand'
 import { EmissionsLine } from './emissions-line'
+import { Event } from './event'
 import {
   WIDTH,
   HEIGHT,
@@ -8,29 +11,10 @@ import {
   ANIMATION_DURATION_MS
 } from './constants'
 
-export interface ServerEvent {
-  event_id: number
-  event_type: string
-  payload: any
-}
-
 export interface ServerCommand {
   context: string
   type: string
   payload: any
-}
-
-export interface ClientEvent {
-  event_id: number
-  event_type: string
-  payload: any
-  timestamp: number
-}
-
-// Command represents user/client input, defined by the server and client events it generates
-export interface Command {
-  serverCommand?: ServerCommand
-  clientEvents: ClientEvent[]
 }
 
 export class GameState {
@@ -43,17 +27,18 @@ export class GameState {
   hoveredCardIDs = new Set<number>()
   selectedCardID?: number
 
-  static addClientEvent(
-    clientEvents: ClientEvent[],
+  /*
+  static addEvent(
+    clientEvents: Event[],
     currentTime: number,
     event_type: string,
     payload: any = {}
-  ): ClientEvent[] {
-    const lastClientEvent = clientEvents[clientEvents.length - 1]
-    const lastClientEventID = lastClientEvent ? lastClientEvent.event_id : 0
+  ): Event[] {
+    const lastEvent = clientEvents[clientEvents.length - 1]
+    const lastEventID = lastEvent ? lastEvent.event_id : 0
 
     return [...clientEvents, {
-      event_id: lastClientEventID + 1,
+      event_id: lastEventID + 1,
       event_type: event_type,
       payload: payload,
       timestamp: currentTime
@@ -62,15 +47,16 @@ export class GameState {
 
   static newCommand(
     state: GameState,
-    clientEvents: ClientEvent[],
+    clientEvents: Event[],
     currentTime: number,
     event_type: string,
     payload: any = {}
-  ): Command {
+  ): void {//Command {
+    /*
     clientEvents = [...clientEvents]
     let serverCommand: ServerCommand | undefined
 
-    const addCE = (): ClientEvent[] => GameState.addClientEvent(
+    const addCE = (): Event[] => GameState.addEvent(
         clientEvents,
         currentTime,
         event_type,
@@ -100,6 +86,7 @@ export class GameState {
       serverCommand: serverCommand
     }
   }
+  */
 
   static getFocusedCardID(state: GameState): number | undefined {
     return Array.from(state.hoveredCardIDs)[0]
@@ -115,8 +102,8 @@ export class GameState {
     return state.cards.find(c => c.id == state.selectedCardID)
   }
 
-  static fromEvents(events: ClientEvent[], currentTime: number = Date.now()): GameState {
-    return events.reduce((state: GameState, event: ClientEvent) => {
+  static fromEvents(events: Event[], currentTime: number = Date.now()): GameState {
+    return events.reduce((state: GameState, event: Event) => {
       const timePassed = currentTime - event.timestamp
       switch(event.event_type) {
         case "waiting_for_players":

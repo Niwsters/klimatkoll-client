@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
 import { vec2 } from 'gl-matrix'
 
-import { ClientEvent, ServerEvent, ServerCommand, GameState } from './game/gamestate'
+import { GameState, ServerCommand } from './game/gamestate'
+import { Event, ServerEvent } from './game/event'
 import { Card } from './game/card'
 import { Canvas } from './canvas/canvas'
 import { cards } from './cards'
@@ -19,48 +21,86 @@ class App extends Component<{}, {
   showNotification: boolean,
   canvasElem?: HTMLCanvasElement
 }> {
-
-  events$: BehaviorSubject<ClientEvent[]> = new BehaviorSubject<ClientEvent[]>([])
+  commands$: BehaviorSubject<Event[]> = new BehaviorSubject<Event[]>([])
+  serverEvents$: BehaviorSubject<Event[]> = new BehaviorSubject<Event[]>([])
+  streams$: BehaviorSubject<Event[]>[] = [this.commands$, this.serverEvents$]
+  events$: Observable<Event[]>
+  events: Event[] = []
   socketID?: number
   roomID?: string
   timeout?: ReturnType<typeof setTimeout>
   handledServerEventIDs: Set<number> = new Set<number>()
   hoveredCardIDs: Set<number> = new Set<number>()
 
-  addServerEvents(events: ServerEvent[]) {
-    const clientEvents = [...this.events$.value]
-
-    events.forEach((e: ServerEvent, i: number) => {
-      if (!this.handledServerEventIDs.has(e.event_id)) {
-        this.handledServerEventIDs.add(e.event_id)
-        clientEvents.push({
-          ...e,
-          event_id: clientEvents.length + i,
-          timestamp: Date.now()
-        })
-      }
-    })
-
-    this.events$.next(clientEvents)
+  getGameState() {
+    return GameState.fromEvents(this.events) 
   }
 
-  addClientEvent(event_type: string, payload: any = {}) {
-    const clientEvents = GameState.addClientEvent(
-      this.events$.value,
-      Date.now(),
-      event_type,
-      payload)
-    this.events$.next(clientEvents)
+  // This is required to keep track of when server events were received
+  addServerEvents(events: ServerEvent[]) {
+    const newEvents = events
+      .filter(event => !this.handledServerEventIDs.has(event.event_id))
+      .map(event => {
+        return {
+          ...event,
+          timestamp: Date.now()
+        }
+      })
+
+    events.forEach(event => {
+      this.handledServerEventIDs.add(event.event_id)
+    })
+
+    this.serverEvents$.next([
+      ...this.serverEvents$.value,
+      ...newEvents
+    ])
+  }
+
+  addCommand(command: Event) {
+    const state = this.getGameState()
+    switch(command.event_type) {
+      case "mouse_clicked": {
+        const focusedCard = GameState.getFocusedCard(state)
+        if (state.isMyTurn && state.selectedCardID && focusedCard && focusedCard.isSpace) {
+          const position = state.emissionsLineCardOrder.findIndex(cardID => focusedCard.id === cardID)
+          this.sendCommand({
+            context: "game",
+            type: "card_played_from_hand",
+            payload: {
+              cardID: state.selectedCardID,
+              position: position
+            }
+          })
+        }
+      }
+    }
+
+    this.commands$.next([
+      ...this.commands$.value,
+      {
+        ...command,
+        event_id: this.commands$.value.length
+      }
+    ])
   }
 
   constructor(props: {}) {
     super(props)
 
-    socket.onopen = (e: Event) => {
+    socket.onopen = e => {
       console.log("Socket connected!")
     }
 
-    DebugConsole.setupCommands(this.events$)
+    this.events$ = Event
+      .from([this.serverEvents$, this.commands$])
+      .observable()
+    DebugConsole.setupCommands(this.serverEvents$, this.commands$)
+
+    this.events$.subscribe(events => {
+      console.log(events)
+      console.log(GameState.fromEvents(events))
+    })
 
     socket.onmessage = (e: MessageEvent) => {
       const event = JSON.parse(e.data)
@@ -68,7 +108,14 @@ class App extends Component<{}, {
       switch(event.type) {
         case "socketID": {
           this.socketID = event.payload
-          this.addClientEvent("socket_id", { socketID: this.socketID })
+          this.addCommand({
+            event_id: Math.random(),
+            event_type: "socket_id",
+            payload: {
+              "socketID": this.socketID
+            },
+            timestamp: Date.now()
+          })
           break
         }
         case "room_joined": {
@@ -157,16 +204,15 @@ class App extends Component<{}, {
       if (!elem) throw new Error("e.target is null")
       const rect = elem.getBoundingClientRect()
       const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
-      const state = GameState.fromEvents(this.events$.value)
+      const state = this.getGameState()
 
       const result = Mouse.onMoved(
         state,
         this.hoveredCardIDs,
         mousePosition,
-        this.events$.value,
         Date.now())
 
-      this.events$.next(result.clientEvents)
+      result.events.forEach(event => this.addCommand(event))
       this.hoveredCardIDs = result.hoveredCardIDs
     }
     canvasElem.onclick = (e: MouseEvent) => {
@@ -175,12 +221,19 @@ class App extends Component<{}, {
       const rect = elem.getBoundingClientRect()
       const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
 
-      const state = GameState.fromEvents(this.events$.value)
-      const command = Mouse.onClicked(state, mousePosition, this.events$.value, Date.now())
-      this.events$.next(command.clientEvents)
+      const state = this.getGameState()
+      this.addCommand({
+        event_type: "mouse_clicked",
+        payload: {
+          position: mousePosition
+        },
+        timestamp: Date.now()
+      })
+      /*
       if (command.serverCommand) {
         this.sendCommand(command.serverCommand)
       }
+      */
     }
 
     this.setState({ canvasElem: canvasElem })
@@ -188,7 +241,10 @@ class App extends Component<{}, {
     const canvas = new Canvas(canvasElem)
     canvas.prepare().then(() => {
       setInterval(() => {
-        const state = GameState.fromEvents(this.events$.value)
+        this.events = Event
+          .from(this.streams$)
+          .get()
+        const state = this.getGameState()
         canvas.render(state)
       }, 1000/60)
     })

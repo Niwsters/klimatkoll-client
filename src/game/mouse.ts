@@ -1,6 +1,7 @@
 import { vec2, mat2 } from 'gl-matrix'
 import { Card } from '../game/card'
-import { ClientEvent, Command, GameState } from './gamestate'
+import { Event } from '../game/event'
+import { GameState } from './gamestate'
 
 export class Mouse {
   static intersects(card: Card, original_mouse_position: vec2): boolean {
@@ -28,6 +29,7 @@ export class Mouse {
 
     return false
   }
+  /*
 
   static onClicked(
     state: GameState,
@@ -45,18 +47,19 @@ export class Mouse {
         y: mousePosition[1]
       })
   }
+  */
 
+  // TODO: Unit test this
   static onMoved(
     state: GameState,
     hoveredCardIDs: Set<number>,
     mousePosition: vec2,
-    clientEvents: ClientEvent[],
     currentTime: number
   ): {
-    clientEvents: ClientEvent[],
+    events: Event[],
     hoveredCardIDs: Set<number>
   } {
-    clientEvents = [...clientEvents]
+    let events: Event[] = []
     state.cards.forEach((card: Card) => {
       if (Mouse.intersects(card, mousePosition)) {
         // If card not already hovered, add card_hovered event
@@ -70,22 +73,22 @@ export class Mouse {
             if (card.container === "emissions-line" && card.isSpace) return
           }
 
-          clientEvents = GameState.addClientEvent(
-            clientEvents,
-            currentTime,
-            "card_hovered",
-            { card_id: card.id })
+          events.push({
+            event_type: "card_hovered",
+            payload: { card_id: card.id },
+            timestamp: currentTime
+          })
         }
 
         hoveredCardIDs.add(card.id)
       } else {
         // If card is hovered, add card_unhovered event
         if (hoveredCardIDs.has(card.id)) {
-          clientEvents = GameState.addClientEvent(
-            clientEvents,
-            currentTime,
-            "card_unhovered",
-            { card_id: card.id })
+          events.push({
+            event_type: "card_unhovered",
+            payload: { card_id: card.id },
+            timestamp: currentTime
+          })
         }
 
         hoveredCardIDs.delete(card.id)
@@ -93,7 +96,7 @@ export class Mouse {
     })
 
     return {
-      clientEvents: clientEvents,
+      events: events,
       hoveredCardIDs: hoveredCardIDs
     }
   }
