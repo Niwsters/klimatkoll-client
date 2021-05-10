@@ -80,8 +80,7 @@ export function transpose(from: number, to: number, timePassed: number) {
 }
 
 export class SpaceCard extends Card {
-  constructor(state: GameState) {
-    const spaceCardCount = state.cards.filter(c => c.name === "space").length
-    super(-1 - spaceCardCount, "space", "emissions-line")
+  constructor(id: number) {
+    super(id, "space", "emissions-line")
   }
 }

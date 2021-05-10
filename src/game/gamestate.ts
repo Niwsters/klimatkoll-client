@@ -82,9 +82,11 @@ export class GameState {
           break
         case "playing":
           // No payload
+          /*
           const sc = new SpaceCard(state)
           state.cards.push(sc)
           state.emissionsLineCardOrder.push(sc.id)
+          */
           break
         case "draw_card": {
           // { socketID, card }
@@ -107,10 +109,11 @@ export class GameState {
         case "card_played_from_deck": {
           // { card, position }
           const serverCard = event.payload.card
+          const position = event.payload.position
           state = EmissionsLine.add(
             state,
             new Card(serverCard.id, serverCard.name, "emissions-line"),
-            1)
+            position)
           state = EmissionsLine.rearrange(state, timePassed)
           break
         }
@@ -118,7 +121,7 @@ export class GameState {
           // { socketID, cardID, position }
           // Move card to emissions line
           const playedCard = state.cards.find(c => c.id == event.payload.cardID)
-          const position = event.payload.position+1
+          const position = event.payload.position
           if (!playedCard) {
             throw new Error("Played card does not exist with ID: " + event.payload.cardID)
           }

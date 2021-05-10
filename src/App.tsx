@@ -64,6 +64,7 @@ class App extends Component<{}, {
         const focusedCard = GameState.getFocusedCard(state)
         if (state.isMyTurn && state.selectedCardID && focusedCard && focusedCard.isSpace) {
           const position = state.emissionsLineCardOrder.findIndex(cardID => focusedCard.id === cardID)
+          console.log("Position:", position)
           this.sendCommand({
             context: "game",
             type: "card_played_from_hand",

@@ -12,7 +12,12 @@ export class EmissionsLine {
   ): GameState {
     state = {...state}
 
-    let elCards = state.cards.filter(c => c.container === "emissions-line")
+    let elCards = state.emissionsLineCardOrder
+      .reduce((cards: Card[], cardID: number) => {
+        const card = state.cards.find(c => c.id === cardID)
+        if (!card) throw new Error("Can't find card with ID: " + cardID)
+        return [...cards, card]
+      }, [])
     const cardCount = elCards.length
     const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
     const startOffset = 0 - cardWidth*cardCount/4 - cardWidth/4
@@ -51,17 +56,39 @@ export class EmissionsLine {
 
   static add(state: GameState, card: Card, position: number = 0): GameState {
     state = {...state}
-    const spaceCard = new SpaceCard(state)
-    state.cards.push(card)
-    state.cards.push(spaceCard)
-    const cardOrder: number[] = state.emissionsLineCardOrder
 
+    // Add new card in specified position
+    state.cards.push(card)
     state.emissionsLineCardOrder = [
-      ...cardOrder.slice(0, position),
+      ...state.emissionsLineCardOrder.slice(0, position+1),
       card.id,
-      spaceCard.id,
-      ...cardOrder.slice(position, cardOrder.length)
+      ...state.emissionsLineCardOrder.slice(position+1, state.emissionsLineCardOrder.length)
     ]
+
+    // Reset space cards
+    state.emissionsLineCardOrder = state.emissionsLineCardOrder
+      .filter(cardID => cardID >= 0)
+      .reduce((elCardOrder, cardID, i) => {
+        return [
+          ...elCardOrder,
+          ...[cardID, -1-(i+1)]
+        ]
+      }, [-1])
+
+    state.cards = state.cards.filter(c => !c.isSpace)
+    const missingSpaceCards = state.emissionsLineCardOrder
+      .filter(cardID => cardID < 0)
+      .reduce((spaceCards: Card[], cardID: number, i: number) => {
+        const exists = state.cards.findIndex(c => c.id === cardID) > -1
+
+        if (exists) return spaceCards
+
+        return [
+          ...spaceCards,
+          new SpaceCard(-1-i)
+        ]
+      }, [])
+    state.cards = [...state.cards, ...missingSpaceCards]
 
     return state
   }
