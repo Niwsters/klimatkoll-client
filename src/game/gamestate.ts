@@ -54,7 +54,9 @@ export class GameState {
     }
 
     state.cards = state.cards.map(card => {
-      if (card.id !== event.payload.cardID) return card
+      if (card.id !== event.payload.cardID) return card;
+
+      card.flipped = true
 
       return Card.transpose({
         ...card,

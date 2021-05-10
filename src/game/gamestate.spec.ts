@@ -84,9 +84,6 @@ describe('GameState', () => {
       state.selectedCardID = 7
 
       const card = new Card(7, "blargh", "hand")
-      card.rotation = 30
-      card.addedRotation = 15
-      card.position = [1, 1]
       const card2 = new Card(1, "blargh", "emissions-line")
 
       state.cards = [
@@ -99,6 +96,27 @@ describe('GameState', () => {
       let timePassed = 0
       let result = GameState.incorrectCardPlacement(state, event, timePassed)
       expect(result.selectedCardID).toEqual(undefined)
+    })
+
+    it('flips card', () => {
+      const state = new GameState()
+
+      const card = new Card(7, "blargh", "hand")
+      const card2 = new Card(1, "blargh", "emissions-line")
+
+      state.cards = [
+        card,
+        card2
+      ]
+
+      const event = new Event(0, "incorrect_card_placement", { cardID: 7 }, 0)
+
+      let timePassed = 0
+      let result = GameState
+        .incorrectCardPlacement(state, event, timePassed)
+        .cards
+        .find(c => c.id === card.id)
+      expect(result.flipped).toEqual(true)
     })
   })
 })
