@@ -64,7 +64,6 @@ class App extends Component<{}, {
         const focusedCard = GameState.getFocusedCard(state)
         if (state.isMyTurn && state.selectedCardID && focusedCard && focusedCard.isSpace) {
           const position = state.emissionsLineCardOrder.findIndex(cardID => focusedCard.id === cardID)
-          console.log("Position:", position)
           this.sendCommand({
             context: "game",
             type: "card_played_from_hand",
@@ -98,10 +97,12 @@ class App extends Component<{}, {
       .observable()
     DebugConsole.setupCommands(this.serverEvents$, this.commands$)
 
+    /*
     this.events$.subscribe(events => {
       console.log(events)
       console.log(GameState.fromEvents(events))
     })
+    */
 
     socket.onmessage = (e: MessageEvent) => {
       const event = JSON.parse(e.data)

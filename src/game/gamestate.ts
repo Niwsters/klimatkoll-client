@@ -66,6 +66,9 @@ export class GameState {
 
     state.selectedCardID = undefined
 
+    state = Hand.rearrange(state, timePassed)
+    state = OpponentHand.rearrange(state, timePassed)
+
     return state
   }
 
@@ -104,7 +107,7 @@ export class GameState {
             state = Hand.rearrange(state, timePassed)
           } else {
             state.cards.push(new Card(server_card.id, server_card.name, "opponent-hand"))
-            state = OpponentHand.rearrange(state)
+            state = OpponentHand.rearrange(state, timePassed)
           }
 
           break
@@ -138,6 +141,7 @@ export class GameState {
           state = EmissionsLine.add(state, movedCard, position)
           state = EmissionsLine.rearrange(state, timePassed)
           state = Hand.rearrange(state, timePassed)
+          state = OpponentHand.rearrange(state, timePassed)
 
           /*
           const spaceCard = new SpaceCard(state)
@@ -194,7 +198,7 @@ export class GameState {
         }
         case "mouse_clicked": {
           const focusedCardID = GameState.getFocusedCardID(state)
-          if (focusedCardID) {
+          if (focusedCardID !== undefined) {
             const card = state.cards.find(c => c.id === focusedCardID)
 
             if (card && card.container == "hand") {

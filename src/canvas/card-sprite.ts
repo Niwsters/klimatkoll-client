@@ -11,7 +11,6 @@ const TEXTURE_HEIGHT = 2048/2
 
 const CARD_WIDTH = IMAGE_WIDTH - IMAGE_MARGIN
 const CARD_HEIGHT = IMAGE_HEIGHT - IMAGE_MARGIN
-console.log(CARD_WIDTH, CARD_HEIGHT)
 
 export class CardSprite {
   card: Card

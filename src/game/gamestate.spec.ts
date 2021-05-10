@@ -118,5 +118,27 @@ describe('GameState', () => {
         .find(c => c.id === card.id)
       expect(result.flipped).toEqual(true)
     })
+
+    it('rearranges hands', () => {
+      const state = new GameState()
+
+      const card = new Card(7, "blargh", "hand")
+      const card2 = new Card(1, "honk", "hand")
+      const card3 = new Card(3, "1337", "opponent-hand")
+
+      state.cards = [
+        card,
+        card2,
+        card3
+      ]
+
+      const event = new Event(0, "incorrect_card_placement", { cardID: card.id }, 0)
+
+      let result = GameState
+        .incorrectCardPlacement(state, event, ANIMATION_DURATION_MS)
+
+      expect(result.cards.find(c => c.id === card2.id).position).toEqual([480, 490])
+      expect(result.cards.find(c => c.id === card3.id).position).toEqual([480, 50])
+    })
   })
 })
