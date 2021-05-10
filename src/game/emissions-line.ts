@@ -57,6 +57,9 @@ export class EmissionsLine {
   static add(state: GameState, card: Card, position: number = 0): GameState {
     state = {...state}
 
+    // Flip card
+    card.flipped = true
+
     // Add new card in specified position
     state.cards.push(card)
     state.emissionsLineCardOrder = [

@@ -48,7 +48,9 @@ export class GameState {
     const card = state.cards.find(c => c.id === event.payload.cardID)
 
     const goal: TransposeGoal = {
-      position: DISCARD_PILE_POSITION
+      position: DISCARD_PILE_POSITION,
+      rotation: 0,
+      addedRotation: 0
     }
 
     state.cards = state.cards.map(card => {
@@ -59,6 +61,8 @@ export class GameState {
         container: "discard-pile"
       }, goal, timePassed)
     })
+
+    state.selectedCardID = undefined
 
     return state
   }

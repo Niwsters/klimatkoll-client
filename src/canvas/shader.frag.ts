@@ -18,6 +18,8 @@ void main() {
     return;
   }
 
+  vec2 texcoord = vec2(v_texcoord.x, v_texcoord.y) ;
+
   vec4 color = texture2D(u_texture, v_texcoord);
 
   vec2 uv = v_texcoord * TEXTURE_SIZE;

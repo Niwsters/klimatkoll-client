@@ -72,5 +72,17 @@ describe('EmissionsLine', () => {
       expected = [-1, 0, -2, 2, -3, 1, -4]
       expect(result.emissionsLineCardOrder).toEqual(expected)
     })
+
+    it('flips card', () => {
+      const state = new GameState()
+
+      const card = new Card(0, "blargh", "emissions-line")
+      card.flipped = false
+      let result = EmissionsLine
+        .add(state, card, 0)
+        .cards
+        .find(c => c.id === card.id)
+      expect(result.flipped).toEqual(true)
+    })
   })
 })

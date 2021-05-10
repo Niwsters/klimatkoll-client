@@ -1,5 +1,5 @@
-import vsSource from './test.vert'
-import fsSource from './test.frag'
+import vsSource from './shader.vert'
+import fsSource from './shader.frag'
 import { cards, CardData } from '../cards'
 import { Card } from '../game/card'
 
@@ -16,12 +16,15 @@ console.log(CARD_WIDTH, CARD_HEIGHT)
 export class CardSprite {
   card: Card
   gl: WebGLRenderingContext
-  translationLocation: WebGLUniformLocation
-  scaleLocation: WebGLUniformLocation
-  rotationLocation: WebGLUniformLocation
-  selectedLocation: WebGLUniformLocation
-  isSpaceLocation: WebGLUniformLocation
-  visibleLocation: WebGLUniformLocation
+  translationLocation: WebGLUniformLocation | null
+  scaleLocation: WebGLUniformLocation | null
+  rotationLocation: WebGLUniformLocation | null
+  selectedLocation: WebGLUniformLocation | null
+  isSpaceLocation: WebGLUniformLocation | null
+  visibleLocation: WebGLUniformLocation | null
+  texCoordLocation: number = 0
+  frontTexCoordBuffer: WebGLBuffer | null
+  backTexCoordBuffer: WebGLBuffer | null
   program: WebGLProgram
   texture: WebGLTexture
   selected: boolean = false
@@ -80,36 +83,45 @@ export class CardSprite {
     gl.vertexAttribPointer(
       positionAttributeLocation, size, type, normalize, stride, offset)
 
-    const texCoordBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
-    const x0 = IMAGE_MARGIN / TEXTURE_WIDTH
-    const y0 = IMAGE_MARGIN / TEXTURE_HEIGHT
-    const x = CARD_WIDTH / TEXTURE_WIDTH
-    const y = CARD_HEIGHT / TEXTURE_HEIGHT
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        x0,  y0,
-        x,  y0,
-        x0,  y,
-        x0,  y,
-        x,  y0,
-        x,  y
-    ]), gl.STATIC_DRAW)
+    const backTexCoordBuffer = gl.createBuffer();
+    (() => {
+      gl.bindBuffer(gl.ARRAY_BUFFER, backTexCoordBuffer)
+      const x0 = IMAGE_MARGIN / TEXTURE_WIDTH
+      const y0 = IMAGE_MARGIN / TEXTURE_HEIGHT
+      const x = CARD_WIDTH / TEXTURE_WIDTH
+      const y = CARD_HEIGHT / TEXTURE_HEIGHT
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+          x0,  y0,
+          x,  y0,
+          x0,  y,
+          x0,  y,
+          x,  y0,
+          x,  y
+      ]), gl.STATIC_DRAW)
+    })()
+
     gl.enableVertexAttribArray(texCoordLocation)
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0)
 
+    const frontTexCoordBuffer = gl.createBuffer();
+    (() => {
+      gl.bindBuffer(gl.ARRAY_BUFFER, frontTexCoordBuffer)
+      const x0 = IMAGE_MARGIN / TEXTURE_WIDTH + CARD_WIDTH / TEXTURE_WIDTH
+      const y0 = IMAGE_MARGIN / TEXTURE_HEIGHT
+      const x = CARD_WIDTH / TEXTURE_WIDTH * 2
+      const y = CARD_HEIGHT / TEXTURE_HEIGHT
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+          x0,  y0,
+          x,  y0,
+          x0,  y,
+          x0,  y,
+          x,  y0,
+          x,  y
+      ]), gl.STATIC_DRAW)
+    })()
+
     gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height)
 
-    if (
-      !translationLocation ||
-      !scaleLocation ||
-      !rotationLocation ||
-      !selectedLocation ||
-      !isSpaceLocation ||
-      !visibleLocation ||
-      !texture
-    ) {
-      throw new Error("One or more shader locations are null")
-    }
     this.program = program
     this.translationLocation = translationLocation
     this.scaleLocation = scaleLocation
@@ -117,7 +129,10 @@ export class CardSprite {
     this.selectedLocation = selectedLocation
     this.isSpaceLocation = isSpaceLocation
     this.visibleLocation = visibleLocation
+    this.texCoordLocation = texCoordLocation
     this.texture = texture
+    this.backTexCoordBuffer = backTexCoordBuffer
+    this.frontTexCoordBuffer = frontTexCoordBuffer
   }
 
   static prepareTextures(gl: WebGLRenderingContext): Promise<null> {
@@ -166,9 +181,20 @@ export class CardSprite {
     const selectedLocation = sprite.selectedLocation
     const isSpaceLocation = sprite.isSpaceLocation
     const visibleLocation = sprite.visibleLocation
+    const texCoordLocation = sprite.texCoordLocation
+    const frontTexCoordBuffer = sprite.frontTexCoordBuffer
+    const backTexCoordBuffer = sprite.backTexCoordBuffer
     const program = sprite.program
 
     gl.useProgram(program)
+
+    if (sprite.card.flipped) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, frontTexCoordBuffer)
+    } else {
+      gl.bindBuffer(gl.ARRAY_BUFFER, backTexCoordBuffer)
+    }
+    gl.enableVertexAttribArray(texCoordLocation)
+    gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0)
 
     if (!translationLocation) {
       throw new Error("Could not find WebGL translation location")
