@@ -12,9 +12,6 @@ import { Mouse } from './game/mouse'
 import { Menu } from './ui/Menu'
 import { DebugConsole } from './devtools/console'
 
-// Initialise outside constructor to avoid reconnecting socket due to ReactJS stuff
-const socket = new WebSocket('ws://localhost:4200', 'echo-protocol')
-
 class App extends Component<{}, {
   currentPage: string,
   notification: string,
@@ -26,11 +23,82 @@ class App extends Component<{}, {
   streams$: BehaviorSubject<Event[]>[] = [this.commands$, this.serverEvents$]
   events$: Observable<Event[]>
   events: Event[] = []
+  socket?: WebSocket
   socketID?: number
   roomID?: string
   timeout?: ReturnType<typeof setTimeout>
   handledServerEventIDs: Set<number> = new Set<number>()
   hoveredCardIDs: Set<number> = new Set<number>()
+
+  connect() {
+    // Initialise outside constructor to avoid reconnecting socket due to ReactJS stuff
+    const socket = new WebSocket('ws://localhost:4200', 'echo-protocol')
+
+    socket.onopen = e => {
+      this.notify('Uppkopplad till servern')
+    }
+
+    socket.onmessage = (e: MessageEvent) => {
+      const event = JSON.parse(e.data)
+      console.log(event)
+      switch(event.type) {
+        case "socketID": {
+          this.socketID = event.payload
+          this.addCommand({
+            event_id: Math.random(),
+            event_type: "socket_id",
+            payload: {
+              "socketID": this.socketID
+            },
+            timestamp: Date.now()
+          })
+          break
+        }
+        case "room_joined": {
+          this.roomID = event.payload.roomID
+          this.notify("Gick med i spel med ID: " + this.roomID)
+          this.setState({ currentPage: 'game' })
+          break
+        }
+        case "room_full": {
+          const roomID = event.payload
+          this.notify("Kan inte gå med i rum: Rummet är fullt")
+          break
+        }
+        case "room_exists": {
+          this.notify("Kunde inte skapa rum: Rum med samma ID existerar redan")
+          break
+        }
+        case "room_left": {
+          const socketID = event.payload.socketID
+          if (socketID == this.socketID) {
+            this.notify("Lämnade spelet")
+          } else {
+            this.notify("Andra spelaren lämnade spelet")
+          }
+          break
+        }
+        case "new_game": {
+          // TODO: On new game => reset game events?
+          break
+        }
+        case "events": {
+          this.addServerEvents(event.payload)
+          break
+        }
+      }
+    }
+
+    socket.onclose = e => {
+      console.log('Socket closed')
+      this.notify('Tappade uppkoppling till servern. Försöker koppla upp igen.', false)
+      setTimeout(() => {
+        this.connect();
+      }, 1000);
+    };
+
+    this.socket = socket
+  }
 
   getGameState() {
     return GameState.fromEvents(this.events) 
@@ -88,72 +156,11 @@ class App extends Component<{}, {
   constructor(props: {}) {
     super(props)
 
-    socket.onopen = e => {
-      console.log("Socket connected!")
-    }
-
     this.events$ = Event
       .from([this.serverEvents$, this.commands$])
       .observable()
+
     DebugConsole.setupCommands(this.serverEvents$, this.commands$)
-
-    /*
-    this.events$.subscribe(events => {
-      console.log(events)
-      console.log(GameState.fromEvents(events))
-    })
-    */
-
-    socket.onmessage = (e: MessageEvent) => {
-      const event = JSON.parse(e.data)
-      console.log(event)
-      switch(event.type) {
-        case "socketID": {
-          this.socketID = event.payload
-          this.addCommand({
-            event_id: Math.random(),
-            event_type: "socket_id",
-            payload: {
-              "socketID": this.socketID
-            },
-            timestamp: Date.now()
-          })
-          break
-        }
-        case "room_joined": {
-          this.roomID = event.payload.roomID
-          this.notify("Gick med i spel med ID: " + this.roomID)
-          this.setState({ currentPage: 'game' })
-          break
-        }
-        case "room_full": {
-          const roomID = event.payload
-          this.notify("Kan inte gå med i rum: Rummet är fullt")
-          break
-        }
-        case "room_exists": {
-          this.notify("Kunde inte skapa rum: Rum med samma ID existerar redan")
-          break
-        }
-        case "room_left": {
-          const socketID = event.payload.socketID
-          if (socketID == this.socketID) {
-            this.notify("Lämnade spelet")
-          } else {
-            this.notify("Andra spelaren lämnade spelet")
-          }
-          break
-        }
-        case "new_game": {
-          // TODO: On new game => reset game events?
-          break
-        }
-        case "events": {
-          this.addServerEvents(event.payload)
-          break
-        }
-      }
-    }
 
     this.state = {
       currentPage: 'menu',
@@ -163,7 +170,9 @@ class App extends Component<{}, {
   }
 
   sendCommand(command: ServerCommand) {
-    socket.send(JSON.stringify(command))
+    if (this.socket) {
+      this.socket.send(JSON.stringify(command))
+    }
   }
 
   joinGame(roomID: string) {
@@ -186,19 +195,23 @@ class App extends Component<{}, {
     })
   }
 
-  notify(msg: string) {
+  notify(msg: string, shouldTimeOut: boolean = true) {
     this.setState({
       notification: msg,
       showNotification: true
     })
 
-    if (this.timeout) clearTimeout(this.timeout)
-    this.timeout = setTimeout(() => {
-      this.setState({ showNotification: false })
-    }, 1000)
+    if (shouldTimeOut === true) {
+      if (this.timeout) clearTimeout(this.timeout)
+      this.timeout = setTimeout(() => {
+        this.setState({ showNotification: false })
+      }, 1000)
+    }
   }
 
   componentDidMount() {
+    this.connect()
+
     const canvasElem = document.getElementById("klimatkoll-canvas") as HTMLCanvasElement
     if (!canvasElem) throw new Error("Element with ID 'klimatkoll-canvas' not found")
     canvasElem.onmousemove = (e: MouseEvent) => {
