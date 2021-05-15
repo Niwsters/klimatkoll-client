@@ -34,7 +34,7 @@ export function Menu(props: Props) {
         margin: "auto",
         paddingBottom: "30px",
         display: "block"
-      }} src="logo.webp" />
+      }} src="logo.webp" alt="Klimatkoll logga" />
       <input id="roomID" type="text" placeholder="Spelets namn" />
       <button onClick={() => createGame()} className="pink">
         Skapa spel

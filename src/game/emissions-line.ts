@@ -37,12 +37,12 @@ export class EmissionsLine {
         if (!state.selectedCardID) card.visible = false
 
         card.name = "space"
-        const selectedCard = state.cards.find(c => c.id == state.selectedCardID)
-        if (selectedCard && GameState.getFocusedCardID(state) === card.id) {
+        const selectedCard = state.cards.find(c => c.id === state.selectedCardID)
+        if (selectedCard !== undefined && GameState.getFocusedCardID(state) === card.id) {
           card.name = selectedCard.name
         }
       } else {
-        if (state.selectedCardID !== undefined && GameState.getFocusedCardID(state) == card.id) {
+        if (state.selectedCardID !== undefined && GameState.getFocusedCardID(state) === card.id) {
           goal.scale = Card.DEFAULT_SCALE * 2
           card.zLevel = 999
         }

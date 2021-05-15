@@ -1,14 +1,8 @@
-import { Observable, BehaviorSubject } from 'rxjs'
-import { merge } from 'rxjs/operators'
-import { Card, SpaceCard, TransposeGoal } from './card'
+import { Card, TransposeGoal } from './card'
 import { Hand, OpponentHand } from './hand'
 import { EmissionsLine } from './emissions-line'
 import { Event } from './event'
 import {
-  WIDTH,
-  HEIGHT,
-  DECK_POSITION,
-  ANIMATION_DURATION_MS,
   DISCARD_PILE_POSITION
 } from './constants'
 
@@ -27,6 +21,7 @@ export class GameState {
   socketID: number = -1
   hoveredCardIDs = new Set<number>()
   selectedCardID?: number
+  statusMessage: string = ""
 
   static getFocusedCardID(state: GameState): number | undefined {
     return Array.from(state.hoveredCardIDs)[0]
@@ -34,18 +29,16 @@ export class GameState {
 
   static getFocusedCard(state: GameState): Card | undefined {
     const id = GameState.getFocusedCardID(state)
-    return state.cards.find(c => c.id == id)
+    return state.cards.find(c => c.id === id)
   }
 
 
   static getSelectedCard(state: GameState): Card | undefined {
-    return state.cards.find(c => c.id == state.selectedCardID)
+    return state.cards.find(c => c.id === state.selectedCardID)
   }
 
   static incorrectCardPlacement(state: GameState, event: Event, timePassed: number): GameState {
     state =  { ...state }
-
-    const card = state.cards.find(c => c.id === event.payload.cardID)
 
     const goal: TransposeGoal = {
       position: DISCARD_PILE_POSITION,
@@ -88,6 +81,7 @@ export class GameState {
       switch(event.event_type) {
         case "waiting_for_players":
           // No payload
+          state.statusMessage = "Väntar på spelare #2"
           break
         case "playing":
           // No payload
@@ -102,7 +96,7 @@ export class GameState {
           // Draw card into correct hand
           const server_card = event.payload.card
 
-          if (event.payload.socketID == state.socketID) {
+          if (event.payload.socketID === state.socketID) {
             state.cards.push(new Card(server_card.id, server_card.name, "hand"))
             state = Hand.rearrange(state, timePassed)
           } else {
@@ -129,7 +123,7 @@ export class GameState {
         case "card_played_from_hand":
           // { socketID, cardID, position }
           // Move card to emissions line
-          const playedCard = state.cards.find(c => c.id == event.payload.cardID)
+          const playedCard = state.cards.find(c => c.id === event.payload.cardID)
           const position = event.payload.position
           if (!playedCard) {
             throw new Error("Played card does not exist with ID: " + event.payload.cardID)
@@ -169,12 +163,19 @@ export class GameState {
           // { socketID }
           if (state.socketID === event.payload.socketID) {
             state.isMyTurn = true
+            state.statusMessage = "Din tur"
           } else {
             state.isMyTurn = false
+            state.statusMessage = "Andra spelarens tur"
           }
           break
         case "game_won":
           // { socketID }
+          if (state.socketID === event.payload.socketID) {
+            state.statusMessage = "Du vann!"
+          } else {
+            state.statusMessage = "Du förlorade!"
+          }
           break
         case "vote_new_game":
           // { socketID }
@@ -201,7 +202,7 @@ export class GameState {
           if (focusedCardID !== undefined) {
             const card = state.cards.find(c => c.id === focusedCardID)
 
-            if (card && card.container == "hand") {
+            if (card && card.container === "hand") {
               state.selectedCardID = focusedCardID
             }
           }

@@ -20,7 +20,7 @@ export class DebugConsole {
         .from([serverEvents$, commands$])
         .get()
       const t0 = performance.now()
-      const state = GameState.fromEvents(events)
+      GameState.fromEvents(events)
       const t1 = performance.now()
       return t1 - t0 
     }

@@ -1,5 +1,4 @@
 import { ANIMATION_DURATION_MS } from './constants'
-import { GameState } from './gamestate'
 
 export class Card {
   static DEFAULT_WIDTH = 445
@@ -21,7 +20,7 @@ export class Card {
   constructor(id: number, name: string, container: "hand" | "opponent-hand" | "emissions-line") {
     this.id = id
     this.name = name
-    if (name == "space") this.isSpace = true
+    if (name === "space") this.isSpace = true
     this.container = container
   }
 
@@ -42,22 +41,22 @@ export class Card {
   ): Card {
     const newCard = { ...card }
 
-    if (goal.position != undefined) {
+    if (goal.position !== undefined) {
       newCard.position = [
         transpose(card.position[0], goal.position[0], timePassed),
         transpose(card.position[1], goal.position[1], timePassed)
       ]
     }
 
-    if (goal.rotation != undefined) {
+    if (goal.rotation !== undefined) {
       newCard.rotation = transpose(card.rotation, goal.rotation, timePassed)
     }
 
-    if (goal.addedRotation != undefined) {
+    if (goal.addedRotation !== undefined) {
       newCard.addedRotation = transpose(card.addedRotation, goal.addedRotation, timePassed)
     }
     
-    if (goal.scale != undefined) {
+    if (goal.scale !== undefined) {
       newCard.scale = transpose(card.scale, goal.scale, timePassed)
     }
 

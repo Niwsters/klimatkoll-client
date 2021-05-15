@@ -1,27 +1,26 @@
 import React, { Component } from 'react'
 import { BehaviorSubject, Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
 import { vec2 } from 'gl-matrix'
 
 import { GameState, ServerCommand } from './game/gamestate'
 import { Event, ServerEvent } from './game/event'
-import { Card } from './game/card'
 import { Canvas } from './canvas/canvas'
-import { cards } from './cards'
 import { Mouse } from './game/mouse'
 import { Menu } from './ui/Menu'
+import { StatusBar } from './ui/StatusBar'
 import { DebugConsole } from './devtools/console'
 
 class App extends Component<{}, {
   currentPage: string,
   notification: string,
+  statusMessage: string,
   showNotification: boolean,
   canvasElem?: HTMLCanvasElement
 }> {
   commands$: BehaviorSubject<Event[]> = new BehaviorSubject<Event[]>([])
   serverEvents$: BehaviorSubject<Event[]> = new BehaviorSubject<Event[]>([])
   streams$: BehaviorSubject<Event[]>[] = [this.commands$, this.serverEvents$]
-  events$: Observable<Event[]>
+  events$?: Observable<Event[]>
   events: Event[] = []
   socket?: WebSocket
   socketID?: number
@@ -61,7 +60,7 @@ class App extends Component<{}, {
           break
         }
         case "room_full": {
-          const roomID = event.payload
+          // const roomID = event.payload
           this.notify("Kan inte gå med i rum: Rummet är fullt")
           break
         }
@@ -71,7 +70,7 @@ class App extends Component<{}, {
         }
         case "room_left": {
           const socketID = event.payload.socketID
-          if (socketID == this.socketID) {
+          if (socketID === this.socketID) {
             this.notify("Lämnade spelet")
           } else {
             this.notify("Andra spelaren lämnade spelet")
@@ -156,16 +155,13 @@ class App extends Component<{}, {
   constructor(props: {}) {
     super(props)
 
-    this.events$ = Event
-      .from([this.serverEvents$, this.commands$])
-      .observable()
-
     DebugConsole.setupCommands(this.serverEvents$, this.commands$)
 
     this.state = {
       currentPage: 'menu',
       notification: '',
-      showNotification: false
+      showNotification: false,
+      statusMessage: ''
     }
   }
 
@@ -211,6 +207,14 @@ class App extends Component<{}, {
 
   componentDidMount() {
     this.connect()
+    this.events$ = Event
+      .from([this.serverEvents$, this.commands$])
+      .observable()
+
+    this.events$.subscribe((events: Event[]) => {
+      const state = GameState.fromEvents(events)
+      this.setState({ statusMessage: state.statusMessage })
+    })
 
     const canvasElem = document.getElementById("klimatkoll-canvas") as HTMLCanvasElement
     if (!canvasElem) throw new Error("Element with ID 'klimatkoll-canvas' not found")
@@ -236,7 +240,6 @@ class App extends Component<{}, {
       const rect = elem.getBoundingClientRect()
       const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
 
-      const state = this.getGameState()
       this.addCommand({
         event_type: "mouse_clicked",
         payload: {
@@ -244,11 +247,6 @@ class App extends Component<{}, {
         },
         timestamp: Date.now()
       })
-      /*
-      if (command.serverCommand) {
-        this.sendCommand(command.serverCommand)
-      }
-      */
     }
 
     this.setState({ canvasElem: canvasElem })
@@ -267,10 +265,14 @@ class App extends Component<{}, {
 
   render() {
     const currentPage = this.state.currentPage
-    const events$ = this.events$
     const notificationMsg = this.state.notification
     const showNotification = this.state.showNotification
-    const canvasElem = this.state.canvasElem
+    const statusMessage = this.state.statusMessage
+
+    let statusBar: JSX.Element | undefined
+    if (currentPage === "game") {
+      statusBar = <StatusBar status={statusMessage} />
+    }
 
     return (
       <div id="app">
@@ -287,6 +289,7 @@ class App extends Component<{}, {
           id="klimatkoll-canvas"
           width="960"
           height="540" />
+        { statusBar }
       </div>
     );
   }

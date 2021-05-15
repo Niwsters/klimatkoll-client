@@ -15,18 +15,20 @@ export class Hand {
     timePassed: number
   ): GameState {
     let i = 0
-    const n = state.cards.filter(c => c.container == "hand").length - 1
+    const n = state.cards.filter(c => c.container === "hand").length - 1
     state.cards = state.cards.map((card: Card) => {
-      if (card.container != "hand") return card
+      if (card.container !== "hand") return card
 
       let angle = HAND_CARD_ANGLE * (i - n/2)
       let x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
       let y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
       let scale = Card.DEFAULT_SCALE
-      card.zLevel = i
+
+      // + 10 to prevent first card going under emissions line card when zooming out
+      card.zLevel = i + 10 
 
       const focusedCardID = GameState.getFocusedCardID(state)
-      if (focusedCardID == card.id) {
+      if (focusedCardID === card.id) {
         y = HAND_POSITION[1] - 230
         scale = Card.DEFAULT_SCALE * 2
         angle = 0
@@ -52,9 +54,9 @@ export class OpponentHand {
     timePassed: number
   ): GameState {
     let i = 0
-    const n = state.cards.filter(c => c.container == "opponent-hand").length - 1
+    const n = state.cards.filter(c => c.container === "opponent-hand").length - 1
     state.cards = state.cards.map((card: Card) => {
-      if (card.container != "opponent-hand") return card
+      if (card.container !== "opponent-hand") return card
 
       const angle = HAND_CARD_ANGLE * (i - n/2) + Math.PI
       const x = OPPONENT_HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)

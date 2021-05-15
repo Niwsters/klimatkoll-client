@@ -1,5 +1,5 @@
 import { Observable, BehaviorSubject } from 'rxjs'
-import { zip, map, tap, combineLatest } from 'rxjs/operators'
+import { map, combineLatest } from 'rxjs/operators'
 
 export interface ServerEvent {
   event_id: number

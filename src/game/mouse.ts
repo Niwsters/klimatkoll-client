@@ -1,4 +1,4 @@
-import { vec2, mat2 } from 'gl-matrix'
+import { vec2 } from 'gl-matrix'
 import { Card } from '../game/card'
 import { Event } from '../game/event'
 import { GameState } from './gamestate'
