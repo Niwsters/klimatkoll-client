@@ -20,14 +20,19 @@ export class EmissionsLine {
       }, [])
     const cardCount = elCards.length
     const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
-    const startOffset = 0 - cardWidth*cardCount/4 - cardWidth/4
+    const totalELWidth = cardWidth * cardCount
+    let width = cardWidth / 2
+    if (totalELWidth > EMISSIONS_LINE_MAX_LENGTH) {
+      width = (EMISSIONS_LINE_MAX_LENGTH - cardWidth) / (cardCount-1)
+    }
+    const startOffset = 0 - width*cardCount/2 - width/2
 
     elCards = elCards.map((card: Card, i: number) => {
       const goal: TransposeGoal = {}
 
       goal.scale = Card.DEFAULT_SCALE
       goal.position = [
-        EMISSIONS_LINE_POSITION[0] + startOffset + cardWidth/2 * (i+1),
+        EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1),
         EMISSIONS_LINE_POSITION[1]
       ]
 

@@ -1,7 +1,21 @@
-import { Card, SpaceCard } from './card'
+import { Card, SpaceCard, transpose } from './card'
 import { EmissionsLine } from './emissions-line'
 import { GameState } from './gamestate'
-import { ANIMATION_DURATION_MS } from './constants'
+import {
+  ANIMATION_DURATION_MS,
+  EMISSIONS_LINE_POSITION,
+  EMISSIONS_LINE_MAX_LENGTH
+} from './constants'
+
+function getELCardPosition(i: number, cardCount: number): number[] {
+  const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+  const startOffset = 0 - cardWidth*cardCount/4 - cardWidth/4
+
+  return [
+    EMISSIONS_LINE_POSITION[0] + startOffset + cardWidth/2 * (i+1),
+    EMISSIONS_LINE_POSITION[1]
+  ]
+}
 
 describe('EmissionsLine', () => {
   describe('rearrange()', () => {
@@ -18,15 +32,24 @@ describe('EmissionsLine', () => {
       let result = EmissionsLine.rearrange(state, 0)
       expect(result.cards).toEqual([card, card2, nonELCard])
 
-      result = EmissionsLine.rearrange(state, ANIMATION_DURATION_MS/2)
+      let timePassed = ANIMATION_DURATION_MS/2
+      result = EmissionsLine.rearrange(state, timePassed)
+      let pos1 = getELCardPosition(0, 2)
+      let pos2 = getELCardPosition(1, 2)
       expect(result.cards).toEqual([
         {
           ...card,
-          position: [337.3046875, 202.75]
+          position: [
+            transpose(1, pos1[0], timePassed),
+            transpose(1, pos1[1], timePassed)
+          ]
         },
         {
           ...card2,
-          position: [383.4453125, 203]
+          position: [
+            transpose(2, pos2[0], timePassed),
+            transpose(2, pos2[1], timePassed)
+          ]
         },
         nonELCard
       ])
@@ -51,6 +74,32 @@ describe('EmissionsLine', () => {
         .map(c => c.id)
 
       expect(positionalOrder).toEqual([-1, 0, -2])
+    })
+
+    it('does not go over max emissions line length', () => {
+      const card = new Card(0, "a", "emissions-line")
+      const card2 = new Card(1, "b", "emissions-line")
+      const card3 = new Card(2, "c", "emissions-line")
+      const card4 = new Card(3, "d", "emissions-line")
+      const card5 = new Card(4, "e", "emissions-line")
+      const card6 = new Card(5, "f", "emissions-line")
+      const state = new GameState()
+      state.cards = [
+        card,
+        card2,
+        card3,
+        card4,
+        card5,
+        card6
+      ]
+      state.emissionsLineCardOrder = [0, 1, 2, 3, 4, 5]
+
+      const result = EmissionsLine.rearrange(state, ANIMATION_DURATION_MS)
+      const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+      const leftEdge = result.cards.find(c => c.id === 0).position[0] - cardWidth/2
+      const rightEdge = result.cards.find(c => c.id === 5).position[0] + cardWidth/2
+
+      expect(rightEdge - leftEdge).toEqual(EMISSIONS_LINE_MAX_LENGTH)
     })
   })
 

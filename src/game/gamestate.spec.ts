@@ -1,4 +1,5 @@
 import { GameState } from './gamestate'
+import { Hand, OpponentHand } from './hand'
 import { Card } from './card'
 import { Event } from './event'
 import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from './constants'
@@ -137,8 +138,20 @@ describe('GameState', () => {
       let result = GameState
         .incorrectCardPlacement(state, event, ANIMATION_DURATION_MS)
 
-      expect(result.cards.find(c => c.id === card2.id).position).toEqual([480, 490])
-      expect(result.cards.find(c => c.id === card3.id).position).toEqual([480, 50])
+      state.cards = [card2, card3]
+
+      let expected1 = Hand
+        .rearrange(state, ANIMATION_DURATION_MS)
+        .cards
+        .find(c => c.id === card2.id)
+
+      let expected2 = OpponentHand
+        .rearrange(state, ANIMATION_DURATION_MS)
+        .cards
+        .find(c => c.id === card3.id)
+
+      expect(result.cards.find(c => c.id === card2.id).position).toEqual(expected1.position)
+      expect(result.cards.find(c => c.id === card3.id).position).toEqual(expected2.position)
     })
   })
 })
