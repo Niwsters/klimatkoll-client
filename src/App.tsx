@@ -31,7 +31,12 @@ class App extends Component<{}, {
 
   connect() {
     // Initialise outside constructor to avoid reconnecting socket due to ReactJS stuff
-    const socket = new WebSocket('ws://localhost:4200', 'echo-protocol')
+    let serverUrl = window.location.hostname
+    if (serverUrl === "localhost") {
+      serverUrl = serverUrl + ":4200"
+    }
+    console.log(serverUrl)
+    const socket = new WebSocket('ws://' + serverUrl, 'echo-protocol')
 
     socket.onopen = e => {
       this.notify('Uppkopplad till servern')
