@@ -3,7 +3,8 @@ import { Hand, OpponentHand } from './hand'
 import { EmissionsLine } from './emissions-line'
 import { Event } from './event'
 import {
-  DISCARD_PILE_POSITION
+  DISCARD_PILE_POSITION,
+  DECK_POSITION
 } from './constants'
 
 export interface ServerCommand {
@@ -35,6 +36,40 @@ export class GameState {
 
   static getSelectedCard(state: GameState): Card | undefined {
     return state.cards.find(c => c.id === state.selectedCardID)
+  }
+
+  static mouseClicked(state: GameState, event: Event, timePassed: number): GameState {
+    const focusedCardID = GameState.getFocusedCardID(state)
+    if (focusedCardID === undefined) {
+      state.selectedCardID = undefined
+    } else {
+      const card = state.cards.find(c => c.id === focusedCardID)
+
+      if (card && card.container === "hand") {
+        state.selectedCardID = focusedCardID
+      }
+    }
+    state = EmissionsLine.rearrange(state, timePassed)
+
+    return {
+      ...state
+    }
+  }
+
+  static nextCard(state: GameState, event: Event, timePassed: number): GameState {
+    // remove existing deck card
+    const cards = state.cards.filter(c => c.container !== "deck")
+
+    const serverCard = event.payload.card
+    const card = new Card(serverCard.id, serverCard.name, "deck")
+    card.position = DECK_POSITION
+
+    cards.push(card)
+
+    return {
+      ...state,
+      cards: cards
+    }
   }
 
   static incorrectCardPlacement(state: GameState, event: Event, timePassed: number): GameState {
@@ -97,10 +132,14 @@ export class GameState {
           const server_card = event.payload.card
 
           if (event.payload.socketID === state.socketID) {
-            state.cards.push(new Card(server_card.id, server_card.name, "hand"))
+            const card = new Card(server_card.id, server_card.name, "hand")
+            card.position = DECK_POSITION
+            state.cards.push(card)
             state = Hand.rearrange(state, timePassed)
           } else {
-            state.cards.push(new Card(server_card.id, server_card.name, "opponent-hand"))
+            const card = new Card(server_card.id, server_card.name, "opponent-hand")
+            card.position = DECK_POSITION
+            state.cards.push(card)
             state = OpponentHand.rearrange(state, timePassed)
           }
 
@@ -182,6 +221,7 @@ export class GameState {
           break
         case "next_card":
           // { card }
+          state = GameState.nextCard(state, event, timePassed)
           break
         case "card_hovered": {
           const card_id = event.payload.card_id
@@ -198,14 +238,7 @@ export class GameState {
           break
         }
         case "mouse_clicked": {
-          const focusedCardID = GameState.getFocusedCardID(state)
-          if (focusedCardID !== undefined) {
-            const card = state.cards.find(c => c.id === focusedCardID)
-
-            if (card && card.container === "hand") {
-              state.selectedCardID = focusedCardID
-            }
-          }
+          state = GameState.mouseClicked(state, event, timePassed)
           break
         }
         case "socket_id": {

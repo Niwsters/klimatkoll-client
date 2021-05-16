@@ -24,6 +24,7 @@ export class CardSprite {
   texCoordLocation: number = 0
   frontTexCoordBuffer: WebGLBuffer | null
   backTexCoordBuffer: WebGLBuffer | null
+  positionBuffer: WebGLBuffer | null
   program: WebGLProgram
   texture: WebGLTexture
   selected: boolean = false
@@ -105,7 +106,7 @@ export class CardSprite {
     const frontTexCoordBuffer = gl.createBuffer();
     (() => {
       gl.bindBuffer(gl.ARRAY_BUFFER, frontTexCoordBuffer)
-      const x0 = IMAGE_MARGIN / TEXTURE_WIDTH + CARD_WIDTH / TEXTURE_WIDTH
+      const x0 = IMAGE_MARGIN * 2 / TEXTURE_WIDTH + CARD_WIDTH / TEXTURE_WIDTH
       const y0 = IMAGE_MARGIN / TEXTURE_HEIGHT
       const x = CARD_WIDTH / TEXTURE_WIDTH * 2
       const y = CARD_HEIGHT / TEXTURE_HEIGHT
@@ -132,6 +133,7 @@ export class CardSprite {
     this.texture = texture
     this.backTexCoordBuffer = backTexCoordBuffer
     this.frontTexCoordBuffer = frontTexCoordBuffer
+    this.positionBuffer = positionBuffer
   }
 
   static prepareTextures(gl: WebGLRenderingContext): Promise<null> {
@@ -206,6 +208,12 @@ export class CardSprite {
     gl.uniform1i(visibleLocation, sprite.card.visible ? 1 : 0)
     gl.bindTexture(gl.TEXTURE_2D, sprite.texture);
     gl.drawArrays(gl.TRIANGLES, 0, 6)
+  }
+
+  static delete(sprite: CardSprite, gl: WebGLRenderingContext) {
+    gl.deleteBuffer(sprite.frontTexCoordBuffer)
+    gl.deleteBuffer(sprite.backTexCoordBuffer)
+    gl.deleteBuffer(sprite.positionBuffer)
   }
 }
 

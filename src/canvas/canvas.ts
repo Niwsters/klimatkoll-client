@@ -2,7 +2,7 @@ import { Card } from '../game/card'
 import { CardSprite } from './card-sprite'
 import { GameState } from '../game/gamestate'
 
-const cardSprites: CardSprite[] = []
+let cardSprites: CardSprite[] = []
 
 /*
   window.onload = () => {
@@ -77,6 +77,15 @@ export class Canvas {
           sprite.texture = texture
         }
       })
+
+    // Remove card sprites that don't exist in gamestate
+    cardSprites
+      .filter(s => state.cards.find(c => c.id === s.card.id) === undefined)
+      .forEach((s: CardSprite) => {
+        CardSprite.delete(s, gl)        
+      })
+    cardSprites = cardSprites
+      .filter(s => state.cards.find(c => c.id === s.card.id))
 
     cardSprites
       .sort((a,b) => {

@@ -19,6 +19,39 @@ function getELCardPosition(i: number, cardCount: number): number[] {
 
 describe('EmissionsLine', () => {
   describe('rearrange()', () => {
+    it('sets space cards to invisible if no card is selected', () => {
+      const state = new GameState()
+      const sc = new SpaceCard(-1)
+      state.selectedCardID = undefined
+      state.cards = [sc]
+      state.emissionsLineCardOrder = [-1]
+      const result = EmissionsLine.rearrange(state, 0)
+
+      expect(result.cards[0].visible).toEqual(false)
+    })
+
+    it('sets space cards to visible if card is selected', () => {
+      const state = new GameState()
+      const sc = new SpaceCard(-1)
+      state.selectedCardID = 3
+      state.cards = [sc]
+      state.emissionsLineCardOrder = [-1]
+      const result = EmissionsLine.rearrange(state, 0)
+
+      expect(result.cards[0].visible).toEqual(true)
+    })
+
+    it('sets space cards to visible if selected card ID is 0', () => {
+      const state = new GameState()
+      const sc = new SpaceCard(-1)
+      state.selectedCardID = 0
+      state.cards = [sc]
+      state.emissionsLineCardOrder = [-1]
+      const result = EmissionsLine.rearrange(state, 0)
+
+      expect(result.cards[0].visible).toEqual(true)
+    })
+
     it('transposes emissions line cards to their proper positions', () => {
       const card = new Card(0, "blargh", "emissions-line")
       card.position = [1,1]

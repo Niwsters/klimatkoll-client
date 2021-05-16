@@ -17,7 +17,11 @@ export class Card {
   visible: boolean = true
   flipped: boolean = false
 
-  constructor(id: number, name: string, container: "hand" | "opponent-hand" | "emissions-line") {
+  constructor(
+    id: number,
+    name: string,
+    container: "hand" | "opponent-hand" | "emissions-line" | "deck"
+  ) {
     this.id = id
     this.name = name
     if (name === "space") this.isSpace = true

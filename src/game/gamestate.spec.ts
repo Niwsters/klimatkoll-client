@@ -1,10 +1,106 @@
 import { GameState } from './gamestate'
 import { Hand, OpponentHand } from './hand'
-import { Card } from './card'
+import { Card, transpose } from './card'
+import { EmissionsLine } from './emissions-line'
 import { Event } from './event'
-import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from './constants'
+import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION, DECK_POSITION } from './constants'
 
 describe('GameState', () => {
+  describe('nextCard', () => {
+    it("creates a new deck card if none exists", () => {
+      const state = new GameState()
+
+      const timePassed = 3
+      const event = new Event(0, "next_card", {
+        card: {
+          id: 13,
+          name: "blargh"
+        }
+      }, 0)
+
+      const result = GameState.nextCard(state, event, timePassed)
+      const card = new Card(13, "blargh", "deck")
+      card.position = DECK_POSITION
+
+      expect(result.cards).toEqual([card])
+    })
+
+    it("replaces existing deck card if exists", () => {
+      const state = new GameState()
+      const timePassed = 3
+      const card = new Card(13, "blargh", "deck")
+      state.cards = [card]
+
+      const event = new Event(0, "next_card", {
+        card: {
+          id: 1,
+          name: "honk"
+        }
+      }, 0)
+
+      const card2 = new Card(1, "honk", "deck")
+      card2.position = DECK_POSITION
+
+      const result = GameState.nextCard(state, event, timePassed)
+
+      expect(result.cards).toEqual([card2])
+    })
+  })
+
+  describe('mouseClicked', () => {
+    /*
+    const focusedCardID = GameState.getFocusedCardID(state)
+    if (focusedCardID === undefined) {
+      state.selectedCardID = undefined
+    } else {
+      const card = state.cards.find(c => c.id === focusedCardID)
+
+      if (card && card.container === "hand") {
+        state.selectedCardID = focusedCardID
+      }
+    }
+    state = EmissionsLine.rearrange(state, timePassed)
+    */
+
+    it('sets selectedCardID to undefined if no card is focused', () => {
+      const state = new GameState()
+      state.selectedCardID = 3
+      state.hoveredCardIDs = []
+
+      const event = new Event(0, "mouse_clicked", {}, 0)
+      const timePassed = 3
+      const result = GameState.mouseClicked(state, event, timePassed)
+
+      expect(result.selectedCardID).toEqual(undefined)
+    })
+
+    it('sets selectedCardID to card ID if card is focused', () => {
+      const state = new GameState()
+      state.selectedCardID = undefined
+      state.cards = [new Card(3, "blargh", "hand")]
+      state.hoveredCardIDs = [3]
+
+      const event = new Event(0, "mouse_clicked", {}, 0)
+      const timePassed = 3
+      const result = GameState.mouseClicked(state, event, timePassed)
+
+      expect(result.selectedCardID).toEqual(3)
+    })
+
+    it('selects card with ID 0', () => {
+      const state = new GameState()
+      state.selectedCardID = undefined
+      state.cards = [new Card(0, "blargh", "hand")]
+      state.hoveredCardIDs = [0]
+
+      const event = new Event(0, "mouse_clicked", {}, 0)
+      const timePassed = 3
+      const result = GameState.mouseClicked(state, event, timePassed)
+
+      expect(result.selectedCardID).toEqual(0)
+    })
+  })
+
   describe('updateCards', () => {
     it("should replace existing cards with given cards' attributes", () => {
       const state = new GameState()
@@ -58,7 +154,10 @@ describe('GameState', () => {
       expect(result.cards).toEqual([
         {
           ...card,
-          position: [645.25, 202.75],
+          position: [
+            transpose(1, DISCARD_PILE_POSITION[0], timePassed),
+            transpose(1, DISCARD_PILE_POSITION[1], timePassed)
+          ],
           rotation: 7.5,
           addedRotation: 3.75,
           container: "discard-pile"

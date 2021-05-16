@@ -15,6 +15,7 @@ class App extends Component<{}, {
   notification: string,
   statusMessage: string,
   showNotification: boolean,
+  roomID?: string,
   canvasElem?: HTMLCanvasElement
 }> {
   commands$: BehaviorSubject<Event[]> = new BehaviorSubject<Event[]>([])
@@ -24,7 +25,6 @@ class App extends Component<{}, {
   events: Event[] = []
   socket?: WebSocket
   socketID?: number
-  roomID?: string
   timeout?: ReturnType<typeof setTimeout>
   handledServerEventIDs: Set<number> = new Set<number>()
   hoveredCardIDs: Set<number> = new Set<number>()
@@ -44,7 +44,6 @@ class App extends Component<{}, {
         case "socketID": {
           this.socketID = event.payload
           this.addCommand({
-            event_id: Math.random(),
             event_type: "socket_id",
             payload: {
               "socketID": this.socketID
@@ -54,8 +53,9 @@ class App extends Component<{}, {
           break
         }
         case "room_joined": {
-          this.roomID = event.payload.roomID
-          this.notify("Gick med i spel med ID: " + this.roomID)
+          const roomID = event.payload.roomID
+          this.setState({ roomID: roomID })
+          this.notify("Gick med i spel med ID: " + roomID)
           this.setState({ currentPage: 'game' })
           break
         }
@@ -75,6 +75,22 @@ class App extends Component<{}, {
           } else {
             this.notify("Andra spelaren lämnade spelet")
           }
+
+          // Show menu
+          this.setState({ currentPage: "menu" })
+          // Reset game state
+          this.serverEvents$.next([])
+          this.commands$.next([])
+          this.handledServerEventIDs = new Set([])
+          // Re-add socket ID since it will not be sent again by server
+          this.addCommand({
+            event_type: "socket_id",
+            payload: {
+              "socketID": this.socketID
+            },
+            timestamp: Date.now()
+          })
+
           break
         }
         case "new_game": {
@@ -191,6 +207,14 @@ class App extends Component<{}, {
     })
   }
 
+  leaveGame() {
+    this.sendCommand({
+      "context": "room",
+      "type": "exit_game",
+      "payload": {}
+    })
+  }
+
   notify(msg: string, shouldTimeOut: boolean = true) {
     this.setState({
       notification: msg,
@@ -268,10 +292,16 @@ class App extends Component<{}, {
     const notificationMsg = this.state.notification
     const showNotification = this.state.showNotification
     const statusMessage = this.state.statusMessage
+    const roomID = this.state.roomID
 
     let statusBar: JSX.Element | undefined
     if (currentPage === "game") {
-      statusBar = <StatusBar status={statusMessage} />
+      statusBar = (
+        <StatusBar
+          roomID={roomID}
+          leaveGame={() => this.leaveGame()}
+          status={statusMessage} />
+      )
     }
 
     return (
