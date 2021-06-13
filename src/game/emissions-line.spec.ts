@@ -134,6 +134,43 @@ describe('EmissionsLine', () => {
 
       expect(rightEdge - leftEdge).toEqual(EMISSIONS_LINE_MAX_LENGTH)
     })
+
+    it('hover-zooms card if no card is selected', () => {
+      const card = new Card(0, "a", "emissions-line")
+      const state = new GameState()
+      state.cards = [
+        card
+      ]
+      state.emissionsLineCardOrder = [0]
+      state.hoveredCardIDs = [0]
+
+      const result = EmissionsLine
+        .rearrange(state, ANIMATION_DURATION_MS)
+        .cards
+        .find(c => c.id === card.id)
+        .scale
+
+      expect(result).toEqual(Card.DEFAULT_SCALE*2)
+    })
+
+    it('does not hover-zoom card if card is selected', () => {
+      const card = new Card(0, "a", "emissions-line")
+      const state = new GameState()
+      state.cards = [
+        card
+      ]
+      state.emissionsLineCardOrder = [0]
+      state.hoveredCardIDs = [0]
+      state.selectedCardID = 1
+
+      const result = EmissionsLine
+        .rearrange(state, ANIMATION_DURATION_MS)
+        .cards
+        .find(c => c.id === card.id)
+        .scale
+
+      expect(result).toEqual(Card.DEFAULT_SCALE)
+    })
   })
 
   describe('add()', () => {

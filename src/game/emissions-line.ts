@@ -47,7 +47,7 @@ export class EmissionsLine {
           card.name = selectedCard.name
         }
       } else {
-        if (state.selectedCardID !== undefined && GameState.getFocusedCardID(state) === card.id) {
+        if (state.selectedCardID === undefined && GameState.getFocusedCardID(state) === card.id) {
           goal.scale = Card.DEFAULT_SCALE * 2
           card.zLevel = 999
         }
