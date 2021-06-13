@@ -252,6 +252,9 @@ class App extends Component<{}, {
       if (!elem) throw new Error("e.target is null")
       const rect = elem.getBoundingClientRect()
       const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
+      const ratio = 960 / canvasElem.width
+      mousePosition[0] *= ratio;
+      mousePosition[1] *= ratio;
       const state = this.getGameState()
 
       const result = Mouse.onMoved(
@@ -321,9 +324,7 @@ class App extends Component<{}, {
         </div>
         <canvas
           style={{ display: currentPage === "game" ? "block" : "none" }}
-          id="klimatkoll-canvas"
-          width="960"
-          height="540" />
+          id="klimatkoll-canvas" />
         { statusBar }
       </div>
     );

@@ -1,18 +1,11 @@
 Current
-- Show all them buttonz and inputs
-- Join game
-- Create game
+- PRIORITY: Norwegian cards for the Norwegian company
+- IF POSSIBLE: Norwegian label texts: After I've gotten the translations
 
 
-Canvas:
-- Render array of cards containing positions, scales and rotations
-- Static hand (oval shape!)
-- Static emission line
-- Static opponent hand (just reverse the other hand)
-- Rearrange hand cards
-- Rearrange emission line cards
-- Rearrange opponent hand cards
-- Deck
-- Discard pile
-- Move card between hands, emission line, deck, and discard pile
-- Zoom in on cards on hover
+
+
+
+
+- Teacher/school suggestions in focus. How do we pick between them?
+- NSF: Bara kunna lägga upp på hemsidan som länk. Behöver bara oroa oss om trafik.

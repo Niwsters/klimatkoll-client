@@ -15,7 +15,7 @@ void main() {
   );
   vec2 position = a_position * rotation_matrix * vec2(u_scale) + u_translation;
 
-  vec2 zeroToOne = position / u_resolution;
+  vec2 zeroToOne = position / vec2(960.0, 540.0);
 
   vec2 zeroToTwo = zeroToOne * 2.0;
 

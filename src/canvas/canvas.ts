@@ -4,32 +4,6 @@ import { GameState } from '../game/gamestate'
 
 let cardSprites: CardSprite[] = []
 
-/*
-  window.onload = () => {
-    const canvas = new Canvas(events$)
-
-    canvas.prepare().then(() => {
-
-    })
-  }
-
-  let i = 0
-  window.onmousemove = (e: MouseEvent) => {
-    const events = [
-      ...events$.value,
-      {
-        event_id: 999 + i,
-        event_type: "mouse_moved",
-        payload: {
-          x: e.clientX,
-          y: e.clientY
-        }
-      }
-    ]
-    events$.next(events)
-  }
-  */
-
 export class Canvas {
   gl: WebGLRenderingContext
 
@@ -37,6 +11,18 @@ export class Canvas {
     const gl = canvas.getContext("webgl")
     if (!gl) throw new Error("gl is null")
     this.gl = gl
+
+    const ratio = window.devicePixelRatio; // Changes on browser/OS zoom
+    canvas.width = window.innerWidth * ratio;
+    canvas.height = window.innerWidth * 0.5625 * ratio; // 540 / 960 = 0.5625
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+
+    window.addEventListener('resize', () => {
+      const ratio = window.devicePixelRatio; // Changes on browser/OS zoom
+      canvas.width = window.innerWidth * ratio;
+      canvas.height = window.innerWidth * 0.5625 * ratio; // 540 / 960 = 0.5625
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+    }, false)
 
     if (!gl) {
       throw new Error("Failed to initialize WebGL")

@@ -22,19 +22,8 @@ export function Menu(props: Props) {
   }
 
   return (
-    <div style={{
-      background: "#181543",
-      width: "100%",
-      height: "100%",
-      paddingTop: "100px",
-      boxSizing: "border-box"
-    }}>
-      <img style={{
-        width: "300px",
-        margin: "auto",
-        paddingBottom: "30px",
-        display: "block"
-      }} src="logo.webp" alt="Klimatkoll logga" />
+    <div className="menu">
+      <img className="logo" src="logo.webp" alt="Klimatkoll logga" />
       <input id="roomID" type="text" placeholder="Spelets namn" />
       <button onClick={() => createGame()} className="pink">
         Skapa spel
