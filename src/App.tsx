@@ -36,7 +36,7 @@ class App extends Component<{}, {
       serverUrl = serverUrl + ":4200"
     }
     console.log(serverUrl)
-    const socket = new WebSocket('ws://' + serverUrl, 'echo-protocol')
+    const socket = new WebSocket('wss://' + serverUrl, 'echo-protocol')
 
     socket.onopen = e => {
       this.notify('Uppkopplad till servern')
