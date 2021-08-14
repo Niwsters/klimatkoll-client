@@ -1,4 +1,5 @@
 import { Card } from '../game/card'
+import { CardData } from '../cards'
 import { CardSprite } from './card-sprite'
 import { GameState } from '../game/gamestate'
 
@@ -35,8 +36,8 @@ export class Canvas {
     this.gl = gl
   }
 
-  prepare(): Promise<null> {
-    return CardSprite.prepareTextures(this.gl)
+  prepare(cards: CardData[], baseUrl: string): Promise<null> {
+    return CardSprite.prepareTextures(this.gl, cards, baseUrl)
   }
 
   render(state: GameState) {
@@ -46,7 +47,6 @@ export class Canvas {
     gl.clear(gl.COLOR_BUFFER_BIT)
 
     // Map new cards to card sprites
-    // TODO: Remove unused card sprites
     state.cards
       .forEach((card: Card) => {
         let sprite = cardSprites.find((s: CardSprite) => s.card.id === card.id)

@@ -1,6 +1,6 @@
 import vsSource from './shader.vert'
 import fsSource from './shader.frag'
-import { cards, CardData } from '../cards'
+import { CardData } from '../cards'
 import { Card } from '../game/card'
 
 const IMAGE_WIDTH = 906/2
@@ -136,13 +136,18 @@ export class CardSprite {
     this.positionBuffer = positionBuffer
   }
 
-  static prepareTextures(gl: WebGLRenderingContext): Promise<null> {
+  static prepareTextures(
+    gl: WebGLRenderingContext,
+    cards: CardData[],
+    baseURL: string
+  ): Promise<null> {
     return new Promise((resolve, reject) => {
       let loadedCardImages = 0;
-      const cardsToLoad: CardData[] = [...cards, { id: -1, name: "space", emissions: 0 }]
+      const cardsToLoad = [...cards, { id: -1, name: "space", emissions: 0 }]
       cardsToLoad.forEach((cardData: CardData) => {
         const image = new Image()
-        image.src = `cards/${cardData.name}-pair.small.png`
+        image.crossOrigin = baseURL
+        image.src = `${baseURL}/cards/${cardData.name}-pair.small.png`
         image.onload = () => {
           // Create a texture.
           const texture = gl.createTexture();

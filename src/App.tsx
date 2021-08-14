@@ -9,8 +9,13 @@ import { Mouse } from './game/mouse'
 import { Menu } from './ui/Menu'
 import { StatusBar } from './ui/StatusBar'
 import { DebugConsole } from './devtools/console'
+import { CardData } from './cards'
 
-class App extends Component<{}, {
+interface Props {
+  language: string
+}
+
+class App extends Component<Props, {
   currentPage: string,
   notification: string,
   statusMessage: string,
@@ -29,14 +34,36 @@ class App extends Component<{}, {
   handledServerEventIDs: Set<number> = new Set<number>()
   hoveredCardIDs: Set<number> = new Set<number>()
 
-  connect() {
-    // Initialise outside constructor to avoid reconnecting socket due to ReactJS stuff
-    let serverUrl = window.location.hostname
-    if (serverUrl === "localhost") {
-      serverUrl = serverUrl + ":4200"
+  get baseURL(): string {
+    let baseURL = window.location.hostname
+    if (baseURL === "localhost")
+      return baseURL + ":3000"
+    return baseURL
+  }
+
+  get httpServerURL(): string {
+    if (this.baseURL.startsWith('localhost')) {
+      return `http://${this.baseURL}`
     }
-    console.log(serverUrl)
-    const socket = new WebSocket('wss://' + serverUrl, 'echo-protocol')
+
+    return `https://${this.baseURL}`
+  }
+
+  get wsServerURL(): string {
+    if (this.baseURL.startsWith('localhost')) {
+      return `ws://${this.baseURL}`
+    }
+
+    return `wss://${this.baseURL}`
+  }
+
+  connect() {
+    // Initialise connection outside constructor to avoid reconnecting socket due to ReactJS stuff
+
+    const language = this.props.language
+
+    //const socket = new WebSocket('wss://' + serverUrl, 'echo-protocol')
+    const socket = new WebSocket(this.wsServerURL, language)
 
     socket.onopen = e => {
       this.notify('Uppkopplad till servern')
@@ -173,7 +200,7 @@ class App extends Component<{}, {
     ])
   }
 
-  constructor(props: {}) {
+  constructor(props: Props) {
     super(props)
 
     DebugConsole.setupCommands(this.serverEvents$, this.commands$)
@@ -284,15 +311,28 @@ class App extends Component<{}, {
     this.setState({ canvasElem: canvasElem })
 
     const canvas = new Canvas(canvasElem)
-    canvas.prepare().then(() => {
-      setInterval(() => {
-        this.events = Event
-          .from(this.streams$)
-          .get()
-        const state = this.getGameState()
-        canvas.render(state)
-      }, 1000/60)
-    })
+    const language = this.props.language
+    const url = `${this.httpServerURL}/${language}`
+    fetch(`${url}/cards.json`)
+      .then(response => response.json())
+      .then((cards: any[]) => {
+        cards = cards.map((c: any, i: number) => {
+          return {
+            ...c,
+            id: i
+          }
+        })
+
+        canvas.prepare(cards, url).then(() => {
+          setInterval(() => {
+            this.events = Event
+              .from(this.streams$)
+              .get()
+            const state = this.getGameState()
+            canvas.render(state)
+          }, 1000/60)
+        })
+      })
   }
 
   render() {
@@ -320,12 +360,14 @@ class App extends Component<{}, {
         <div style={{ display: currentPage === "menu" ? "block" : "none", height: "100%" }}>
           <Menu
             joinGame={this.joinGame.bind(this)}
-            createGame={this.createGame.bind(this)} />
+            createGame={this.createGame.bind(this)}
+            serverUrl={this.httpServerURL} />
         </div>
         <canvas
           style={{ display: currentPage === "game" ? "block" : "none" }}
           id="klimatkoll-canvas" />
         { statusBar }
+        <link rel="stylesheet" href={this.httpServerURL + "/styles.css"} />
       </div>
     );
   }
