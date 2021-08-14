@@ -12,7 +12,8 @@ import { DebugConsole } from './devtools/console'
 import { CardData } from './cards'
 
 interface Props {
-  language: string
+  language: string,
+  devMode?: boolean
 }
 
 class App extends Component<Props, {
@@ -33,16 +34,17 @@ class App extends Component<Props, {
   timeout?: ReturnType<typeof setTimeout>
   handledServerEventIDs: Set<number> = new Set<number>()
   hoveredCardIDs: Set<number> = new Set<number>()
+  devMode: boolean = false
 
   get baseURL(): string {
-    let baseURL = window.location.hostname
-    if (baseURL === "localhost")
-      return baseURL + ":3000"
-    return baseURL
+    if (this.devMode === true)
+      return "localhost:3000"
+
+    return "spela.kortspeletklimatkoll.se"
   }
 
   get httpServerURL(): string {
-    if (this.baseURL.startsWith('localhost')) {
+    if (this.devMode === true) {
       return `http://${this.baseURL}`
     }
 
@@ -50,7 +52,7 @@ class App extends Component<Props, {
   }
 
   get wsServerURL(): string {
-    if (this.baseURL.startsWith('localhost')) {
+    if (this.devMode === true) {
       return `ws://${this.baseURL}`
     }
 
@@ -59,6 +61,8 @@ class App extends Component<Props, {
 
   connect() {
     // Initialise connection outside constructor to avoid reconnecting socket due to ReactJS stuff
+    if (this.props.devMode)
+      this.devMode = this.props.devMode
 
     const language = this.props.language
 
@@ -75,8 +79,7 @@ class App extends Component<Props, {
       switch(event.type) {
         case "socketID": {
           this.socketID = event.payload
-          this.addCommand({
-            event_type: "socket_id",
+          this.addCommand({ event_type: "socket_id",
             payload: {
               "socketID": this.socketID
             },
