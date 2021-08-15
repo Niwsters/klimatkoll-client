@@ -2,6 +2,7 @@ import { Card, TransposeGoal } from './card'
 import { Hand, OpponentHand } from './hand'
 import { EmissionsLine } from './emissions-line'
 import { Event } from './event'
+import { TextConfig } from './text'
 import {
   DISCARD_PILE_POSITION,
   DECK_POSITION
@@ -110,13 +111,17 @@ export class GameState {
     return state
   }
 
-  static fromEvents(events: Event[], currentTime: number = Date.now()): GameState {
+  static fromEvents(
+    events: Event[],
+    text: TextConfig,
+    currentTime: number = Date.now(),
+  ): GameState {
     return events.reduce((state: GameState, event: Event) => {
       const timePassed = currentTime - event.timestamp
       switch(event.event_type) {
         case "waiting_for_players":
           // No payload
-          state.statusMessage = "Väntar på spelare #2"
+          state.statusMessage = text.waitingForPlayer
           break
         case "playing":
           // No payload
@@ -176,22 +181,6 @@ export class GameState {
           state = Hand.rearrange(state, timePassed)
           state = OpponentHand.rearrange(state, timePassed)
 
-          /*
-          const spaceCard = new SpaceCard(state)
-          let i = 0;
-          state.cards = state.cards.reduce((cards: Card[], card: Card) => {
-            if (c.container != "emissions-line") return [...cards, c];
-
-            if (i === position) {
-              i += 1
-              return [...cards, c, movedCard, spaceCard]
-            }
-
-            i += 1
-            return [...cards, c];
-          }, [])
-          */
-
           break
         case "incorrect_card_placement": {
           // { cardID, socketID }
@@ -202,18 +191,18 @@ export class GameState {
           // { socketID }
           if (state.socketID === event.payload.socketID) {
             state.isMyTurn = true
-            state.statusMessage = "Din tur"
+            state.statusMessage = text.yourTurn
           } else {
             state.isMyTurn = false
-            state.statusMessage = "Andra spelarens tur"
+            state.statusMessage = text.opponentsTurn
           }
           break
         case "game_won":
           // { socketID }
           if (state.socketID === event.payload.socketID) {
-            state.statusMessage = "Du vann!"
+            state.statusMessage = text.youWon
           } else {
-            state.statusMessage = "Du förlorade!"
+            state.statusMessage = text.youLost
           }
           break
         case "vote_new_game":

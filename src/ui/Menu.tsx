@@ -1,15 +1,17 @@
 import React from 'react'
+import { TextConfig } from '../game/text'
 
 interface Props {
   createGame: (roomID: string) => void,
   joinGame: (roomID: string) => void,
-  serverUrl: string
+  serverUrl: string,
+  text: TextConfig
 }
 
 export function Menu(props: Props) {
 
+  const text = props.text
   const serverUrl = props.serverUrl
-  if (!serverUrl) return (<div>Loading...</div>);
 
   const getRoomID = () => {
     const roomIDInput = document.getElementById('roomID') as HTMLInputElement
@@ -28,13 +30,13 @@ export function Menu(props: Props) {
 
   return (
     <div className="menu">
-      <img className="logo" src={serverUrl + "/logo.webp"} alt="Klimatkoll logga" />
-      <input id="roomID" type="text" placeholder="Spelets namn" />
+      <img className="logo" src={serverUrl + "/logo.webp"} alt={text.altClimateCallLogo} />
+      <input id="roomID" type="text" placeholder={text.inputRoomID} />
       <button onClick={() => createGame()} className="pink">
-        Skapa spel
+        {text.btnCreateGame}
       </button>
       <button onClick={() => joinGame()} className="yellow">
-        Gå med i spel
+        {text.btnJoinGame}
       </button>
     </div>
   )

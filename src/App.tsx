@@ -8,12 +8,13 @@ import { Canvas } from './canvas/canvas'
 import { Mouse } from './game/mouse'
 import { Menu } from './ui/Menu'
 import { StatusBar } from './ui/StatusBar'
-import { DebugConsole } from './devtools/console'
 import { CardData } from './cards'
+import { TextConfig } from './game/text'
 
 interface Props {
   language: string,
-  devMode?: boolean
+  devMode: boolean,
+  text: TextConfig
 }
 
 class App extends Component<Props, {
@@ -66,11 +67,12 @@ class App extends Component<Props, {
 
     const language = this.props.language
 
-    //const socket = new WebSocket('wss://' + serverUrl, 'echo-protocol')
     const socket = new WebSocket(this.wsServerURL, language)
 
+    const text = this.props.text
+
     socket.onopen = e => {
-      this.notify('Uppkopplad till servern')
+      this.notify(text.connectedToServer)
     }
 
     socket.onmessage = (e: MessageEvent) => {
@@ -90,25 +92,25 @@ class App extends Component<Props, {
         case "room_joined": {
           const roomID = event.payload.roomID
           this.setState({ roomID: roomID })
-          this.notify("Gick med i spel med ID: " + roomID)
+          this.notify(text.roomJoined + roomID)
           this.setState({ currentPage: 'game' })
           break
         }
         case "room_full": {
           // const roomID = event.payload
-          this.notify("Kan inte gå med i rum: Rummet är fullt")
+          this.notify(text.roomFull)
           break
         }
         case "room_exists": {
-          this.notify("Kunde inte skapa rum: Rum med samma ID existerar redan")
+          this.notify(text.roomExists)
           break
         }
         case "room_left": {
           const socketID = event.payload.socketID
           if (socketID === this.socketID) {
-            this.notify("Lämnade spelet")
+            this.notify(text.roomLeft)
           } else {
-            this.notify("Andra spelaren lämnade spelet")
+            this.notify(text.roomOpponentLeft)
           }
 
           // Show menu
@@ -141,7 +143,7 @@ class App extends Component<Props, {
 
     socket.onclose = e => {
       console.log('Socket closed')
-      this.notify('Tappade uppkoppling till servern. Försöker koppla upp igen.', false)
+      this.notify(text.reconnecting, false)
       setTimeout(() => {
         this.connect();
       }, 1000);
@@ -151,7 +153,7 @@ class App extends Component<Props, {
   }
 
   getGameState() {
-    return GameState.fromEvents(this.events) 
+    return GameState.fromEvents(this.events, this.props.text) 
   }
 
   // This is required to keep track of when server events were received
@@ -205,8 +207,6 @@ class App extends Component<Props, {
 
   constructor(props: Props) {
     super(props)
-
-    DebugConsole.setupCommands(this.serverEvents$, this.commands$)
 
     this.state = {
       currentPage: 'menu',
@@ -271,7 +271,7 @@ class App extends Component<Props, {
       .observable()
 
     this.events$.subscribe((events: Event[]) => {
-      const state = GameState.fromEvents(events)
+      const state = GameState.fromEvents(events, this.props.text)
       this.setState({ statusMessage: state.statusMessage })
     })
 
@@ -344,11 +344,13 @@ class App extends Component<Props, {
     const showNotification = this.state.showNotification
     const statusMessage = this.state.statusMessage
     const roomID = this.state.roomID
+    const text = this.props.text
 
     let statusBar: JSX.Element | undefined
     if (currentPage === "game") {
       statusBar = (
         <StatusBar
+          text = {text}
           roomID={roomID}
           leaveGame={() => this.leaveGame()}
           status={statusMessage} />
@@ -362,6 +364,7 @@ class App extends Component<Props, {
         </div>
         <div style={{ display: currentPage === "menu" ? "block" : "none", height: "100%" }}>
           <Menu
+            text={this.props.text}
             joinGame={this.joinGame.bind(this)}
             createGame={this.createGame.bind(this)}
             serverUrl={this.httpServerURL} />
