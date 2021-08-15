@@ -35,17 +35,16 @@ class App extends Component<Props, {
   timeout?: ReturnType<typeof setTimeout>
   handledServerEventIDs: Set<number> = new Set<number>()
   hoveredCardIDs: Set<number> = new Set<number>()
-  devMode: boolean = false
 
   get baseURL(): string {
-    if (this.devMode === true)
+    if (this.props.devMode === true)
       return "localhost:3000"
 
     return "spela.kortspeletklimatkoll.se"
   }
 
   get httpServerURL(): string {
-    if (this.devMode === true) {
+    if (this.props.devMode === true) {
       return `http://${this.baseURL}`
     }
 
@@ -53,7 +52,7 @@ class App extends Component<Props, {
   }
 
   get wsServerURL(): string {
-    if (this.devMode === true) {
+    if (this.props.devMode === true) {
       return `ws://${this.baseURL}`
     }
 
@@ -62,9 +61,6 @@ class App extends Component<Props, {
 
   connect() {
     // Initialise connection outside constructor to avoid reconnecting socket due to ReactJS stuff
-    if (this.props.devMode)
-      this.devMode = this.props.devMode
-
     const language = this.props.language
 
     const socket = new WebSocket(this.wsServerURL, language)
