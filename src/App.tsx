@@ -273,12 +273,13 @@ class App extends Component<Props, {
 
     const canvasElem = document.getElementById("klimatkoll-canvas") as HTMLCanvasElement
     if (!canvasElem) throw new Error("Element with ID 'klimatkoll-canvas' not found")
+
     canvasElem.onmousemove = (e: MouseEvent) => {
       const elem = e.target as HTMLElement
       if (!elem) throw new Error("e.target is null")
       const rect = elem.getBoundingClientRect()
       const mousePosition = vec2.fromValues(e.clientX - rect.left, e.clientY - rect.top)
-      const ratio = 960 / canvasElem.width
+      const ratio = 960 / canvasElem.width * window.devicePixelRatio
       mousePosition[0] *= ratio;
       mousePosition[1] *= ratio;
       const state = this.getGameState()
