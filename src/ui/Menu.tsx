@@ -1,15 +1,16 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { TextConfig } from '../models/text-config'
 import { AppConfig } from '../config'
+import { EventToAdd, CreateGameEvent, JoinGameEvent } from '../event/event'
 
 interface Props {
-  createGame: (roomID: string) => void,
-  joinGame: (roomID: string) => void,
+  addEvent: (event: EventToAdd) => void
   config: AppConfig
 }
 
 export function Menu(props: Props) {
   const config = props.config
+  const addEvent = props.addEvent
   const text = config.text
   const httpServerURL = config.httpServerURL
 
@@ -19,23 +20,14 @@ export function Menu(props: Props) {
     return roomIDInput.value
   }
 
-  const createGame = () => {
-    const roomID = getRoomID()
-    props.createGame(roomID)
-  }
-  const joinGame = () => {
-    const roomID = getRoomID()
-    props.joinGame(roomID)
-  }
-
   return (
     <div className="menu">
       <img className="logo" src={httpServerURL + "/logo.webp"} alt={text.altClimateCallLogo} />
       <input id="roomID" type="text" placeholder={text.inputRoomID} />
-      <button onClick={() => createGame()} className="pink">
+      <button onClick={() => addEvent(new CreateGameEvent())} className="pink">
         {text.btnCreateGame}
       </button>
-      <button onClick={() => joinGame()} className="yellow">
+      <button onClick={() => addEvent(new JoinGameEvent())} className="yellow">
         {text.btnJoinGame}
       </button>
     </div>

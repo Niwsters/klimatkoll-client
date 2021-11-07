@@ -1,5 +1,5 @@
 import { Subject } from 'rxjs'
-import { Event } from '../models/event'
+import { Event } from '../event/event'
 import { TextConfig } from '../models/text-config'
 import { AppConfig } from '../config'
 

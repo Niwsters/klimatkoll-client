@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { TextConfig } from './models/text-config'
 import { GameSocket } from './socket/game-socket'
-import { Event } from './models/event'
+import { Event, EventToAdd } from './event/event'
 import { EventStream } from './event/event-stream'
 import { Menu } from './ui/Menu'
 import { AppConfig } from './config'
@@ -16,16 +16,8 @@ interface State {}
 
 class App extends Component<Props, State> {
   socket!: GameSocket
-  eventStream!: EventStream
-  config!: AppConfig
-
-  joinGame(): void {
-
-  }
-
-  createGame(): void {
-
-  }
+  eventStream: EventStream
+  config: AppConfig
 
   constructor(props: Props) {
     super(props)
@@ -34,6 +26,7 @@ class App extends Component<Props, State> {
     const text = props.text
 
     this.config = new AppConfig(devMode, language, text)
+    this.eventStream = new EventStream()
 
     this.state = {}
   }
@@ -46,6 +39,12 @@ class App extends Component<Props, State> {
     // Make sure to do this in componentDidMount instead of constructor to avoid reconnecting due to ReactJS stuff
     this.socket = new GameSocket(config)
     this.socket.events$.subscribe((event: Event) => eventStream.next(event))
+
+    eventStream.subscribe((e: Event) => console.log("Event stream:", e))
+  }
+
+  addEvent(event: EventToAdd): void {
+    this.eventStream.next(event)
   }
 
   render() {
@@ -56,8 +55,7 @@ class App extends Component<Props, State> {
         <div style={{ display: "block", height: "100%" }}>
           <Menu
             config={config}
-            joinGame={this.joinGame.bind(this)}
-            createGame={this.createGame.bind(this)} />
+            addEvent={this.addEvent.bind(this)} />
         </div>
         <link rel="stylesheet" href={config.httpServerURL + "/styles.css"} />
       </div>

@@ -1,5 +1,0 @@
-export interface Event {
-  event_id: number
-  event_type: string
-  payload: any
-}
