@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextConfig } from '../game/text'
+import { TextConfig } from '../models/text-config'
 
 export function StatusBar(props: {
   status: string,

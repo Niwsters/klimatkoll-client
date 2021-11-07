@@ -1,17 +1,17 @@
 import React from 'react'
-import { TextConfig } from '../game/text'
+import { TextConfig } from '../models/text-config'
+import { AppConfig } from '../config'
 
 interface Props {
   createGame: (roomID: string) => void,
   joinGame: (roomID: string) => void,
-  serverUrl: string,
-  text: TextConfig
+  config: AppConfig
 }
 
 export function Menu(props: Props) {
-
-  const text = props.text
-  const serverUrl = props.serverUrl
+  const config = props.config
+  const text = config.text
+  const httpServerURL = config.httpServerURL
 
   const getRoomID = () => {
     const roomIDInput = document.getElementById('roomID') as HTMLInputElement
@@ -30,7 +30,7 @@ export function Menu(props: Props) {
 
   return (
     <div className="menu">
-      <img className="logo" src={serverUrl + "/logo.webp"} alt={text.altClimateCallLogo} />
+      <img className="logo" src={httpServerURL + "/logo.webp"} alt={text.altClimateCallLogo} />
       <input id="roomID" type="text" placeholder={text.inputRoomID} />
       <button onClick={() => createGame()} className="pink">
         {text.btnCreateGame}
