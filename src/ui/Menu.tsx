@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { TextConfig } from '../models/text-config'
-import { AppConfig } from '../config'
+import { AppConfig } from '../App'
 import { EventToAdd, CreateGameEvent, JoinGameEvent } from '../event/event'
 
 interface Props {
@@ -24,7 +24,7 @@ export function Menu(props: Props) {
     <div className="menu">
       <img className="logo" src={httpServerURL + "/logo.webp"} alt={text.altClimateCallLogo} />
       <input id="roomID" type="text" placeholder={text.inputRoomID} />
-      <button onClick={() => addEvent(new CreateGameEvent())} className="pink">
+      <button onClick={() => addEvent(new CreateGameEvent(getRoomID()))} className="pink">
         {text.btnCreateGame}
       </button>
       <button onClick={() => addEvent(new JoinGameEvent())} className="yellow">

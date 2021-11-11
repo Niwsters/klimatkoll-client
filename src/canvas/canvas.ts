@@ -8,7 +8,12 @@ let cardSprites: CardSprite[] = []
 export class Canvas {
   gl: WebGLRenderingContext
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor() {
+    const canvas = document.createElement('canvas')
+    const appInner = document.getElementById("app-inner")
+    if (!appInner) throw new Error("Can't find element with ID app-inner")
+    appInner.appendChild(canvas)
+
     const gl = canvas.getContext("webgl")
     if (!gl) throw new Error("gl is null")
     this.gl = gl
@@ -36,8 +41,19 @@ export class Canvas {
     this.gl = gl
   }
 
-  prepare(cards: CardData[], baseUrl: string): Promise<null> {
-    return CardSprite.prepareTextures(this.gl, cards, baseUrl)
+  prepare(baseUrl: string): void {
+    fetch(`${baseUrl}/cards.json`)
+      .then(response => response.json())
+      .then((cards: any[]) => {
+        cards = cards.map((c: any, i: number) => {
+          return {
+            ...c,
+            id: i
+          }
+        })
+
+        CardSprite.prepareTextures(this.gl, cards, baseUrl)
+      })
   }
 
   render(state: GameState) {
