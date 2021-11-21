@@ -33,11 +33,7 @@ fetch(`${url}/${lang}/text.json`)
     const app = new App(config)
 
     ReactDOM.render(
-      <AppComponent 
-        config={app.config}
-        state$={app.state$}
-        addEvent={app.addEvent.bind(app)}
-      />,
+      app.render(),
       document.getElementById('app-inner')
     )
   })

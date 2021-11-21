@@ -24,6 +24,7 @@ export class GameState {
   hoveredCardIDs = new Set<number>()
   selectedCardID?: number
   statusMessage: string = ""
+  roomID: string = ""
 
   static getFocusedCardID(state: GameState): number | undefined {
     return Array.from(state.hoveredCardIDs)[0]

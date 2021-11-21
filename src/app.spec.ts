@@ -14,13 +14,6 @@ describe('AppState', () => {
     })
   })
 
-  describe('new', () => {
-    it('returns new copy of itself', () => {
-      expect(app.new()).toEqual(app)
-      expect(app.room_joined).toBeDefined()
-    })
-  })
-
   describe('room_joined', () => {
     it('Changes current page to game', () => {
       app = app.room_joined(new Event(1, "room_joined", { roomID: "blargh" }))

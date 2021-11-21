@@ -6,9 +6,10 @@ import { Game } from './game/game'
 import { Event, EventToAdd } from './event/event'
 import { EventStream } from './event/event-stream'
 import { Menu } from './ui/Menu'
+import { StatusBar } from './ui/StatusBar'
 import { UserInput } from './ui/user-input'
 import { Canvas } from './canvas/canvas'
-import { BehaviorSubject } from 'rxjs'
+import { Observable, BehaviorSubject } from 'rxjs'
 
 export class AppConfig {
   devMode: boolean
@@ -47,6 +48,8 @@ export class AppConfig {
 
 export class AppState {
   currentPage: string = "menu"
+  statusMessage: string = ""
+  roomID: string = ""
 
   room_joined(e: Event): AppState {
     return {
@@ -64,6 +67,7 @@ export class App {
   config: AppConfig
   canvas: Canvas
   state$: BehaviorSubject<AppState>
+  gamestate$: Observable<GameState>
 
   get state(): AppState {
     return this.state$.value
@@ -84,6 +88,7 @@ export class App {
 
     this.game = new Game()
     this.game.events$.subscribe((event: EventToAdd) => eventStream.next(event))
+    this.gamestate$ = this.game.state$
 
     this.userInput = new UserInput()
     this.userInput.events$.subscribe((event: EventToAdd) => eventStream.next(event))
@@ -113,32 +118,40 @@ export class App {
     return <AppComponent 
       config={this.config}
       state$={this.state$}
+      gamestate$={this.gamestate$}
       addEvent={this.addEvent.bind(this)}
       />;
   }
 }
 
 interface Props {
-  config: AppConfig,
+  config: AppConfig
   state$: BehaviorSubject<AppState>
+  gamestate$: Observable<GameState>
   addEvent: (e: EventToAdd) => void
 }
 
 interface State {
-  appstate: AppState
+  appstate: AppState,
+  gamestate: GameState
 }
 
 export class AppComponent extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
-      appstate: props.state$.value
+      appstate: props.state$.value,
+      gamestate: new GameState()
     }
   }
 
   componentDidMount() {
     this.props.state$.subscribe(appstate => {
       this.setState({ appstate: appstate })
+    })
+
+    this.props.gamestate$.subscribe(gamestate => {
+      this.setState({ gamestate: gamestate })
     })
   }
 
@@ -147,11 +160,13 @@ export class AppComponent extends Component<Props, State> {
     const config = props.config
     const addEvent = props.addEvent
     const state = this.state.appstate
+    const gamestate = this.state.gamestate
 
     if (!state)
       return "";
 
     let page: any = ""
+    let statusBar: any = ""
     switch(state.currentPage) {
       case "menu": {
         page = <Menu
@@ -161,6 +176,10 @@ export class AppComponent extends Component<Props, State> {
       }
       case "game":
         page = <canvas id="klimatkoll-canvas" />
+        statusBar = <StatusBar
+          gamestate={gamestate}
+          config={config}
+          addEvent={addEvent} />
         break;
     }
 
@@ -170,6 +189,7 @@ export class AppComponent extends Component<Props, State> {
           { page }
         </div>
         <link rel="stylesheet" href={config.httpServerURL + "/styles.css"} />
+        { statusBar }
       </div>
     );
   }

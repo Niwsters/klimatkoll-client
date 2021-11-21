@@ -28,3 +28,9 @@ export class JoinGameEvent extends EventToAdd {
     super("join_game")
   }
 }
+
+export class LeaveGameEvent extends EventToAdd {
+  constructor() {
+    super("leave_game")
+  }
+}
