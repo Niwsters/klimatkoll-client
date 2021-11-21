@@ -26,6 +26,10 @@ export class GameState {
   statusMessage: string = ""
   roomID: string = ""
 
+  new(params: any): GameState {
+    return Object.assign(new GameState(), this, params)
+  }
+
   static getFocusedCardID(state: GameState): number | undefined {
     return Array.from(state.hoveredCardIDs)[0]
   }
@@ -40,27 +44,26 @@ export class GameState {
     return state.cards.find(c => c.id === state.selectedCardID)
   }
 
-  static mouseClicked(state: GameState, event: Event, timePassed: number): GameState {
-    const focusedCardID = GameState.getFocusedCardID(state)
-    if (focusedCardID === undefined) {
-      state.selectedCardID = undefined
-    } else {
-      const card = state.cards.find(c => c.id === focusedCardID)
+  mouse_clicked(event: Event, timePassed: number): GameState {
+    const focusedCardID = GameState.getFocusedCardID(this)
+    let selectedCardID = undefined
+    if (focusedCardID !== undefined) {
+      const card = this.cards.find(c => c.id === focusedCardID)
 
       if (card && card.container === "hand") {
-        state.selectedCardID = focusedCardID
+        selectedCardID = focusedCardID
       }
     }
-    state = EmissionsLine.rearrange(state, timePassed)
 
-    return {
-      ...state
-    }
+    return this.new(
+      { selectedCardID: selectedCardID },
+      EmissionsLine.rearrange(this, timePassed)
+    )
   }
 
-  static nextCard(state: GameState, event: Event, timePassed: number): GameState {
+  next_card(event: Event, timePassed: number): GameState {
     // remove existing deck card
-    const cards = state.cards.filter(c => c.container !== "deck")
+    const cards = this.cards.filter(c => c.container !== "deck")
 
     const serverCard = event.payload.card
     const card = new Card(serverCard.id, serverCard.name, "deck")
@@ -68,10 +71,7 @@ export class GameState {
 
     cards.push(card)
 
-    return {
-      ...state,
-      cards: cards
-    }
+    return this.new({ cards: cards })
   }
 
   static incorrectCardPlacement(state: GameState, event: Event, timePassed: number): GameState {

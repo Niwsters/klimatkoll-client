@@ -6,7 +6,15 @@ import { Event } from './event'
 import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION, DECK_POSITION } from './constants'
 
 describe('GameState', () => {
-  describe('nextCard', () => {
+  describe('new', () => {
+    it("returns duplicate with given params which retains methods", () => {
+      const state = new GameState()
+      expect(state.new({ roomID: "blargh" })).toEqual({ ...state, roomID: "blargh"})
+      expect(state.next_card).toBeDefined()
+    })
+  })
+
+  describe('next_card', () => {
     it("creates a new deck card if none exists", () => {
       const state = new GameState()
 
@@ -18,11 +26,12 @@ describe('GameState', () => {
         }
       }, 0)
 
-      const result = GameState.nextCard(state, event, timePassed)
+      const result = state.next_card(event, timePassed)
       const card = new Card(13, "blargh", "deck")
       card.position = DECK_POSITION
 
       expect(result.cards).toEqual([card])
+      expect(result.next_card).toBeDefined()
     })
 
     it("replaces existing deck card if exists", () => {
@@ -41,27 +50,13 @@ describe('GameState', () => {
       const card2 = new Card(1, "honk", "deck")
       card2.position = DECK_POSITION
 
-      const result = GameState.nextCard(state, event, timePassed)
+      const result = state.next_card(event, timePassed)
 
       expect(result.cards).toEqual([card2])
     })
   })
 
-  describe('mouseClicked', () => {
-    /*
-    const focusedCardID = GameState.getFocusedCardID(state)
-    if (focusedCardID === undefined) {
-      state.selectedCardID = undefined
-    } else {
-      const card = state.cards.find(c => c.id === focusedCardID)
-
-      if (card && card.container === "hand") {
-        state.selectedCardID = focusedCardID
-      }
-    }
-    state = EmissionsLine.rearrange(state, timePassed)
-    */
-
+  describe('mouse_clicked', () => {
     it('sets selectedCardID to undefined if no card is focused', () => {
       const state = new GameState()
       state.selectedCardID = 3
@@ -69,9 +64,10 @@ describe('GameState', () => {
 
       const event = new Event(0, "mouse_clicked", {}, 0)
       const timePassed = 3
-      const result = GameState.mouseClicked(state, event, timePassed)
+      const result = state.mouse_clicked(event, timePassed)
 
       expect(result.selectedCardID).toEqual(undefined)
+      expect(result.mouse_clicked).toBeDefined()
     })
 
     it('sets selectedCardID to card ID if card is focused', () => {
@@ -82,7 +78,7 @@ describe('GameState', () => {
 
       const event = new Event(0, "mouse_clicked", {}, 0)
       const timePassed = 3
-      const result = GameState.mouseClicked(state, event, timePassed)
+      const result = state.mouse_clicked(event, timePassed)
 
       expect(result.selectedCardID).toEqual(3)
     })
@@ -95,9 +91,13 @@ describe('GameState', () => {
 
       const event = new Event(0, "mouse_clicked", {}, 0)
       const timePassed = 3
-      const result = GameState.mouseClicked(state, event, timePassed)
+      const result = state.mouse_clicked(event, timePassed)
 
       expect(result.selectedCardID).toEqual(0)
+    })
+
+    it('rearranges emissions line', () => {
+      // TODO: Test for this!
     })
   })
 
