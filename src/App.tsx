@@ -101,6 +101,7 @@ export class App {
       this.game.handleEvent(e)
       this.userInput.handleEvent(e)
       this.handleEvent(e)
+      console.log("Event stream: ", e)
     })
   }
 

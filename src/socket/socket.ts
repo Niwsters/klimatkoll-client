@@ -26,4 +26,8 @@ export class Socket {
   static create_game(event: Event): Event[] {
     return [event]
   }
+
+  static join_game(event: Event): Event[] {
+    return [event]
+  }
 }

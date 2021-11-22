@@ -7,9 +7,9 @@ export class Game {
   state$: BehaviorSubject<GameState> = new BehaviorSubject<GameState>(new GameState())
 
   handleEvent(event: Event): void {
-    const state = this.state$.value
-    const func = state[event.event_type]
-    if (func)
+    const state = this.state$.value as any
+    const func: any = state[event.event_type]
+    if (typeof func == 'function')
       this.state$.next(func(event))
   }
 }

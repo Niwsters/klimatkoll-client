@@ -224,6 +224,7 @@ export class GameState {
     return state
   }
 
+  /*
   static handleEvent(
     oldState: GameState,
     event: Event,
@@ -257,7 +258,7 @@ export class GameState {
           state,
           new Card(serverCard.id, serverCard.name, "emissions-line"),
           position)
-        state = EmissionsLine.rearrange(state, timePassed)
+        state = state.rearrangeEL(timePassed)
         break
       }
       case "card_played_from_hand":
@@ -272,8 +273,8 @@ export class GameState {
         const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
         movedCard.position = playedCard.position
         state.cards = state.cards.filter(c => c !== playedCard)
-        state = EmissionsLine.add(state, movedCard, position)
-        state = EmissionsLine.rearrange(state, timePassed)
+        state = state.addToEL(movedCard, position)
+        state = state.rearrangeEL(timePassed)
         state = Hand.rearrange(state, timePassed)
         state = OpponentHand.rearrange(state, timePassed)
 
@@ -312,14 +313,14 @@ export class GameState {
         const card_id = event.payload.card_id
         state.hoveredCardIDs.add(card_id)
         state = Hand.rearrange(state, timePassed)
-        state = EmissionsLine.rearrange(state, timePassed)
+        state = state.rearrangeEL(timePassed)
         break
       }
       case "card_unhovered": {
         const card_id = event.payload.card_id
         state.hoveredCardIDs.delete(card_id)
         state = Hand.rearrange(state, timePassed)
-        state = EmissionsLine.rearrange(state, timePassed)
+        state = state.rearrangeEL(timePassed)
         break
       }
       case "mouse_clicked": {
@@ -334,6 +335,7 @@ export class GameState {
 
     return state
   }
+    */
 
   static fromEvents(
     events: Event[],
@@ -381,11 +383,10 @@ export class GameState {
           // { card, position }
           const serverCard = event.payload.card
           const position = event.payload.position
-          state = EmissionsLine.add(
-            state,
+          state = state.addToEL(
             new Card(serverCard.id, serverCard.name, "emissions-line"),
             position)
-          state = EmissionsLine.rearrange(state, timePassed)
+          state = state.rearrangeEL(timePassed)
           break
         }
         case "card_played_from_hand":
@@ -400,15 +401,15 @@ export class GameState {
           const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
           movedCard.position = playedCard.position
           state.cards = state.cards.filter(c => c !== playedCard)
-          state = EmissionsLine.add(state, movedCard, position)
-          state = EmissionsLine.rearrange(state, timePassed)
+          state = state.addToEL(movedCard, position)
+          state = state.rearrangeEL(timePassed)
           state = Hand.rearrange(state, timePassed)
           state = OpponentHand.rearrange(state, timePassed)
 
           break
         case "incorrect_card_placement": {
           // { cardID, socketID }
-          state = GameState.incorrect_card_placement(state, event, timePassed)
+          state = state.incorrect_card_placement(event, timePassed)
           break
         }
         case "player_turn":
@@ -434,24 +435,24 @@ export class GameState {
           break
         case "next_card":
           // { card }
-          state = GameState.nextCard(state, event, timePassed)
+          state = state.next_card(event, timePassed)
           break
         case "card_hovered": {
           const card_id = event.payload.card_id
           state.hoveredCardIDs.add(card_id)
           state = Hand.rearrange(state, timePassed)
-          state = EmissionsLine.rearrange(state, timePassed)
+          state = state.rearrangeEL(timePassed)
           break
         }
         case "card_unhovered": {
           const card_id = event.payload.card_id
           state.hoveredCardIDs.delete(card_id)
           state = Hand.rearrange(state, timePassed)
-          state = EmissionsLine.rearrange(state, timePassed)
+          state = state.rearrangeEL(timePassed)
           break
         }
         case "mouse_clicked": {
-          state = GameState.mouseClicked(state, event, timePassed)
+          state = state.mouse_clicked(event, timePassed)
           break
         }
         case "socket_id": {

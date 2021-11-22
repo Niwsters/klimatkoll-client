@@ -17,8 +17,10 @@ describe('Game', () => {
 
   describe('handleEvent()', () => {
     let event: Event
+    let original: GameState
     beforeEach(() => {
       event = new Event(0, "blargh", {})
+      original = {...game.state$.value}
     })
 
     it('calls relevant GameState method', () => {
@@ -32,7 +34,12 @@ describe('Game', () => {
     })
 
     it('does nothing if relevant GameState method is not defined', () => {
-      const original = {...game.state$.value}
+      game.handleEvent(event)
+      expect(game.state$.value).toEqual(original)
+    })
+
+    it('does nothing if event type has same name as non-function property name', () => {
+      event.event_type = "socketID"
       game.handleEvent(event)
       expect(game.state$.value).toEqual(original)
     })
