@@ -1,16 +1,297 @@
 import { GameState } from './gamestate'
 import { Hand, OpponentHand } from './hand'
-import { Card, transpose } from './card'
+import { Card, SpaceCard, transpose } from './card'
 import { EmissionsLine } from './emissions-line'
 import { Event } from './event'
-import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION, DECK_POSITION } from './constants'
+import {
+  ANIMATION_DURATION_MS,
+  DISCARD_PILE_POSITION,
+  DECK_POSITION,
+  EMISSIONS_LINE_POSITION,
+  EMISSIONS_LINE_MAX_LENGTH
+} from './constants'
+
+function getELCardPosition(i: number, cardCount: number): number[] {
+  const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+  const startOffset = 0 - cardWidth*cardCount/4 - cardWidth/4
+
+  return [
+    EMISSIONS_LINE_POSITION[0] + startOffset + cardWidth/2 * (i+1),
+    EMISSIONS_LINE_POSITION[1]
+  ]
+}
+
+class Factory {
+  get Card(): CardFactory {
+    return new CardFactory()
+  }
+
+  get Event(): EventFactory {
+    return new EventFactory()
+  }
+
+  new(params: any = {}): Factory {
+    return Object.assign(new this.__proto__.constructor(), params)
+  }
+}
+
+class CardFactory extends Factory {
+  _name: string
+  _id: number = 0
+  _container: string = "deck"
+
+  name(name: string) {
+    return this.new({ _name: name })
+  }
+
+  get() {
+    return new Card(this._id, this._name, this._container)
+  }
+}
+
+class EventFactory extends Factory {
+  type: string = ""
+  payload: any = {}
+
+  DrawCardEvent(card: Card, socketID: number): EventFactory {
+    return this.new({
+      type: "draw_card",
+      payload: { card: card, socketID: socketID }
+    })
+  }
+
+  get(): Event {
+    return new Event(0, this.type, this.payload)
+  }
+}
 
 describe('GameState', () => {
+  let state: GameState
+  const factory = new Factory()
+
+  beforeEach(() => {
+    state = new GameState()
+  })
+
+  describe('draw_card', () => {
+    let card: Card
+    beforeEach(() => {
+      card = factory.Card.name("blargh").get()
+      state.socketID = 3
+      Hand.rearrange = (state: any) => { return state }
+    })
+
+    it("puts card in player's hand if socketID is player's socketID", () => {
+      const event = factory.Event.DrawCardEvent({...card}, 3).get()
+      const result = state.draw_card(event, 0).cards[0]
+
+      expect(result.position).toEqual(DECK_POSITION)
+      expect(result.container).toEqual("hand")
+    })
+
+    it("puts card in opponent's hand if socketID is not player's socketID", () => {
+      const event = factory.Event.DrawCardEvent({...card}, 4).get()
+      const result = state.draw_card(event, 0).cards[0]
+
+      expect(result.position).toEqual(DECK_POSITION)
+      expect(result.container).toEqual("opponent-hand")
+    })
+  })
+
   describe('new', () => {
     it("returns duplicate with given params which retains methods", () => {
       const state = new GameState()
       expect(state.new({ roomID: "blargh" })).toEqual({ ...state, roomID: "blargh"})
       expect(state.next_card).toBeDefined()
+    })
+
+    it("returns duplicate of same state if no params specified", () => {
+      const state = new GameState()
+      expect(state.new()).toEqual(state)
+    })
+  })
+
+  describe('addToEL()', () => {
+    it('adds new card to emissions line', () => {
+      const state = new GameState()
+
+      const card = new Card(0, "blargh", "emissions-line")
+      const card2 = new Card(1, "honk", "emissions-line")
+      const card3 = new Card(2, "1337", "emissions-line")
+
+      let result = state.addToEL(card, 0)
+      let expected = [-1, 0, -2]
+      expect(result.emissionsLineCardOrder).toEqual(expected)
+      expect(result.cards.filter(c => c.isSpace).length).toEqual(2)
+
+      result = result.addToEL(card2, 2)
+      result = result.addToEL(card3, 2)
+      expected = [-1, 0, -2, 2, -3, 1, -4]
+      expect(result.emissionsLineCardOrder).toEqual(expected)
+    })
+
+    it('flips card', () => {
+      const state = new GameState()
+
+      const card = new Card(0, "blargh", "emissions-line")
+      card.flipped = false
+      let result = state
+        .addToEL(card, 0)
+        .cards
+        .find(c => c.id === card.id)
+      expect(result.flipped).toEqual(true)
+    })
+  })
+
+  describe('rearrangeEL()', () => {
+    describe('space cards', () => {
+      let state: GameState
+      let sc: SpaceCard
+      beforeEach(() => {
+        state = new GameState()
+        sc = new SpaceCard(-1)
+        state.selectedCardID = undefined
+        state.cards = [sc]
+        state.emissionsLineCardOrder = [-1]
+      })
+
+      it('sets space cards to invisible if no card is selected', () => {
+        state.selectedCardID = undefined
+        const result = state.rearrangeEL(0)
+        expect(result.cards[0].visible).toEqual(false)
+      })
+
+      it('sets space cards to visible if card is selected', () => {
+        state.selectedCardID = 3
+        const result = state.rearrangeEL(0)
+        expect(result.cards[0].visible).toEqual(true)
+      })
+
+      it('sets space cards to visible if selected card ID is 0', () => {
+        state.selectedCardID = 0
+        const result = state.rearrangeEL(0)
+        expect(result.cards[0].visible).toEqual(true)
+      })
+    })
+
+    it('transposes emissions line cards to their proper positions', () => {
+      const card = new Card(0, "blargh", "emissions-line")
+      card.position = [1,1]
+      const card2 = new Card(1, "1337", "emissions-line")
+      card2.position = [2,2]
+      const nonELCard = new Card(2, "honk", "hand")
+      const state = new GameState()
+      state.cards = [card, card2, nonELCard]
+      state.emissionsLineCardOrder = [0,1]
+
+      let result = state.rearrangeEL(0)
+      expect(result.cards).toEqual([card, card2, nonELCard])
+
+      let timePassed = ANIMATION_DURATION_MS/2
+      result = state.rearrangeEL(timePassed)
+      let pos1 = getELCardPosition(0, 2)
+      let pos2 = getELCardPosition(1, 2)
+      expect(result.cards).toEqual([
+        {
+          ...card,
+          position: [
+            transpose(1, pos1[0], timePassed),
+            transpose(1, pos1[1], timePassed)
+          ]
+        },
+        {
+          ...card2,
+          position: [
+            transpose(2, pos2[0], timePassed),
+            transpose(2, pos2[1], timePassed)
+          ]
+        },
+        nonELCard
+      ])
+    })
+
+    it('puts cards in specified order', () => {
+      const state = new GameState()
+
+      const sc1 = new SpaceCard(-1)
+      const sc2 = new SpaceCard(-2)
+      const card = new Card(0, "blargh", "emissions-line")
+      state.cards = [sc1, sc2, card]
+      state.emissionsLineCardOrder = [-1, 0, -2]
+      const result = state.rearrangeEL(ANIMATION_DURATION_MS)
+
+      // Sort by x-coordinate and see if order matches
+      const positionalOrder = result.emissionsLineCardOrder
+        .reduce((cards, cardID) => {
+          return [...cards, result.cards.find(c => c.id === cardID)]
+        }, [])
+        .sort((a, b) => a.position[0] - b.position[0])
+        .map(c => c.id)
+
+      expect(positionalOrder).toEqual([-1, 0, -2])
+    })
+
+    it('does not go over max emissions line length', () => {
+      const card = new Card(0, "a", "emissions-line")
+      const card2 = new Card(1, "b", "emissions-line")
+      const card3 = new Card(2, "c", "emissions-line")
+      const card4 = new Card(3, "d", "emissions-line")
+      const card5 = new Card(4, "e", "emissions-line")
+      const card6 = new Card(5, "f", "emissions-line")
+      const state = new GameState()
+      state.cards = [
+        card,
+        card2,
+        card3,
+        card4,
+        card5,
+        card6
+      ]
+      state.emissionsLineCardOrder = [0, 1, 2, 3, 4, 5]
+
+      const result = state.rearrangeEL(ANIMATION_DURATION_MS)
+      const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+      const leftEdge = result.cards.find(c => c.id === 0).position[0] - cardWidth/2
+      const rightEdge = result.cards.find(c => c.id === 5).position[0] + cardWidth/2
+
+      expect(rightEdge - leftEdge).toEqual(EMISSIONS_LINE_MAX_LENGTH)
+    })
+
+    it('hover-zooms card if no card is selected', () => {
+      const card = new Card(0, "a", "emissions-line")
+      const state = new GameState()
+      state.cards = [
+        card
+      ]
+      state.emissionsLineCardOrder = [0]
+      state.hoveredCardIDs = [0]
+
+      const result = state
+        .rearrangeEL(ANIMATION_DURATION_MS)
+        .cards
+        .find(c => c.id === card.id)
+        .scale
+
+      expect(result).toEqual(Card.DEFAULT_SCALE*2)
+    })
+
+    it('does not hover-zoom card if card is selected', () => {
+      const card = new Card(0, "a", "emissions-line")
+      const state = new GameState()
+      state.cards = [
+        card
+      ]
+      state.emissionsLineCardOrder = [0]
+      state.hoveredCardIDs = [0]
+      state.selectedCardID = 1
+
+      const result = state
+        .rearrangeEL(ANIMATION_DURATION_MS)
+        .cards
+        .find(c => c.id === card.id)
+        .scale
+
+      expect(result).toEqual(Card.DEFAULT_SCALE)
     })
   })
 
@@ -97,7 +378,13 @@ describe('GameState', () => {
     })
 
     it('rearranges emissions line', () => {
-      // TODO: Test for this!
+      const state = new GameState()
+      let calledWith: any[]
+      state.rearrangeEL = (...args) => { calledWith = args }
+      const event = new Event(0, "mouse_clicked", {}, 0)
+      state.mouse_clicked(event, 3)
+
+      expect(calledWith).toEqual([3])
     })
   })
 
@@ -124,8 +411,7 @@ describe('GameState', () => {
     })
   })
 
-  describe('incorrectCardPlacement', () => {
-
+  describe('incorrect_card_placement', () => {
     it('throws specified card into discard pile', () => {
       const state = new GameState()
 
@@ -143,14 +429,14 @@ describe('GameState', () => {
       const event = new Event(0, "incorrect_card_placement", { cardID: 7 }, 0)
 
       let timePassed = 0
-      let result = GameState.incorrectCardPlacement(state, event, timePassed)
+      let result = state.incorrect_card_placement(event, timePassed)
       expect(result.cards).toEqual([
         { ...card, container: "discard-pile" },
         card2
       ])
 
       timePassed = ANIMATION_DURATION_MS/2
-      result = GameState.incorrectCardPlacement(state, event, timePassed)
+      result = state.incorrect_card_placement(event, timePassed)
       expect(result.cards).toEqual([
         {
           ...card,
@@ -166,7 +452,7 @@ describe('GameState', () => {
       ])
 
       timePassed = ANIMATION_DURATION_MS
-      result = GameState.incorrectCardPlacement(state, event, timePassed)
+      result = state.incorrect_card_placement(event, timePassed)
       expect(result.cards).toEqual([
         {
           ...card,
@@ -194,7 +480,7 @@ describe('GameState', () => {
       const event = new Event(0, "incorrect_card_placement", { cardID: 7 }, 0)
 
       let timePassed = 0
-      let result = GameState.incorrectCardPlacement(state, event, timePassed)
+      let result = state.incorrect_card_placement(event, timePassed)
       expect(result.selectedCardID).toEqual(undefined)
     })
 
@@ -212,8 +498,8 @@ describe('GameState', () => {
       const event = new Event(0, "incorrect_card_placement", { cardID: 7 }, 0)
 
       let timePassed = 0
-      let result = GameState
-        .incorrectCardPlacement(state, event, timePassed)
+      let result = state
+        .incorrect_card_placement(event, timePassed)
         .cards
         .find(c => c.id === card.id)
       expect(result.flipped).toEqual(true)
@@ -234,8 +520,8 @@ describe('GameState', () => {
 
       const event = new Event(0, "incorrect_card_placement", { cardID: card.id }, 0)
 
-      let result = GameState
-        .incorrectCardPlacement(state, event, ANIMATION_DURATION_MS)
+      let result = state
+        .incorrect_card_placement(event, ANIMATION_DURATION_MS)
 
       state.cards = [card2, card3]
 

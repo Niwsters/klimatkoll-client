@@ -1,11 +1,12 @@
-import { Card, TransposeGoal } from './card'
+import { Card, SpaceCard, TransposeGoal } from './card'
 import { Hand, OpponentHand } from './hand'
-import { EmissionsLine } from './emissions-line'
 import { Event } from './event'
 import { TextConfig } from '../models/text-config'
 import {
   DISCARD_PILE_POSITION,
-  DECK_POSITION
+  DECK_POSITION,
+  EMISSIONS_LINE_POSITION,
+  EMISSIONS_LINE_MAX_LENGTH
 } from './constants'
 
 export interface ServerCommand {
@@ -26,8 +27,100 @@ export class GameState {
   statusMessage: string = ""
   roomID: string = ""
 
-  new(params: any): GameState {
+  new(params: any = {}): GameState {
     return Object.assign(new GameState(), this, params)
+  }
+
+  addToEL(card: Card, position: number = 0): GameState {
+    let state = this.new()
+
+    // Flip card
+    card.flipped = true
+
+    // Add new card in specified position
+    state.cards.push(card)
+    state.emissionsLineCardOrder = [
+      ...state.emissionsLineCardOrder.slice(0, position+1),
+      card.id,
+      ...state.emissionsLineCardOrder.slice(position+1, state.emissionsLineCardOrder.length)
+    ]
+
+    // Reset space cards
+    state.emissionsLineCardOrder = state.emissionsLineCardOrder
+      .filter(cardID => cardID >= 0)
+      .reduce((elCardOrder, cardID, i) => {
+        return [
+          ...elCardOrder,
+          ...[cardID, -1-(i+1)]
+        ]
+      }, [-1])
+
+    state.cards = state.cards.filter(c => !c.isSpace)
+    const missingSpaceCards = state.emissionsLineCardOrder
+      .filter(cardID => cardID < 0)
+      .reduce((spaceCards: Card[], cardID: number, i: number) => {
+        const exists = state.cards.findIndex(c => c.id === cardID) > -1
+
+        if (exists) return spaceCards
+
+        return [
+          ...spaceCards,
+          new SpaceCard(-1-i)
+        ]
+      }, [])
+    state.cards = [...state.cards, ...missingSpaceCards]
+
+    return state
+  }
+
+  rearrangeEL(timePassed: number): GameState {
+    let state = this.new()
+
+    let elCards = state.emissionsLineCardOrder
+      .reduce((cards: Card[], cardID: number) => {
+        const card = state.cards.find(c => c.id === cardID)
+        if (!card) throw new Error("Can't find card with ID: " + cardID)
+        return [...cards, card]
+      }, [])
+    const cardCount = elCards.length
+    const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+    const totalELWidth = cardWidth * cardCount
+    let width = cardWidth / 2
+    if (totalELWidth > EMISSIONS_LINE_MAX_LENGTH) {
+      width = (EMISSIONS_LINE_MAX_LENGTH - cardWidth) / (cardCount-1)
+    }
+    const startOffset = 0 - width*cardCount/2 - width/2
+
+    elCards = elCards.map((card: Card, i: number) => {
+      const goal: TransposeGoal = {}
+
+      goal.scale = Card.DEFAULT_SCALE
+      goal.position = [
+        EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1),
+        EMISSIONS_LINE_POSITION[1]
+      ]
+
+      card.zLevel = i
+      card.visible = true
+      if (card.isSpace) {
+        if (state.selectedCardID === undefined) card.visible = false
+
+        card.name = "space"
+        const selectedCard = state.cards.find(c => c.id === state.selectedCardID)
+        if (selectedCard !== undefined && GameState.getFocusedCardID(state) === card.id) {
+          card.name = selectedCard.name
+        }
+      } else {
+        if (state.selectedCardID === undefined && GameState.getFocusedCardID(state) === card.id) {
+          goal.scale = Card.DEFAULT_SCALE * 2
+          card.zLevel = 999
+        }
+      }
+
+      return Card.transpose(card, goal, timePassed)
+    })
+
+    return GameState.updateCards(state, elCards)
   }
 
   static getFocusedCardID(state: GameState): number | undefined {
@@ -55,10 +148,8 @@ export class GameState {
       }
     }
 
-    return this.new(
-      { selectedCardID: selectedCardID },
-      EmissionsLine.rearrange(this, timePassed)
-    )
+    return this.new({ selectedCardID: selectedCardID })
+               .rearrangeEL(timePassed)
   }
 
   next_card(event: Event, timePassed: number): GameState {
@@ -74,8 +165,8 @@ export class GameState {
     return this.new({ cards: cards })
   }
 
-  static incorrectCardPlacement(state: GameState, event: Event, timePassed: number): GameState {
-    state =  { ...state }
+  incorrect_card_placement(event: Event, timePassed: number): GameState {
+    let state = this.new()
 
     const goal: TransposeGoal = {
       position: DISCARD_PILE_POSITION,
@@ -98,6 +189,27 @@ export class GameState {
 
     state = Hand.rearrange(state, timePassed)
     state = OpponentHand.rearrange(state, timePassed)
+
+    return state
+  }
+
+  draw_card(event: Event, timePassed: number) {
+    let state = this.new()
+    // { socketID, card }
+    // Draw card into correct hand
+    const server_card = event.payload.card
+
+    if (event.payload.socketID === state.socketID) {
+      const card = new Card(server_card.id, server_card.name, "hand")
+      card.position = DECK_POSITION
+      state.cards.push(card)
+      state = Hand.rearrange(state, timePassed)
+    } else {
+      const card = new Card(server_card.id, server_card.name, "opponent-hand")
+      card.position = DECK_POSITION
+      state.cards.push(card)
+      state = OpponentHand.rearrange(state, timePassed)
+    }
 
     return state
   }
@@ -131,21 +243,7 @@ export class GameState {
         break
       case "draw_card": {
         // { socketID, card }
-        // Draw card into correct hand
-        const server_card = event.payload.card
-
-        if (event.payload.socketID === state.socketID) {
-          const card = new Card(server_card.id, server_card.name, "hand")
-          card.position = DECK_POSITION
-          state.cards.push(card)
-          state = Hand.rearrange(state, timePassed)
-        } else {
-          const card = new Card(server_card.id, server_card.name, "opponent-hand")
-          card.position = DECK_POSITION
-          state.cards.push(card)
-          state = OpponentHand.rearrange(state, timePassed)
-        }
-
+        state = state.draw_card(event, currentTime)
         break
       }
       case "return_opponent_hand":
@@ -182,7 +280,7 @@ export class GameState {
         break
       case "incorrect_card_placement": {
         // { cardID, socketID }
-        state = GameState.incorrectCardPlacement(state, event, timePassed)
+        state = GameState.incorrect_card_placement(state, event, timePassed)
         break
       }
       case "player_turn":
@@ -310,7 +408,7 @@ export class GameState {
           break
         case "incorrect_card_placement": {
           // { cardID, socketID }
-          state = GameState.incorrectCardPlacement(state, event, timePassed)
+          state = GameState.incorrect_card_placement(state, event, timePassed)
           break
         }
         case "player_turn":
