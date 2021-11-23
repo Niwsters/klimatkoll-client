@@ -9,11 +9,16 @@ export class Canvas {
   gl: WebGLRenderingContext
 
   constructor() {
+    /*
     const canvas = document.createElement('canvas')
     const appInner = document.getElementById("app-inner")
     if (!appInner) throw new Error("Can't find element with ID app-inner")
     appInner.appendChild(canvas)
+    */
 
+    const canvas: any = document.getElementById('klimatkoll-canvas')
+    if (!canvas)
+      throw new Error("Can't find canvas element with ID klimatkoll-canvas")
     const gl = canvas.getContext("webgl")
     if (!gl) throw new Error("gl is null")
     this.gl = gl
@@ -97,6 +102,6 @@ export class Canvas {
       })
       .forEach((sprite: CardSprite) => {
         CardSprite.render(sprite)
-      })   
+      })
   }
 }

@@ -193,7 +193,7 @@ export class GameState {
     return state
   }
 
-  draw_card(event: Event, timePassed: number) {
+  draw_card(event: Event, timePassed: number = Date.now()): GameState {
     let state = this.new()
     // { socketID, card }
     // Draw card into correct hand
@@ -335,7 +335,6 @@ export class GameState {
 
     return state
   }
-    */
 
   static fromEvents(
     events: Event[],
@@ -351,11 +350,6 @@ export class GameState {
           break
         case "playing":
           // No payload
-          /*
-          const sc = new SpaceCard(state)
-          state.cards.push(sc)
-          state.emissionsLineCardOrder.push(sc.id)
-          */
           break
         case "draw_card": {
           // { socketID, card }
@@ -464,4 +458,5 @@ export class GameState {
       return state
     }, new GameState())
   }
+    */
 }

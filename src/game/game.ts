@@ -9,7 +9,8 @@ export class Game {
   handleEvent(event: Event): void {
     const state = this.state$.value as any
     const func: any = state[event.event_type]
-    if (typeof func == 'function')
-      this.state$.next(func(event))
+    if (typeof func == 'function') {
+      this.state$.next(func.bind(state)(event))
+    }
   }
 }

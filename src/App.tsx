@@ -103,6 +103,10 @@ export class App {
       this.handleEvent(e)
       console.log("Event stream: ", e)
     })
+
+    this.gamestate$.subscribe((g: any) => console.log("GameState: ", g))
+
+    this.gamestate$.subscribe((g: GameState) => this.canvas.render(g))
   }
 
   addEvent(e: EventToAdd) {
@@ -163,6 +167,10 @@ export class AppComponent extends Component<Props, State> {
     const state = this.state.appstate
     const gamestate = this.state.gamestate
 
+    const canvas = document.getElementById('klimatkoll-canvas')
+    if (!canvas)
+      throw new Error("Can't find canvas with ID: klimatkoll-canvas")
+
     if (!state)
       return "";
 
@@ -170,13 +178,15 @@ export class AppComponent extends Component<Props, State> {
     let statusBar: any = ""
     switch(state.currentPage) {
       case "menu": {
+        canvas.style.display = 'none'
         page = <Menu
           config={config}
           addEvent={addEvent} />;
         break;
       }
       case "game":
-        page = <canvas id="klimatkoll-canvas" />
+        page = ''
+        canvas.style.display = 'block'
         statusBar = <StatusBar
           gamestate={gamestate}
           config={config}
