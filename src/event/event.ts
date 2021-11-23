@@ -24,8 +24,8 @@ export class CreateGameEvent extends EventToAdd {
 }
 
 export class JoinGameEvent extends EventToAdd {
-  constructor() {
-    super("join_game")
+  constructor(roomID: string) {
+    super("join_game", { roomID: roomID })
   }
 }
 

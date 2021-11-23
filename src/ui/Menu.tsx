@@ -27,7 +27,7 @@ export function Menu(props: Props) {
       <button onClick={() => addEvent(new CreateGameEvent(getRoomID()))} className="pink">
         {text.btnCreateGame}
       </button>
-      <button onClick={() => addEvent(new JoinGameEvent())} className="yellow">
+      <button onClick={() => addEvent(new JoinGameEvent(getRoomID()))} className="yellow">
         {text.btnJoinGame}
       </button>
     </div>
