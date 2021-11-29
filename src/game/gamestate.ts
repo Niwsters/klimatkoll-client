@@ -214,6 +214,12 @@ export class GameState {
     return state
   }
 
+  socket_id(event: Event): GameState {
+    let state = this.new()
+    state.socketID = event.payload.socketID
+    return state
+  }
+
   static updateCards(state: GameState, updated: Card[]): GameState {
     state.cards = state.cards.map(card => {
       const updatedCard = updated.find(c => c.id === card.id)
