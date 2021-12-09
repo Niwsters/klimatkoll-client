@@ -15,6 +15,7 @@
     "start": "webpack --config webpack.config.js --watch --mode=development & http-server . --port=4200",
     "build": "webpack --config webpack.config.js --mode=production",
     "test": "react-scripts test",
+    "coverage": "npm test -- --coverage --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

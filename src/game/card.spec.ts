@@ -41,9 +41,13 @@ describe('Card', () => {
         scale: 2.1
       }
 
-      let transposed = Card.transpose(card, goal, 0)
-      expect(transposed).toEqual(card)
+      let transposed = Card.transpose(card, goal)
+      expect(transposed).toEqual({
+        ...card,
+        transpositions: [goal]
+      })
 
+      /*
       let timePassed = ANIMATION_DURATION_MS/2
       transposed = Card.transpose(card, goal, timePassed)
 
@@ -58,6 +62,63 @@ describe('Card', () => {
         scale: transpose(card.scale, 2.1, timePassed)
       }
       expect(transposed).toEqual(expected)
+      */
+    })
+  })
+
+  describe('update()', () => {
+    let card: Card
+    beforeEach(() => {
+      card = new Card(3, "blargh", "hand")
+    })
+
+    it('applies transposition position on card', () => {
+      card.position = [0, 0]
+      card = Card.transpose(card, {
+        position: [1337, 1337],
+        timestamp: 0
+      })
+      card = Card.update(card, ANIMATION_DURATION_MS)
+      expect(card.position).toEqual([1337, 1337])
+    })
+
+    it('applies transposition rotation on card', () => {
+      card.rotation = 0
+      card = Card.transpose(card, {
+        rotation: 1337,
+        timestamp: 0
+      })
+      card = Card.update(card, ANIMATION_DURATION_MS)
+      expect(card.rotation).toEqual(1337)
+    })
+
+    it('applies transposition addedRotation on card', () => {
+      card.addedRotation = 0
+      card = Card.transpose(card, {
+        addedRotation: 1337,
+        timestamp: 0
+      })
+      card = Card.update(card, ANIMATION_DURATION_MS)
+      expect(card.addedRotation).toEqual(1337)
+    })
+
+    it('applies transposition scale on card', () => {
+      card.scale = 0
+      card = Card.transpose(card, {
+        scale: 1337,
+        timestamp: 0
+      })
+      card = Card.update(card, ANIMATION_DURATION_MS)
+      expect(card.scale).toEqual(1337)
+    })
+
+    it('removes transpositions that are finished', () => {
+      card = Card.transpose(card, {
+        scale: 1337,
+        timestamp: ANIMATION_DURATION_MS
+      })
+      card = Card.update(card, ANIMATION_DURATION_MS*2.1)
+      expect(card.transpositions).toEqual([])
     })
   })
 })

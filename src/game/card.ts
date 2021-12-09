@@ -16,6 +16,7 @@ export class Card {
   isSpace: boolean = false
   visible: boolean = true
   flipped: boolean = false
+  transpositions: TransposeGoal[] = []
 
   constructor(
     id: number,
@@ -40,35 +41,47 @@ export class Card {
 
   static transpose(
     card: Card,
-    goal: TransposeGoal,
-    timePassed: number
+    goal: TransposeGoal
+  ): Card {
+
+    return {
+      ...card,
+      transpositions: [...card.transpositions, goal]
+    }
+  }
+
+  static update(
+    card: Card,
+    time: number
   ): Card {
     const newCard = { ...card }
 
-    if (goal.position !== undefined) {
-      newCard.position = [
-        transpose(card.position[0], goal.position[0], timePassed),
-        transpose(card.position[1], goal.position[1], timePassed)
-      ]
-    }
+    newCard.transpositions = newCard.transpositions.filter(t => time - t.timestamp < ANIMATION_DURATION_MS)
 
-    if (goal.rotation !== undefined) {
-      newCard.rotation = transpose(card.rotation, goal.rotation, timePassed)
-    }
+    card.transpositions.forEach((t: TransposeGoal) => {
+      if (t.position !== undefined) {
+        newCard.position = [
+          transpose(card.position[0], t.position[0], time - t.timestamp),
+          transpose(card.position[1], t.position[1], time - t.timestamp)
+        ]
+      }
 
-    if (goal.addedRotation !== undefined) {
-      newCard.addedRotation = transpose(card.addedRotation, goal.addedRotation, timePassed)
-    }
-    
-    if (goal.scale !== undefined) {
-      newCard.scale = transpose(card.scale, goal.scale, timePassed)
-    }
+      if (t.rotation !== undefined)
+        newCard.rotation = transpose(card.rotation, t.rotation, time - t.timestamp)
+
+      if (t.addedRotation !== undefined)
+        newCard.addedRotation = transpose(card.addedRotation, t.addedRotation, time - t.timestamp)
+
+      if (t.scale !== undefined)
+        newCard.scale = transpose(card.scale, t.scale, time - t.timestamp)
+    })
 
     return newCard
   }
 }
 
 export interface TransposeGoal {
+  timestamp: number
   position?: number[]
   rotation?: number
   addedRotation?: number

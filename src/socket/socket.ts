@@ -8,7 +8,6 @@ export class Socket {
   websocket: WebSocket
 
   constructor(config: AppConfig) {
-    console.log("Config: ", config)
     this.websocket = new WebSocket(config.wsServerURL, config.language)
 
     this.websocket.onmessage = (e: MessageEvent) => {

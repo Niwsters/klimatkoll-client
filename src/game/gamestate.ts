@@ -31,6 +31,12 @@ export class GameState {
     return Object.assign(new GameState(), this, params)
   }
 
+  update(time: number) {
+    let state = this.new()
+    state.cards = state.cards.map((card: Card) => Card.update(card, time))
+    return state
+  }
+
   addToEL(card: Card, position: number = 0): GameState {
     let state = this.new()
 
@@ -92,7 +98,7 @@ export class GameState {
     const startOffset = 0 - width*cardCount/2 - width/2
 
     elCards = elCards.map((card: Card, i: number) => {
-      const goal: TransposeGoal = {}
+      const goal: TransposeGoal = { timestamp: Date.now() }
 
       goal.scale = Card.DEFAULT_SCALE
       goal.position = [
@@ -117,7 +123,7 @@ export class GameState {
         }
       }
 
-      return Card.transpose(card, goal, timePassed)
+      return Card.transpose(card, goal)
     })
 
     return GameState.updateCards(state, elCards)
@@ -169,6 +175,7 @@ export class GameState {
     let state = this.new()
 
     const goal: TransposeGoal = {
+      timestamp: Date.now(),
       position: DISCARD_PILE_POSITION,
       rotation: 0,
       addedRotation: 0
@@ -182,7 +189,7 @@ export class GameState {
       return Card.transpose({
         ...card,
         container: "discard-pile"
-      }, goal, timePassed)
+      }, goal)
     })
 
     state.selectedCardID = undefined

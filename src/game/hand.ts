@@ -36,12 +36,14 @@ export class Hand {
       }
 
       const goal: TransposeGoal = {
+        timestamp: Date.now(),
         position: [x,y],
         rotation: angle * HAND_ANGLE_FACTOR,
         scale: scale
       }
       i += 1
-      return Card.transpose(card, goal, timePassed)
+
+      return Card.transpose(card, goal)
     })
 
     return state
@@ -63,11 +65,12 @@ export class OpponentHand {
       const y = OPPONENT_HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
 
       const goal: TransposeGoal = {
+        timestamp: Date.now(),
         position: [x,y],
         rotation: (angle + Math.PI) * HAND_ANGLE_FACTOR
       }
       i += 1
-      return Card.transpose(card, goal, timePassed)
+      return Card.transpose(card, goal)
     })
 
     return state

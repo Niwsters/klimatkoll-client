@@ -67,7 +67,7 @@ export class App {
   config: AppConfig
   canvas: Canvas
   state$: BehaviorSubject<AppState>
-  gamestate$: Observable<GameState>
+  gamestate$: BehaviorSubject<GameState>
 
   get state(): AppState {
     return this.state$.value
@@ -104,9 +104,14 @@ export class App {
       console.log("Event stream: ", e)
     })
 
-    this.gamestate$.subscribe((g: any) => console.log("GameState: ", g))
+    //this.gamestate$.subscribe((g: any) => console.log("GameState: ", g))
 
-    this.gamestate$.subscribe((g: GameState) => this.canvas.render(g))
+    setInterval(() => {
+      const gamestate = this.gamestate$.value
+      this.canvas.render(gamestate)
+      this.gamestate$.next(gamestate.update(Date.now()))
+    }, 1000/60)
+
   }
 
   addEvent(e: EventToAdd) {
