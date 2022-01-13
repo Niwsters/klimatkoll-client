@@ -34,3 +34,9 @@ export class LeaveGameEvent extends EventToAdd {
     super("leave_game")
   }
 }
+
+export class MouseMovedEvent extends EventToAdd {
+  constructor(mouseX: number, mouseY: number) {
+    super("mouse_moved", { mouseX, mouseY })
+  }
+}
