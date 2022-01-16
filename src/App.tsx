@@ -7,7 +7,6 @@ import { Event, EventToAdd } from './event/event'
 import { EventStream } from './event/event-stream'
 import { Menu } from './ui/Menu'
 import { StatusBar } from './ui/StatusBar'
-import { UserInput } from './ui/user-input'
 import { Canvas } from './canvas/canvas'
 import { Observable, BehaviorSubject } from 'rxjs'
 
@@ -63,7 +62,6 @@ export class App {
   socket: Socket
   game: Game
   eventStream: EventStream
-  userInput: UserInput
   config: AppConfig
   canvas: Canvas
   state$: BehaviorSubject<AppState>
@@ -84,27 +82,21 @@ export class App {
     const eventStream = this.eventStream
 
     this.socket = new Socket(config)
-    this.socket.events$.subscribe((event: Event) => eventStream.next(event))
+    this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
 
     this.game = new Game()
     this.game.events$.subscribe((event: EventToAdd) => eventStream.next(event))
     this.gamestate$ = this.game.state$
 
-    this.userInput = new UserInput()
-    this.userInput.events$.subscribe((event: EventToAdd) => eventStream.next(event))
-
     this.canvas = new Canvas()
     this.canvas.prepare(`${this.config.httpServerURL}/${this.config.language}`)
+    this.canvas.events$.subscribe((event: EventToAdd) => eventStream.next(event))
 
     eventStream.subscribe((e: Event) => {
       this.socket.handleEvent(e)
       this.game.handleEvent(e)
-      this.userInput.handleEvent(e)
       this.handleEvent(e)
-      console.log("Event stream: ", e)
     })
-
-    //this.gamestate$.subscribe((g: any) => console.log("GameState: ", g))
 
     setInterval(() => {
       const gamestate = this.gamestate$.value

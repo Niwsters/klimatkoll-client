@@ -19,13 +19,13 @@ export class Event extends EventToAdd {
 
 export class CreateGameEvent extends EventToAdd {
   constructor(roomID: string) {
-    super("create_game", { roomID: roomID })
+    super("create_game", { roomID })
   }
 }
 
 export class JoinGameEvent extends EventToAdd {
   constructor(roomID: string) {
-    super("join_game", { roomID: roomID })
+    super("join_game", { roomID })
   }
 }
 
@@ -38,5 +38,11 @@ export class LeaveGameEvent extends EventToAdd {
 export class MouseMovedEvent extends EventToAdd {
   constructor(mouseX: number, mouseY: number) {
     super("mouse_moved", { mouseX, mouseY })
+  }
+}
+
+export class CanvasResizedEvent extends EventToAdd {
+  constructor(ratio: number) {
+    super("canvas_resized", { ratio })
   }
 }

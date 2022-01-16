@@ -171,6 +171,43 @@ export class GameState {
     return this.new({ cards: cards })
   }
 
+  // TODO: Unit test this
+  mouse_moved(event: Event, timePassed: number): GameState {
+    let state = this.new()
+    const mouseX = event.payload.mouseX
+    const mouseY = event.payload.mouseY
+    const hoveredCardIDs = state.hoveredCardIDs
+
+    state.cards.forEach((card: Card) => {
+      if (Card.isMouseHovering(card, mouseX, mouseY)) {
+        // If card not already hovered, add card_hovered event
+        if (!hoveredCardIDs.has(card.id)) {
+
+          // If hand card is selected, ignore non-space cards
+          if (state.selectedCardID) {
+            if (card.container === "emissions-line" && !card.isSpace) return
+          // Else, ignore space cards
+          } else {
+            if (card.container === "emissions-line" && card.isSpace) return
+          }
+
+          hoveredCardIDs.add(card.id)
+          state = Hand.rearrange(state, timePassed)
+          state = state.rearrangeEL(timePassed)
+        }
+      } else {
+        // If card is hovered, add card_unhovered event
+        if (hoveredCardIDs.has(card.id)) {
+          hoveredCardIDs.delete(card.id)
+          state = Hand.rearrange(state, timePassed)
+          state = state.rearrangeEL(timePassed)
+        }
+      }
+    })
+
+    return state
+  }
+
   incorrect_card_placement(event: Event, timePassed: number): GameState {
     let state = this.new()
 

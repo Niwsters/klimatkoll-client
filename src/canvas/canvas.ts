@@ -1,21 +1,17 @@
+import { Subject } from 'rxjs'
 import { Card } from '../game/card'
 import { CardData } from '../cards'
 import { CardSprite } from './card-sprite'
+import { EventToAdd, MouseMovedEvent } from '../event/event'
 import { GameState } from '../game/gamestate'
 
 let cardSprites: CardSprite[] = []
 
 export class Canvas {
   gl: WebGLRenderingContext
+  events$: Subject<EventToAdd> = new Subject<EventToAdd>()
 
   constructor() {
-    /*
-    const canvas = document.createElement('canvas')
-    const appInner = document.getElementById("app-inner")
-    if (!appInner) throw new Error("Can't find element with ID app-inner")
-    appInner.appendChild(canvas)
-    */
-
     const canvas: any = document.getElementById('klimatkoll-canvas')
     if (!canvas)
       throw new Error("Can't find canvas element with ID klimatkoll-canvas")
@@ -27,6 +23,11 @@ export class Canvas {
     canvas.width = window.innerWidth * ratio;
     canvas.height = window.innerWidth * 0.5625 * ratio; // 540 / 960 = 0.5625
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+
+    canvas.addEventListener('mousemove', (e: any) => {
+      const ratio = 960 / canvas.width * window.devicePixelRatio
+      this.events$.next(new MouseMovedEvent(e.clientX * ratio, e.clientY * ratio))
+    }, false)
 
     window.addEventListener('resize', () => {
       const ratio = window.devicePixelRatio; // Changes on browser/OS zoom
