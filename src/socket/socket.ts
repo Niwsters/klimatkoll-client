@@ -30,4 +30,8 @@ export class Socket {
   static join_game(event: Event): Event[] {
     return [event]
   }
+
+  static play_card_request(event: Event): Event[] {
+    return [event]
+  }
 }

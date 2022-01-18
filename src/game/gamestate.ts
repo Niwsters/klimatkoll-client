@@ -1,19 +1,13 @@
 import { Card, SpaceCard, TransposeGoal } from './card'
 import { Hand, OpponentHand } from './hand'
-import { Event } from './event'
-import { TextConfig } from '../models/text-config'
+import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
+import { AppConfig } from '../App'
 import {
   DISCARD_PILE_POSITION,
   DECK_POSITION,
   EMISSIONS_LINE_POSITION,
   EMISSIONS_LINE_MAX_LENGTH
 } from './constants'
-
-export interface ServerCommand {
-  context: string
-  type: string
-  payload: any
-}
 
 export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
@@ -26,9 +20,14 @@ export class GameState {
   selectedCardID?: number
   statusMessage: string = ""
   roomID: string = ""
+  config: AppConfig
+
+  constructor(config: AppConfig) {
+    this.config = config
+  }
 
   new(params: any = {}): GameState {
-    return Object.assign(new GameState(), this, params)
+    return Object.assign(new GameState(this.config), this, params)
   }
 
   update(time: number) {
@@ -143,22 +142,34 @@ export class GameState {
     return state.cards.find(c => c.id === state.selectedCardID)
   }
 
-  mouse_clicked(event: Event, timePassed: number): GameState {
-    const focusedCardID = GameState.getFocusedCardID(this)
+  // TODO: Unit test this
+  mouse_clicked(event: Event, timePassed: number): [GameState, EventToAdd[]] {
+    let state = this.new()
+    const focusedCard = GameState.getFocusedCard(this)
+    const events: EventToAdd[] = []
+
+    // If card is selected and space card is focused, play card
+    console.log(state.isMyTurn, state.selectedCardID, focusedCard)
+    if (state.isMyTurn && state.selectedCardID !== undefined && focusedCard !== undefined && focusedCard.isSpace) {
+      const position = state.emissionsLineCardOrder.findIndex(cardID => focusedCard.id === cardID)
+      events.push(new PlayCardRequestEvent(state.selectedCardID, position))
+    }
+
+    // Focus/unfocus card
     let selectedCardID = undefined
-    if (focusedCardID !== undefined) {
-      const card = this.cards.find(c => c.id === focusedCardID)
+    if (focusedCard !== undefined) {
+      const card = this.cards.find(c => c.id === focusedCard.id)
 
       if (card && card.container === "hand") {
-        selectedCardID = focusedCardID
+        selectedCardID = focusedCard.id
       }
     }
 
-    return this.new({ selectedCardID: selectedCardID })
-               .rearrangeEL(timePassed)
+    state.selectedCardID = selectedCardID
+    return [state.rearrangeEL(timePassed), events]
   }
 
-  next_card(event: Event, timePassed: number): GameState {
+  next_card(event: Event, timePassed: number): [GameState, EventToAdd[]] {
     // remove existing deck card
     const cards = this.cards.filter(c => c.container !== "deck")
 
@@ -168,11 +179,11 @@ export class GameState {
 
     cards.push(card)
 
-    return this.new({ cards: cards })
+    return [this.new({ cards: cards }), []]
   }
 
   // TODO: Unit test this
-  mouse_moved(event: Event, timePassed: number): GameState {
+  mouse_moved(event: Event, timePassed: number): [GameState, EventToAdd[]] {
     let state = this.new()
     const mouseX = event.payload.mouseX
     const mouseY = event.payload.mouseY
@@ -205,10 +216,10 @@ export class GameState {
       }
     })
 
-    return state
+    return [state, []] 
   }
 
-  incorrect_card_placement(event: Event, timePassed: number): GameState {
+  incorrect_card_placement(event: Event, timePassed: number): [GameState, EventToAdd[]] {
     let state = this.new()
 
     const goal: TransposeGoal = {
@@ -234,10 +245,10 @@ export class GameState {
     state = Hand.rearrange(state, timePassed)
     state = OpponentHand.rearrange(state, timePassed)
 
-    return state
+    return [state, []]
   }
 
-  draw_card(event: Event, timePassed: number = Date.now()): GameState {
+  draw_card(event: Event, timePassed: number = Date.now()): [GameState, EventToAdd[]] {
     let state = this.new()
     // { socketID, card }
     // Draw card into correct hand
@@ -255,13 +266,38 @@ export class GameState {
       state = OpponentHand.rearrange(state, timePassed)
     }
 
-    return state
+    return [state, []]
   }
 
-  socket_id(event: Event): GameState {
+  socket_id(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
     state.socketID = event.payload.socketID
-    return state
+    return [state, []]
+  }
+
+  card_played_from_deck(event: Event): [GameState, EventToAdd[]] {
+    let state = this.new()
+
+    const serverCard = event.payload.card
+    const position = event.payload.position
+    state = state.addToEL(new Card(serverCard.id, serverCard.name, "emissions-line"), position)
+    
+    return [state, []]
+  }
+
+  player_turn(event: Event): [GameState, EventToAdd[]] {
+    let state = this.new()
+    const text = this.config.text
+
+    if (state.socketID === event.payload.socketID) {
+      state.isMyTurn = true
+      state.statusMessage = text.yourTurn
+    } else {
+      state.isMyTurn = false
+      state.statusMessage = text.opponentsTurn
+    }
+
+    return [state, []]
   }
 
   static updateCards(state: GameState, updated: Card[]): GameState {

@@ -2,7 +2,7 @@ import { Subject } from 'rxjs'
 import { Card } from '../game/card'
 import { CardData } from '../cards'
 import { CardSprite } from './card-sprite'
-import { EventToAdd, MouseMovedEvent } from '../event/event'
+import { EventToAdd, MouseMovedEvent, MouseClickedEvent } from '../event/event'
 import { GameState } from '../game/gamestate'
 
 let cardSprites: CardSprite[] = []
@@ -27,6 +27,10 @@ export class Canvas {
     canvas.addEventListener('mousemove', (e: any) => {
       const ratio = 960 / canvas.width * window.devicePixelRatio
       this.events$.next(new MouseMovedEvent(e.clientX * ratio, e.clientY * ratio))
+    }, false)
+
+    canvas.addEventListener('click', (e: any) => {
+      this.events$.next(new MouseClickedEvent())
     }, false)
 
     window.addEventListener('resize', () => {

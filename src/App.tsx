@@ -82,10 +82,13 @@ export class App {
     const eventStream = this.eventStream
 
     this.socket = new Socket(config)
-    this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
 
-    this.game = new Game()
+    this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
+    this.socket.events$.subscribe((event: EventToAdd) => console.log("From server:", event))
+
+    this.game = new Game(config)
     this.game.events$.subscribe((event: EventToAdd) => eventStream.next(event))
+    this.game.events$.subscribe((event: EventToAdd) => console.log("From GameState:", event))
     this.gamestate$ = this.game.state$
 
     this.canvas = new Canvas()
@@ -129,7 +132,7 @@ export class App {
 interface Props {
   config: AppConfig
   state$: BehaviorSubject<AppState>
-  gamestate$: Observable<GameState>
+  gamestate$: BehaviorSubject<GameState>
   addEvent: (e: EventToAdd) => void
 }
 
@@ -143,7 +146,7 @@ export class AppComponent extends Component<Props, State> {
     super(props)
     this.state = {
       appstate: props.state$.value,
-      gamestate: new GameState()
+      gamestate: props.gamestate$.value
     }
   }
 

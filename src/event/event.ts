@@ -17,6 +17,12 @@ export class Event extends EventToAdd {
   }
 }
 
+export class CanvasResizedEvent extends EventToAdd {
+  constructor(ratio: number) {
+    super("canvas_resized", { ratio })
+  }
+}
+
 export class CreateGameEvent extends EventToAdd {
   constructor(roomID: string) {
     super("create_game", { roomID })
@@ -35,14 +41,20 @@ export class LeaveGameEvent extends EventToAdd {
   }
 }
 
+export class MouseClickedEvent extends EventToAdd {
+  constructor() {
+    super("mouse_clicked")
+  }
+}
+
 export class MouseMovedEvent extends EventToAdd {
   constructor(mouseX: number, mouseY: number) {
     super("mouse_moved", { mouseX, mouseY })
   }
 }
 
-export class CanvasResizedEvent extends EventToAdd {
-  constructor(ratio: number) {
-    super("canvas_resized", { ratio })
+export class PlayCardRequestEvent extends EventToAdd {
+  constructor(cardID: number, position: number) {
+    super("play_card_request", { cardID, position })
   }
 }
