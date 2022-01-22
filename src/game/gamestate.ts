@@ -1,6 +1,6 @@
 import { Card, SpaceCard, TransposeGoal } from './card'
 import { Hand, OpponentHand } from './hand'
-import { Event, EventToAdd, PlayCardRequestEvent, CardHoveredEvent, CardUnhoveredEvent } from '../event/event'
+import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
 import { AppConfig } from '../App'
 import {
   DISCARD_PILE_POSITION,
@@ -231,7 +231,7 @@ export class GameState {
       }
     })
 
-    return [state, []] 
+    return [state, []]
   }
 
   incorrect_card_placement(event: Event, timePassed: number): [GameState, EventToAdd[]] {
