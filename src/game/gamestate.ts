@@ -1,6 +1,6 @@
 import { Card, SpaceCard, TransposeGoal } from './card'
 import { Hand, OpponentHand } from './hand'
-import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
+import { Event, EventToAdd, PlayCardRequestEvent, CardHoveredEvent, CardUnhoveredEvent } from '../event/event'
 import { AppConfig } from '../App'
 import {
   DISCARD_PILE_POSITION,
@@ -170,6 +170,8 @@ export class GameState {
   }
 
   next_card(event: Event, timePassed: number): [GameState, EventToAdd[]] {
+    let state = this.new()
+
     // remove existing deck card
     const cards = this.cards.filter(c => c.container !== "deck")
 
@@ -179,19 +181,23 @@ export class GameState {
 
     cards.push(card)
 
-    return [this.new({ cards: cards }), []]
+    state.cards = cards
+    state = state.rearrangeEL(timePassed)
+
+    return [state, []]
   }
 
   // TODO: Unit test this
   mouse_moved(event: Event, timePassed: number): [GameState, EventToAdd[]] {
     let state = this.new()
+
     const mouseX = event.payload.mouseX
     const mouseY = event.payload.mouseY
     const hoveredCardIDs = state.hoveredCardIDs
 
     state.cards.forEach((card: Card) => {
       if (Card.isMouseHovering(card, mouseX, mouseY)) {
-        // If card not already hovered, add card_hovered event
+        // If card not already hovered
         if (!hoveredCardIDs.has(card.id)) {
 
           // If hand card is selected, ignore non-space cards
@@ -203,15 +209,24 @@ export class GameState {
           }
 
           hoveredCardIDs.add(card.id)
-          state = Hand.rearrange(state, timePassed)
-          state = state.rearrangeEL(timePassed)
+
+          // If it's the first hovered card, rearrange and trigger animations
+          if (hoveredCardIDs.size === 1) {
+            state = Hand.rearrange(state, timePassed)
+            state = state.rearrangeEL(timePassed)
+          }
         }
       } else {
-        // If card is hovered, add card_unhovered event
+        // If card is hovered
         if (hoveredCardIDs.has(card.id)) {
+          const previousFocusedCardID = GameState.getFocusedCardID(state)
           hoveredCardIDs.delete(card.id)
-          state = Hand.rearrange(state, timePassed)
-          state = state.rearrangeEL(timePassed)
+          const currentFocusedCardID = GameState.getFocusedCardID(state)
+
+          if (previousFocusedCardID !== currentFocusedCardID) {
+            state = Hand.rearrange(state, timePassed)
+            state = state.rearrangeEL(timePassed)
+          }
         }
       }
     })
