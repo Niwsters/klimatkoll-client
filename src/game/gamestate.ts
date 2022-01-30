@@ -142,6 +142,19 @@ export class GameState {
     return state.cards.find(c => c.id === state.selectedCardID)
   }
 
+  game_won(event: Event): [GameState, EventToAdd[]] {
+    let state = this.new()
+    const text = this.config.text
+
+    if (state.socketID === event.payload.socketID) {
+      state.statusMessage = text.youWon
+    } else {
+      state.statusMessage = text.youLost
+    }
+
+    return [state, []]
+  }
+
   // TODO: Unit test this
   mouse_clicked(event: Event, timePassed: number): [GameState, EventToAdd[]] {
     let state = this.new()
@@ -297,6 +310,27 @@ export class GameState {
     const position = event.payload.position
     state = state.addToEL(new Card(serverCard.id, serverCard.name, "emissions-line"), position)
     
+    return [state, []]
+  }
+
+  card_played_from_hand(event: Event, timePassed: number = Date.now()): [GameState, EventToAdd[]] {
+    let state = this.new()
+    // { socketID, cardID, position }
+    // Move card to emissions line
+    const playedCard = state.cards.find(c => c.id === event.payload.cardID)
+    const position = event.payload.position
+    if (!playedCard) {
+      throw new Error("Played card does not exist with ID: " + event.payload.cardID)
+    }
+    state.selectedCardID = undefined
+    const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
+    movedCard.position = playedCard.position
+    state.cards = state.cards.filter(c => c !== playedCard)
+    state = state.addToEL(movedCard, position)
+    state = state.rearrangeEL(timePassed)
+    state = Hand.rearrange(state, timePassed)
+    state = OpponentHand.rearrange(state, timePassed)
+
     return [state, []]
   }
 
