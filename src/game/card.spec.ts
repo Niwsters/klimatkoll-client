@@ -27,7 +27,7 @@ describe('Card', () => {
   })
 
   describe('transpose()', () => {
-    it('transposes card attributes over time', () => {
+    it('adds transposition goal to card', () => {
       const card =  new Card(3, "blargh", "hand")
       card.position = [1, 1]
       card.rotation = 15
@@ -38,7 +38,8 @@ describe('Card', () => {
         position: [2, 2],
         rotation: 30,
         addedRotation: 10,
-        scale: 2.1
+        scale: 2.1,
+        timestamp: 1337
       }
 
       let transposed = Card.transpose(card, goal)
@@ -46,23 +47,22 @@ describe('Card', () => {
         ...card,
         transpositions: [goal]
       })
+    })
 
-      /*
-      let timePassed = ANIMATION_DURATION_MS/2
-      transposed = Card.transpose(card, goal, timePassed)
+    it("doesn't add transposition goal if an identical one already exists", () => {
+      const card =  new Card(3, "blargh", "hand")
 
-      let expected = {
-        ...card,
-        position: [
-          transpose(card.position[0], 2, timePassed),
-          transpose(card.position[1], 2, timePassed)
-        ],
-        rotation: transpose(card.rotation, 30, timePassed),
-        addedRotation: transpose(card.addedRotation, 10, timePassed),
-        scale: transpose(card.scale, 2.1, timePassed)
+      const goal = {
+        position: [2, 2],
+        timestamp: 1337
       }
-      expect(transposed).toEqual(expected)
-      */
+
+      card.transpositions = [{...goal}]
+
+      expect(Card.transpose(card, goal)).toEqual({
+        ...card,
+        transpositions: [{...goal}]
+      })
     })
   })
 

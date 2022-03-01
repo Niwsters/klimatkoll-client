@@ -45,6 +45,14 @@ export class Card {
     goal: TransposeGoal
   ): Card {
 
+    for (const t of card.transpositions) {
+      if (t.position && goal.position) {
+        const samePosition = t.position[0] === goal.position[0] && t.position[1] === goal.position[1]
+        if (samePosition)
+          return {...card}
+      }
+    }
+
     return {
       ...card,
       transpositions: [...card.transpositions, goal]
@@ -57,9 +65,7 @@ export class Card {
   ): Card {
     const newCard = { ...card }
 
-    newCard.transpositions = newCard.transpositions.filter(t => time - t.timestamp < ANIMATION_DURATION_MS)
-
-    card.transpositions.forEach((t: TransposeGoal) => {
+    newCard.transpositions.forEach((t: TransposeGoal) => {
       if (t.position !== undefined) {
         newCard.position = [
           transpose(card.position[0], t.position[0], time - t.timestamp),
@@ -76,6 +82,8 @@ export class Card {
       if (t.scale !== undefined)
         newCard.scale = transpose(card.scale, t.scale, time - t.timestamp)
     })
+
+    newCard.transpositions = newCard.transpositions.filter(t => time - t.timestamp < ANIMATION_DURATION_MS)
 
     return newCard
   }

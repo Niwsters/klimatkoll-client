@@ -58,3 +58,15 @@ export class PlayCardRequestEvent extends EventToAdd {
     super("play_card_request", { cardID, position })
   }
 }
+
+export class CardHoveredEvent extends EventToAdd {
+  constructor(cardID: number) {
+    super("card_hovered", { cardID })
+  }
+}
+
+export class CardUnhoveredEvent extends EventToAdd {
+  constructor(cardID: number) {
+    super("card_unhovered", { cardID })
+  }
+}

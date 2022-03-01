@@ -1,7 +1,7 @@
 import { GameState } from './gamestate'
 import { Hand, OpponentHand } from './hand'
 import { Card, SpaceCard } from './card'
-import { Event } from '../event/event'
+import { CardHoveredEvent, CardUnhoveredEvent, Event, MouseMovedEvent } from '../event/event'
 import {
   ANIMATION_DURATION_MS,
   DISCARD_PILE_POSITION,
@@ -417,6 +417,37 @@ describe('GameState', () => {
 
       expect(result.cards.find(c => c.id === card2.id).position).toEqual(expected1.position)
       expect(result.cards.find(c => c.id === card3.id).position).toEqual(expected2.position)
+    })
+  })
+
+  describe('mouse_moved', () => {
+    let card: Card
+    beforeEach(() => {
+      card = new Card(3, "some-card", "hand")
+      state.cards = [card]
+    })
+
+    it('triggers card_hovered event if hovering card', () => {
+      const event = {...new MouseMovedEvent(0, 0), event_id: 0}
+      const result = state.mouse_moved(event)[1]
+      expect(result).toEqual([
+        new CardHoveredEvent(card.id)
+      ])
+    })
+
+    it("doesn't trigger card_hovered event if not hovering card", () => {
+      const event = {...new MouseMovedEvent(9999, 9999), event_id: 0}
+      const result = state.mouse_moved(event)[1]
+      expect(result).toEqual([])
+    })
+
+    it("triggers card_unhovered event if card was previously hovered but now isn't", () => {
+      const event = {...new MouseMovedEvent(9999, 9999), event_id: 0}
+      state.hoveredCardIDs.add(card.id)
+      const result = state.mouse_moved(event)[1]
+      expect(result).toEqual([
+        new CardUnhoveredEvent(card.id)
+      ])
     })
   })
 })
