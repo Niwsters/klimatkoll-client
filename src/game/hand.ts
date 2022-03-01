@@ -12,7 +12,8 @@ import {
 export class Hand {
   static rearrange(
     state: GameState,
-    timePassed: number
+    timePassed: number,
+    currentTime: number = Date.now()
   ): GameState {
     let i = 0
     const n = state.cards.filter(c => c.container === "hand").length - 1
@@ -36,7 +37,7 @@ export class Hand {
       }
 
       const goal: TransposeGoal = {
-        timestamp: Date.now(),
+        timestamp: currentTime,
         position: [x,y],
         rotation: angle * HAND_ANGLE_FACTOR,
         scale: scale
@@ -53,7 +54,8 @@ export class Hand {
 export class OpponentHand {
   static rearrange(
     state: GameState,
-    timePassed: number
+    timePassed: number,
+    currentTime: number = Date.now()
   ): GameState {
     let i = 0
     const n = state.cards.filter(c => c.container === "opponent-hand").length - 1
@@ -65,7 +67,7 @@ export class OpponentHand {
       const y = OPPONENT_HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
 
       const goal: TransposeGoal = {
-        timestamp: Date.now(),
+        timestamp: currentTime,
         position: [x,y],
         rotation: (angle + Math.PI) * HAND_ANGLE_FACTOR
       }

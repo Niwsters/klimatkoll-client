@@ -43,10 +43,21 @@ describe('Hand', () => {
       let timePassed = ANIMATION_DURATION_MS/2
       let pos1 = getHandCardPosition(0, 2)
       let pos2 = getHandCardPosition(1, 2)
-      let result = Hand.rearrange(state, timePassed)
+      const currentTime = 1337
+      let result = Hand.rearrange(state, timePassed, currentTime)
       expect(result.cards).toEqual([
-        Card.transpose(card, { position: pos1, rotation: -0.15707963267948966, scale: 0.275 }),
-        Card.transpose(card2, { position: pos2, rotation: 0.15707963267948966, scale: 0.275 }),
+        Card.transpose(card, {
+          timestamp: currentTime,
+          position: pos1,
+          rotation: -0.15707963267948966,
+          scale: 0.275
+        }),
+        Card.transpose(card2, {
+          timestamp: currentTime,
+          position: pos2,
+          rotation: 0.15707963267948966,
+          scale: 0.275
+        }),
         nonHandCard
       ])
     })
@@ -66,17 +77,20 @@ describe('OpponentHand', () => {
       state.emissionsLineCardOrder = [0,1]
 
       let timePassed = ANIMATION_DURATION_MS
-      let result = OpponentHand.rearrange(state, timePassed)
+      const currentTime = 1337
+      let result = OpponentHand.rearrange(state, timePassed, currentTime)
       let pos1 = getOpponentHandCardPosition(0, 2)
       let pos2 = getOpponentHandCardPosition(1, 2)
       expect(result.cards).toEqual([
         Card.transpose(card, {
           position: pos1,
-          rotation: 2.9845130209103035
+          rotation: 2.9845130209103035,
+          timestamp: currentTime 
         }),
         Card.transpose(card2, {
           position: pos2,
-          rotation: 3.2986722862692828
+          rotation: 3.2986722862692828,
+          timestamp: currentTime
         }),
         nonHandCard
       ])

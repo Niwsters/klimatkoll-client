@@ -26,8 +26,8 @@ export class GameState {
     this.config = config
   }
 
-  new(params: any = {}): GameState {
-    return Object.assign(new GameState(this.config), this, params)
+  private new(): GameState {
+    return Object.assign(new GameState(this.config), this)
   }
 
   update(time: number) {
@@ -43,7 +43,7 @@ export class GameState {
     card.flipped = true
 
     // Add new card in specified position
-    state.cards.push(card)
+    state.cards = [...state.cards, card]
     state.emissionsLineCardOrder = [
       ...state.emissionsLineCardOrder.slice(0, position+1),
       card.id,
@@ -78,7 +78,7 @@ export class GameState {
     return state
   }
 
-  rearrangeEL(timePassed: number): GameState {
+  rearrangeEL(currentTime: number = Date.now()): GameState {
     let state = this.new()
 
     let elCards = state.emissionsLineCardOrder
@@ -97,7 +97,7 @@ export class GameState {
     const startOffset = 0 - width*cardCount/2 - width/2
 
     elCards = elCards.map((card: Card, i: number) => {
-      const goal: TransposeGoal = { timestamp: Date.now() }
+      const goal: TransposeGoal = { timestamp: currentTime }
 
       goal.scale = Card.DEFAULT_SCALE
       goal.position = [
@@ -122,7 +122,7 @@ export class GameState {
         }
       }
 
-      return Card.transpose(card, goal)
+        return Card.transpose(card, goal)
     })
 
     return GameState.updateCards(state, elCards)
@@ -162,7 +162,6 @@ export class GameState {
     const events: EventToAdd[] = []
 
     // If card is selected and space card is focused, play card
-    console.log(state.isMyTurn, state.selectedCardID, focusedCard)
     if (state.isMyTurn && state.selectedCardID !== undefined && focusedCard !== undefined && focusedCard.isSpace) {
       const position = state.emissionsLineCardOrder.findIndex(cardID => focusedCard.id === cardID)
       events.push(new PlayCardRequestEvent(state.selectedCardID, position))
@@ -179,7 +178,7 @@ export class GameState {
     }
 
     state.selectedCardID = selectedCardID
-    return [state.rearrangeEL(timePassed), events]
+    return [state.rearrangeEL(), events]
   }
 
   next_card(event: Event, timePassed: number): [GameState, EventToAdd[]] {
@@ -195,7 +194,7 @@ export class GameState {
     cards.push(card)
 
     state.cards = cards
-    state = state.rearrangeEL(timePassed)
+    state = state.rearrangeEL()
 
     return [state, []]
   }
@@ -226,7 +225,7 @@ export class GameState {
           // If it's the first hovered card, rearrange and trigger animations
           if (hoveredCardIDs.size === 1) {
             state = Hand.rearrange(state, timePassed)
-            state = state.rearrangeEL(timePassed)
+            state = state.rearrangeEL()
           }
         }
       } else {
@@ -238,7 +237,7 @@ export class GameState {
 
           if (previousFocusedCardID !== currentFocusedCardID) {
             state = Hand.rearrange(state, timePassed)
-            state = state.rearrangeEL(timePassed)
+            state = state.rearrangeEL()
           }
         }
       }
@@ -247,11 +246,15 @@ export class GameState {
     return [state, []]
   }
 
-  incorrect_card_placement(event: Event, timePassed: number): [GameState, EventToAdd[]] {
+  incorrect_card_placement(
+    event: Event,
+    timePassed: number,
+    currentTime: number = Date.now()
+  ): [GameState, EventToAdd[]] {
     let state = this.new()
 
     const goal: TransposeGoal = {
-      timestamp: Date.now(),
+      timestamp: currentTime,
       position: DISCARD_PILE_POSITION,
       rotation: 0,
       addedRotation: 0
@@ -264,22 +267,20 @@ export class GameState {
 
       return Card.transpose({
         ...card,
-        container: "discard-pile"
+        container: "discard-pile",
       }, goal)
     })
 
     state.selectedCardID = undefined
 
-    state = Hand.rearrange(state, timePassed)
-    state = OpponentHand.rearrange(state, timePassed)
+    state = Hand.rearrange(state, timePassed, currentTime)
+    state = OpponentHand.rearrange(state, timePassed, currentTime)
 
     return [state, []]
   }
 
   draw_card(event: Event, timePassed: number = Date.now()): [GameState, EventToAdd[]] {
     let state = this.new()
-    // { socketID, card }
-    // Draw card into correct hand
     const server_card = event.payload.card
 
     if (event.payload.socketID === state.socketID) {
