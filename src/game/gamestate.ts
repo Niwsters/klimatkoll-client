@@ -316,9 +316,9 @@ export class GameState {
 
     let events: EventToAdd[] = []
     for (const card of state.cards) {
-      if (Card.isMouseHovering(card, mouseX, mouseY)) {
+      if (Card.isMouseHovering(card, mouseX, mouseY) && !state.hoveredCardIDs.has(card.id)) {
         events = [...events, new CardHoveredEvent(card.id)]
-      } else if (state.hoveredCardIDs.has(card.id)) {
+      } else if (!Card.isMouseHovering(card, mouseX, mouseY) && state.hoveredCardIDs.has(card.id)) {
         events = [...events, new CardUnhoveredEvent(card.id)]
       }
     }

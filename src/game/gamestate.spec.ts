@@ -439,6 +439,13 @@ describe('GameState', () => {
       ])
     })
 
+    it("doesn't trigger event if card already hovered", () => {
+      const event = {...new MouseMovedEvent(0, 0), event_id: 0}
+      state.hoveredCardIDs.add(card.id)
+      const result = state.mouse_moved(event)[1]
+      expect(result).toEqual([])
+    })
+
     it("doesn't trigger card_hovered event if not hovering card", () => {
       const event = {...new MouseMovedEvent(9999, 9999), event_id: 0}
       const result = state.mouse_moved(event)[1]
