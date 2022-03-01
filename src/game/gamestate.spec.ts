@@ -141,8 +141,10 @@ describe('GameState', () => {
     it('transposes emissions line cards to their proper positions', () => {
       const card = new Card(0, "blargh", "emissions-line")
       card.position = [1,1]
+      card.zLevel = 0
       const card2 = new Card(1, "1337", "emissions-line")
       card2.position = [2,2]
+      card2.zLevel = 1
       const nonELCard = new Card(2, "honk", "hand")
       state.cards = [card, card2, nonELCard]
       state.emissionsLineCardOrder = [0,1]
@@ -223,6 +225,7 @@ describe('GameState', () => {
         position: EMISSIONS_LINE_POSITION,
         timestamp: currentTime
       })
+      expected.zLevel = 999
 
       expect(result).toEqual(expected)
     })
@@ -248,7 +251,6 @@ describe('GameState', () => {
 
   describe('next_card', () => {
     it("creates a new deck card if none exists", () => {
-      const timePassed = 3
       const event = new Event(0, "next_card", {
         card: {
           id: 13,
@@ -256,7 +258,7 @@ describe('GameState', () => {
         }
       })
 
-      const result = state.next_card(event, timePassed)[0]
+      const result = state.next_card(event)[0]
       const card = new Card(13, "blargh", "deck")
       card.position = DECK_POSITION
 
@@ -265,7 +267,6 @@ describe('GameState', () => {
     })
 
     it("replaces existing deck card if exists", () => {
-      const timePassed = 3
       const card = new Card(13, "blargh", "deck")
       state.cards = [card]
 
@@ -279,7 +280,7 @@ describe('GameState', () => {
       const card2 = new Card(1, "honk", "deck")
       card2.position = DECK_POSITION
 
-      const result = state.next_card(event, timePassed)[0]
+      const result = state.next_card(event)[0]
 
       expect(result.cards).toEqual([card2])
     })
@@ -291,11 +292,9 @@ describe('GameState', () => {
       state.hoveredCardIDs = new Set()
 
       const event = new Event(0, "mouse_clicked", {})
-      const timePassed = 3
-      const result = state.mouse_clicked(event, timePassed)[0]
+      const result = state.mouse_clicked(event)[0]
 
       expect(result.selectedCardID).toEqual(undefined)
-      expect(result.mouse_clicked).toBeDefined()
     })
 
     it('sets selectedCardID to card ID if card is focused', () => {
@@ -304,8 +303,7 @@ describe('GameState', () => {
       state.hoveredCardIDs = new Set([3])
 
       const event = new Event(0, "mouse_clicked", {})
-      const timePassed = 3
-      const result = state.mouse_clicked(event, timePassed)[0]
+      const result = state.mouse_clicked(event)[0]
 
       expect(result.selectedCardID).toEqual(3)
     })
@@ -316,41 +314,9 @@ describe('GameState', () => {
       state.hoveredCardIDs = new Set([0])
 
       const event = new Event(0, "mouse_clicked", {})
-      const timePassed = 3
-      const result = state.mouse_clicked(event, timePassed)[0]
+      const result = state.mouse_clicked(event)[0]
 
       expect(result.selectedCardID).toEqual(0)
-    })
-
-    it('rearranges emissions line', () => {
-      let calledWith: any[]
-      const mock = ((...args: any[]) => { calledWith = args }) as any
-      state.rearrangeEL = mock
-      const event = new Event(0, "mouse_clicked", {})
-      state.mouse_clicked(event, 3)
-
-      expect(calledWith).toEqual([])
-    })
-  })
-
-  describe('updateCards', () => {
-    it("should replace existing cards with given cards' attributes", () => {
-      const card1 = new Card(0, "blargh", "emissions-line")
-      const card2 = new Card(1, "honk", "hand")
-
-      state.cards = [
-        card1,
-        card2
-      ]
-
-      const updatedCard ={
-        ...card1,
-        position: [1337, 1337]
-      }
-
-      const newState = GameState.updateCards(state, [updatedCard])
-
-      expect(newState.cards).toEqual([updatedCard, card2])
     })
   })
 

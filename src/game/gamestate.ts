@@ -78,57 +78,156 @@ export class GameState {
     return state
   }
 
-  rearrangeEL(currentTime: number = Date.now()): GameState {
-    let state = this.new()
+  private getOrderedEmissionsLine(): Card[] {
+    let state = this
 
-    let elCards = state.emissionsLineCardOrder
-      .reduce((cards: Card[], cardID: number) => {
+    let elCards: Card[] = []
+    for (const cardID of state.emissionsLineCardOrder) {
         const card = state.cards.find(c => c.id === cardID)
-        if (!card) throw new Error("Can't find card with ID: " + cardID)
-        return [...cards, card]
-      }, [])
-    const cardCount = elCards.length
+        if (!card) throw new Error("Can't find card with ID: " + cardID);
+        elCards = [...elCards, card]
+    }
+    return elCards
+  }
+
+  private getEmissionsLineWidth(): number {
+    let state = this
+
+    const cardCount = state.emissionsLineCardOrder.length
     const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
     const totalELWidth = cardWidth * cardCount
     let width = cardWidth / 2
     if (totalELWidth > EMISSIONS_LINE_MAX_LENGTH) {
       width = (EMISSIONS_LINE_MAX_LENGTH - cardWidth) / (cardCount-1)
     }
+    return width
+  }
+
+  private isCardFocused(card: Card): boolean {
+    return GameState.getFocusedCardID(this) === card.id
+  }
+
+  private isACardSelected(): boolean {
+    return this.selectedCardID !== undefined
+  }
+
+  private transposeELCard(
+    card: Card,
+    i: number,
+    currentTime: number
+  ): Card {
+    let state = this
+    let goal: TransposeGoal = { timestamp: currentTime }
+
+    let elCards = state.getOrderedEmissionsLine()
+    const cardCount = elCards.length
+    const width = state.getEmissionsLineWidth()
     const startOffset = 0 - width*cardCount/2 - width/2
 
+    goal.scale = Card.DEFAULT_SCALE
+    goal.position = [
+      EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1),
+      EMISSIONS_LINE_POSITION[1]
+    ]
+
+    if (
+      !card.isSpace &&
+      !state.isACardSelected() &&
+      state.isCardFocused(card)
+    ) {
+      goal.scale = Card.DEFAULT_SCALE * 2
+    }
+
+    return Card.transpose(card, goal)
+  }
+
+  private getELCardZLevel(card: Card, i: number): number {
+    let state = this
+
+    let zLevel = i
+    if (
+      !card.isSpace &&
+      state.selectedCardID === undefined &&
+      GameState.getFocusedCardID(state) === card.id
+    ) {
+      zLevel = 999
+    }
+
+    return zLevel
+  }
+
+  private getSpaceCardName(card: Card): string {
+    const state = this
+
+    let name = "space"
+    const selectedCard = state.cards.find(c => c.id === state.selectedCardID)
+    if (selectedCard !== undefined && state.isCardFocused(card))
+      name = selectedCard.name
+
+    return name
+  }
+
+  private updateSpaceCard(oldCard: Card): Card {
+    let state = this
+    let card = {...oldCard}
+
+    card.visible = state.isACardSelected()
+    card.name = state.getSpaceCardName(card)
+
+    return card
+  }
+
+  private updateELZLevels(): GameState {
+    let state = this.new()
+
+    let elCards: Card[] = state.getOrderedEmissionsLine()
+
     elCards = elCards.map((card: Card, i: number) => {
-      const goal: TransposeGoal = { timestamp: currentTime }
-
-      goal.scale = Card.DEFAULT_SCALE
-      goal.position = [
-        EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1),
-        EMISSIONS_LINE_POSITION[1]
-      ]
-
-      card.zLevel = i
-      card.visible = true
-      if (card.isSpace) {
-        if (state.selectedCardID === undefined) card.visible = false
-
-        card.name = "space"
-        const selectedCard = state.cards.find(c => c.id === state.selectedCardID)
-        if (selectedCard !== undefined && GameState.getFocusedCardID(state) === card.id) {
-          card.name = selectedCard.name
-        }
-      } else {
-        if (state.selectedCardID === undefined && GameState.getFocusedCardID(state) === card.id) {
-          goal.scale = Card.DEFAULT_SCALE * 2
-          card.zLevel = 999
-        }
+      return {
+        ...card,
+        zLevel: state.getELCardZLevel(card, i)
       }
-
-        return Card.transpose(card, goal)
     })
 
     return GameState.updateCards(state, elCards)
   }
 
-  static getFocusedCardID(state: GameState): number | undefined {
+  private updateELSpaceCards(): GameState {
+    let state = this.new()
+
+    let elCards = state.getOrderedEmissionsLine()
+    elCards = elCards.map((card: Card) => {
+      if (card.isSpace)
+        return state.updateSpaceCard(card)
+
+      return card
+    })
+
+    return GameState.updateCards(state, elCards)
+  }
+
+  private transposeELCards(currentTime: number): GameState {
+    let state = this.new()
+
+    let elCards = state.getOrderedEmissionsLine()
+    elCards = elCards.map((card: Card, i: number) => {
+      return state.transposeELCard(card, i, currentTime)
+    })
+
+    return GameState.updateCards(state, elCards)
+  }
+
+  rearrangeEL(currentTime: number = Date.now()): GameState {
+    let state = this.new()
+
+    state = state.updateELZLevels()
+    state = state.updateELSpaceCards()
+    state = state.transposeELCards(currentTime)
+
+    return state
+  }
+
+  private static getFocusedCardID(state: GameState): number | undefined {
     return Array.from(state.hoveredCardIDs)[0]
   }
 
@@ -155,8 +254,7 @@ export class GameState {
     return [state, []]
   }
 
-  // TODO: Unit test this
-  mouse_clicked(event: Event, timePassed: number): [GameState, EventToAdd[]] {
+  mouse_clicked(_: Event): [GameState, EventToAdd[]] {
     let state = this.new()
     const focusedCard = GameState.getFocusedCard(this)
     const events: EventToAdd[] = []
@@ -178,23 +276,22 @@ export class GameState {
     }
 
     state.selectedCardID = selectedCardID
-    return [state.rearrangeEL(), events]
+    return [state, events]
   }
 
-  next_card(event: Event, timePassed: number): [GameState, EventToAdd[]] {
+  next_card(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
 
     // remove existing deck card
-    const cards = this.cards.filter(c => c.container !== "deck")
+    let cards = this.cards.filter(c => c.container !== "deck")
 
     const serverCard = event.payload.card
     const card = new Card(serverCard.id, serverCard.name, "deck")
     card.position = DECK_POSITION
 
-    cards.push(card)
+    cards = [...cards, card]
 
     state.cards = cards
-    state = state.rearrangeEL()
 
     return [state, []]
   }
@@ -328,7 +425,7 @@ export class GameState {
     movedCard.position = playedCard.position
     state.cards = state.cards.filter(c => c !== playedCard)
     state = state.addToEL(movedCard, position)
-    state = state.rearrangeEL(timePassed)
+    state = state.rearrangeEL()
     state = Hand.rearrange(state, timePassed)
     state = OpponentHand.rearrange(state, timePassed)
 
@@ -350,7 +447,7 @@ export class GameState {
     return [state, []]
   }
 
-  static updateCards(state: GameState, updated: Card[]): GameState {
+  private static updateCards(state: GameState, updated: Card[]): GameState {
     state.cards = state.cards.map(card => {
       const updatedCard = updated.find(c => c.id === card.id)
 
@@ -359,240 +456,4 @@ export class GameState {
 
     return state
   }
-
-  /*
-  static handleEvent(
-    oldState: GameState,
-    event: Event,
-    text: TextConfig,
-    currentTime: number = Date.now(),
-  ): GameState {
-    let state = { ...oldState };
-
-    const timePassed = currentTime - event.timestamp
-    switch(event.event_type) {
-      case "waiting_for_players":
-        // No payload
-        state.statusMessage = text.waitingForPlayer
-        break
-      case "playing":
-        // No payload
-        break
-      case "draw_card": {
-        // { socketID, card }
-        state = state.draw_card(event, currentTime)
-        break
-      }
-      case "return_opponent_hand":
-        // No payload
-        break
-      case "card_played_from_deck": {
-        // { card, position }
-        const serverCard = event.payload.card
-        const position = event.payload.position
-        state = EmissionsLine.add(
-          state,
-          new Card(serverCard.id, serverCard.name, "emissions-line"),
-          position)
-        state = state.rearrangeEL(timePassed)
-        break
-      }
-      case "card_played_from_hand":
-        // { socketID, cardID, position }
-        // Move card to emissions line
-        const playedCard = state.cards.find(c => c.id === event.payload.cardID)
-        const position = event.payload.position
-        if (!playedCard) {
-          throw new Error("Played card does not exist with ID: " + event.payload.cardID)
-        }
-        state.selectedCardID = undefined
-        const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
-        movedCard.position = playedCard.position
-        state.cards = state.cards.filter(c => c !== playedCard)
-        state = state.addToEL(movedCard, position)
-        state = state.rearrangeEL(timePassed)
-        state = Hand.rearrange(state, timePassed)
-        state = OpponentHand.rearrange(state, timePassed)
-
-        break
-      case "incorrect_card_placement": {
-        // { cardID, socketID }
-        state = GameState.incorrect_card_placement(state, event, timePassed)
-        break
-      }
-      case "player_turn":
-        // { socketID }
-        if (state.socketID === event.payload.socketID) {
-          state.isMyTurn = true
-          state.statusMessage = text.yourTurn
-        } else {
-          state.isMyTurn = false
-          state.statusMessage = text.opponentsTurn
-        }
-        break
-      case "game_won":
-        // { socketID }
-        if (state.socketID === event.payload.socketID) {
-          state.statusMessage = text.youWon
-        } else {
-          state.statusMessage = text.youLost
-        }
-        break
-      case "vote_new_game":
-        // { socketID }
-        break
-      case "next_card":
-        // { card }
-        state = GameState.nextCard(state, event, timePassed)
-        break
-      case "card_hovered": {
-        const card_id = event.payload.card_id
-        state.hoveredCardIDs.add(card_id)
-        state = Hand.rearrange(state, timePassed)
-        state = state.rearrangeEL(timePassed)
-        break
-      }
-      case "card_unhovered": {
-        const card_id = event.payload.card_id
-        state.hoveredCardIDs.delete(card_id)
-        state = Hand.rearrange(state, timePassed)
-        state = state.rearrangeEL(timePassed)
-        break
-      }
-      case "mouse_clicked": {
-        state = GameState.mouseClicked(state, event, timePassed)
-        break
-      }
-      case "socket_id": {
-        state.socketID = event.payload.socketID
-        break
-      }
-    }
-
-    return state
-  }
-
-  static fromEvents(
-    events: Event[],
-    text: TextConfig,
-    currentTime: number = Date.now(),
-  ): GameState {
-    return events.reduce((state: GameState, event: Event) => {
-      const timePassed = currentTime - event.timestamp
-      switch(event.event_type) {
-        case "waiting_for_players":
-          // No payload
-          state.statusMessage = text.waitingForPlayer
-          break
-        case "playing":
-          // No payload
-          break
-        case "draw_card": {
-          // { socketID, card }
-          // Draw card into correct hand
-          const server_card = event.payload.card
-
-          if (event.payload.socketID === state.socketID) {
-            const card = new Card(server_card.id, server_card.name, "hand")
-            card.position = DECK_POSITION
-            state.cards.push(card)
-            state = Hand.rearrange(state, timePassed)
-          } else {
-            const card = new Card(server_card.id, server_card.name, "opponent-hand")
-            card.position = DECK_POSITION
-            state.cards.push(card)
-            state = OpponentHand.rearrange(state, timePassed)
-          }
-
-          break
-        }
-        case "return_opponent_hand":
-          // No payload
-          break
-        case "card_played_from_deck": {
-          // { card, position }
-          const serverCard = event.payload.card
-          const position = event.payload.position
-          state = state.addToEL(
-            new Card(serverCard.id, serverCard.name, "emissions-line"),
-            position)
-          state = state.rearrangeEL(timePassed)
-          break
-        }
-        case "card_played_from_hand":
-          // { socketID, cardID, position }
-          // Move card to emissions line
-          const playedCard = state.cards.find(c => c.id === event.payload.cardID)
-          const position = event.payload.position
-          if (!playedCard) {
-            throw new Error("Played card does not exist with ID: " + event.payload.cardID)
-          }
-          state.selectedCardID = undefined
-          const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
-          movedCard.position = playedCard.position
-          state.cards = state.cards.filter(c => c !== playedCard)
-          state = state.addToEL(movedCard, position)
-          state = state.rearrangeEL(timePassed)
-          state = Hand.rearrange(state, timePassed)
-          state = OpponentHand.rearrange(state, timePassed)
-
-          break
-        case "incorrect_card_placement": {
-          // { cardID, socketID }
-          state = state.incorrect_card_placement(event, timePassed)
-          break
-        }
-        case "player_turn":
-          // { socketID }
-          if (state.socketID === event.payload.socketID) {
-            state.isMyTurn = true
-            state.statusMessage = text.yourTurn
-          } else {
-            state.isMyTurn = false
-            state.statusMessage = text.opponentsTurn
-          }
-          break
-        case "game_won":
-          // { socketID }
-          if (state.socketID === event.payload.socketID) {
-            state.statusMessage = text.youWon
-          } else {
-            state.statusMessage = text.youLost
-          }
-          break
-        case "vote_new_game":
-          // { socketID }
-          break
-        case "next_card":
-          // { card }
-          state = state.next_card(event, timePassed)
-          break
-        case "card_hovered": {
-          const card_id = event.payload.card_id
-          state.hoveredCardIDs.add(card_id)
-          state = Hand.rearrange(state, timePassed)
-          state = state.rearrangeEL(timePassed)
-          break
-        }
-        case "card_unhovered": {
-          const card_id = event.payload.card_id
-          state.hoveredCardIDs.delete(card_id)
-          state = Hand.rearrange(state, timePassed)
-          state = state.rearrangeEL(timePassed)
-          break
-        }
-        case "mouse_clicked": {
-          state = state.mouse_clicked(event, timePassed)
-          break
-        }
-        case "socket_id": {
-          state.socketID = event.payload.socketID
-          break
-        }
-      }
-
-      return state
-    }, new GameState())
-  }
-    */
 }
