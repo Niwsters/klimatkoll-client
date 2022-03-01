@@ -44,19 +44,54 @@ export class Card {
     card: Card,
     goal: TransposeGoal
   ): Card {
-
-    for (const t of card.transpositions) {
-      if (t.position && goal.position) {
-        const samePosition = t.position[0] === goal.position[0] && t.position[1] === goal.position[1]
-        if (samePosition)
-          return {...card}
-      }
-    }
-
     return {
       ...card,
       transpositions: [...card.transpositions, goal]
     }
+  }
+
+  static move(card: Card, x: number, y: number, currentTime: number) {
+    const existing = card.transpositions.find(t => t.position && t.position[0] === x && t.position[1] === y)
+    if (existing)
+      return {...card}
+
+    return Card.transpose(card, {
+      timestamp: currentTime,
+      position: [x, y] 
+    })
+  }
+
+  static rotateGlobal(card: Card, rotation: number, currentTime: number) {
+    const existing = card.transpositions.find(t => t.rotation && t.rotation === rotation)
+    if (existing)
+      return {...card}
+
+    return Card.transpose(card, {
+      timestamp: currentTime,
+      rotation: rotation
+    })
+  }
+
+  static rotateLocal(card: Card, rotation: number, currentTime: number) {
+    const existing = card.transpositions.find(t => t.addedRotation && t.addedRotation === rotation)
+    if (existing)
+      return {...card}
+
+    return Card.transpose(card, {
+      timestamp: currentTime,
+      addedRotation: rotation
+    })
+  }
+
+  static scale(card: Card, scale: number, currentTime: number) {
+    const existing = card.transpositions.find(t => t.scale && t.scale === scale)
+    if (existing)
+      return {...card}
+
+    return Card.transpose(card, {
+      timestamp: currentTime,
+      scale: scale
+    })
   }
 
   static update(

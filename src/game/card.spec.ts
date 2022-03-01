@@ -2,6 +2,12 @@ import { Card, transpose } from './card'
 import { ANIMATION_DURATION_MS } from './constants'
 
 describe('Card', () => {
+  let card: Card
+  const currentTime = 1337
+  beforeEach(() => {
+    card = new Card(3, "blargh", "hand")
+  })
+
   describe('constructor', () => {
     it('sets isSpace to true if name is space', () => {
       const card = new Card(3, "space", "emissions-line")
@@ -11,7 +17,6 @@ describe('Card', () => {
   
   describe('getRectangle()', () => {
     it('calculates rectangle coordinates based on card scale', () => {
-      const card =  new Card(3, "blargh", "hand")
       let expected = [
         [-61.18750000000001, -90.2],
         [61.18750000000001, 90.2]
@@ -28,12 +33,6 @@ describe('Card', () => {
 
   describe('transpose()', () => {
     it('adds transposition goal to card', () => {
-      const card =  new Card(3, "blargh", "hand")
-      card.position = [1, 1]
-      card.rotation = 15
-      card.addedRotation = 5
-      card.scale = 1.0
-
       const goal = {
         position: [2, 2],
         rotation: 30,
@@ -48,20 +47,113 @@ describe('Card', () => {
         transpositions: [goal]
       })
     })
+  })
 
-    it("doesn't add transposition goal if an identical one already exists", () => {
-      const card =  new Card(3, "blargh", "hand")
+  describe("move()", () => {
+    const [x, y] = [2, 3]
+    const goal = {
+      timestamp: currentTime,
+      position: [x, y] 
+    }
 
-      const goal = {
-        position: [2, 2],
-        timestamp: 1337
-      }
+    beforeEach(() => {
+      card = Card.move(card, x, y, currentTime)
+    })
 
-      card.transpositions = [{...goal}]
-
-      expect(Card.transpose(card, goal)).toEqual({
+    it("adds transposition goal with position", () => {
+      expect(card).toEqual({
         ...card,
-        transpositions: [{...goal}]
+        transpositions: [goal]
+      })
+    })
+
+    it("doesn't add goal if goal already exists", () => {
+      card = Card.move(card, x, y, currentTime)
+      expect(card).toEqual({
+        ...card,
+        transpositions: [goal]
+      })
+    })
+  })
+
+  describe("rotateGlobal()", () => {
+    const rotation = 100
+    const goal = {
+      timestamp: 1337,
+      rotation: rotation 
+    }
+
+    beforeEach(() => {
+      card = Card.rotateGlobal(card, rotation, currentTime)
+    })
+
+    it("adds transition goal with rotation", () => {
+      expect(card).toEqual({
+        ...card,
+        transpositions: [goal]
+      })
+    })
+
+    it("doesn't add goal if goal already exists", () => {
+      card = Card.rotateGlobal(card, rotation, currentTime)
+      expect(card).toEqual({
+        ...card,
+        transpositions: [goal]
+      })
+    })
+  })
+
+  describe("rotateLocal()", () => {
+    const rotation = 100
+    const goal = {
+      timestamp: currentTime,
+      addedRotation: rotation 
+    }
+
+    beforeEach(() => {
+      card = Card.rotateLocal(card, rotation, currentTime)
+    })
+
+    it("adds transition goal with addedRotation", () => {
+      expect(card).toEqual({
+        ...card,
+        transpositions: [goal]
+      })
+    })
+
+    it("doesn't add goal if goal already exists", () => {
+      card = Card.rotateLocal(card, rotation, currentTime)
+      expect(card).toEqual({
+        ...card,
+        transpositions: [goal]
+      })
+    })
+  })
+
+  describe("scale()", () => {
+    const scale = 0.5
+    const currentTime = 1337
+    const goal = {
+      timestamp: 1337,
+      scale: scale
+    }
+
+    beforeEach(() => {
+      card = Card.scale(card, scale, currentTime)
+    })
+
+    it("adds transition goal with scale", () => {
+      expect(card).toEqual({
+        ...card,
+        transpositions: [goal]
+      })
+    })
+
+    it("doesn't add transition goal if goal already exists", () => {
+      card = Card.scale(card, scale, currentTime)
+      expect(card).toEqual({
+        ...card,
+        transpositions: [goal]
       })
     })
   })

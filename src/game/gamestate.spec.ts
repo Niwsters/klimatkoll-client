@@ -139,10 +139,10 @@ describe('GameState', () => {
     })
 
     it('transposes emissions line cards to their proper positions', () => {
-      const card = new Card(0, "blargh", "emissions-line")
+      let card = new Card(0, "blargh", "emissions-line")
       card.position = [1,1]
       card.zLevel = 0
-      const card2 = new Card(1, "1337", "emissions-line")
+      let card2 = new Card(1, "1337", "emissions-line")
       card2.position = [2,2]
       card2.zLevel = 1
       const nonELCard = new Card(2, "honk", "hand")
@@ -152,12 +152,17 @@ describe('GameState', () => {
       let result = state.rearrangeEL(0)
 
       const currentTime = 1337
-      result = state.rearrangeEL(currentTime)
+
       let pos1 = getELCardPosition(0, 2)
       let pos2 = getELCardPosition(1, 2)
+
+      card = Card.move(card, pos1[0], pos1[1], currentTime)
+      card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
+
+      result = state.rearrangeEL(currentTime)
       expect(result.cards).toEqual([
-        Card.transpose(card, { timestamp: currentTime, position: pos1, scale: 0.275 }),
-        Card.transpose(card2, { timestamp: currentTime, position: pos2, scale: 0.275 }),
+        Card.transpose(card, { timestamp: currentTime, scale: 0.275 }),
+        Card.transpose(card2, { timestamp: currentTime, scale: 0.275 }),
         nonELCard
       ])
     })
@@ -220,11 +225,10 @@ describe('GameState', () => {
         .cards
         .find(c => c.id === card.id)
 
-      const expected = Card.transpose(card, {
-        scale: Card.DEFAULT_SCALE * 2,
-        position: EMISSIONS_LINE_POSITION,
-        timestamp: currentTime
-      })
+      const x = EMISSIONS_LINE_POSITION[0]
+      const y = EMISSIONS_LINE_POSITION[1]
+      let expected = Card.move(card, x, y, currentTime)
+      expected = Card.scale(expected, Card.DEFAULT_SCALE * 2, currentTime)
       expected.zLevel = 999
 
       expect(result).toEqual(expected)

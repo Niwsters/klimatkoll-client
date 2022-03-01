@@ -111,34 +111,46 @@ export class GameState {
     return this.selectedCardID !== undefined
   }
 
-  private transposeELCard(
-    card: Card,
-    i: number,
-    currentTime: number
-  ): Card {
-    let state = this
-    let goal: TransposeGoal = { timestamp: currentTime }
+  private moveELCard(card: Card, i: number, currentTime: number): Card {
+    const state = this
 
     let elCards = state.getOrderedEmissionsLine()
     const cardCount = elCards.length
     const width = state.getEmissionsLineWidth()
     const startOffset = 0 - width*cardCount/2 - width/2
 
-    goal.scale = Card.DEFAULT_SCALE
-    goal.position = [
-      EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1),
-      EMISSIONS_LINE_POSITION[1]
-    ]
 
+    const x = EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1)
+    const y = EMISSIONS_LINE_POSITION[1]
+    return Card.move(card, x, y, currentTime)
+  }
+
+  private scaleELCard(card: Card, currentTime: number): Card {
+    const state = this
+
+    let scale = Card.DEFAULT_SCALE
     if (
       !card.isSpace &&
       !state.isACardSelected() &&
       state.isCardFocused(card)
     ) {
-      goal.scale = Card.DEFAULT_SCALE * 2
+      scale = Card.DEFAULT_SCALE * 2
     }
 
-    return Card.transpose(card, goal)
+    return Card.scale(card, scale, currentTime)
+  }
+
+  private transposeELCard(
+    card: Card,
+    i: number,
+    currentTime: number
+  ): Card {
+    let state = this
+
+    card = state.moveELCard(card, i, currentTime)
+    card = state.scaleELCard(card, currentTime)
+
+    return card
   }
 
   private getELCardZLevel(card: Card, i: number): number {
