@@ -346,12 +346,20 @@ describe('GameState', () => {
       const movedCard = result.cards[0]
 
       expect(movedCard.container).toEqual("discard-pile")
-      expect(movedCard.transpositions).toEqual([{
-        addedRotation: 0,
-        position: DISCARD_PILE_POSITION,
-        rotation: 0,
-        timestamp: currentTime
-      }])
+      expect(movedCard.transpositions).toEqual([
+        {
+          position: DISCARD_PILE_POSITION,
+          timestamp: currentTime
+        },
+        {
+          rotation: 0,
+          timestamp: currentTime
+        },
+        {
+          addedRotation: 0,
+          timestamp: currentTime
+        }
+      ])
     })
 
     it('deselects card', () => {

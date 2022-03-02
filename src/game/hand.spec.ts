@@ -31,9 +31,9 @@ function getOpponentHandCardPosition(i: number, cardCount: number): number[] {
 describe('Hand', () => {
   describe('rearrange()', () => {
     it('transposes hand cards to their proper positions', () => {
-      const card = new Card(0, "blargh", "hand")
+      let card = new Card(0, "blargh", "hand")
       card.position = [1,1]
-      const card2 = new Card(1, "1337", "hand")
+      let card2 = new Card(1, "1337", "hand")
       card2.position = [2,2]
       const nonHandCard = new Card(2, "honk", "opponent-hand")
       const state = new GameState()
@@ -45,21 +45,16 @@ describe('Hand', () => {
       let pos2 = getHandCardPosition(1, 2)
       const currentTime = 1337
       let result = Hand.rearrange(state, timePassed, currentTime)
-      expect(result.cards).toEqual([
-        Card.transpose(card, {
-          timestamp: currentTime,
-          position: pos1,
-          rotation: -0.15707963267948966,
-          scale: 0.275
-        }),
-        Card.transpose(card2, {
-          timestamp: currentTime,
-          position: pos2,
-          rotation: 0.15707963267948966,
-          scale: 0.275
-        }),
-        nonHandCard
-      ])
+
+      card = Card.move(card, pos1[0], pos1[1], currentTime)
+      card = Card.rotateGlobal(card, -0.15707963267948966, currentTime)
+      card = Card.scale(card, 0.275, currentTime)
+
+      card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
+      card2 = Card.rotateGlobal(card2, 0.15707963267948966, currentTime)
+      card2 = Card.scale(card2, 0.275, currentTime)
+
+      expect(result.cards).toEqual([card, card2, nonHandCard])
     })
   })
 })
@@ -67,9 +62,9 @@ describe('Hand', () => {
 describe('OpponentHand', () => {
   describe('rearrange()', () => {
     it('transposes emissions line cards to their proper positions', () => {
-      const card = new Card(0, "blargh", "opponent-hand")
+      let card = new Card(0, "blargh", "opponent-hand")
       card.position = [1,1]
-      const card2 = new Card(1, "1337", "opponent-hand")
+      let card2 = new Card(1, "1337", "opponent-hand")
       card2.position = [2,2]
       const nonHandCard = new Card(2, "honk", "hand")
       const state = new GameState()
@@ -81,19 +76,14 @@ describe('OpponentHand', () => {
       let result = OpponentHand.rearrange(state, timePassed, currentTime)
       let pos1 = getOpponentHandCardPosition(0, 2)
       let pos2 = getOpponentHandCardPosition(1, 2)
-      expect(result.cards).toEqual([
-        Card.transpose(card, {
-          position: pos1,
-          rotation: 2.9845130209103035,
-          timestamp: currentTime 
-        }),
-        Card.transpose(card2, {
-          position: pos2,
-          rotation: 3.2986722862692828,
-          timestamp: currentTime
-        }),
-        nonHandCard
-      ])
+
+      card = Card.move(card, pos1[0], pos1[1], currentTime)
+      card = Card.rotateGlobal(card, 2.9845130209103035, currentTime)
+
+      card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
+      card2 = Card.rotateGlobal(card2, 3.2986722862692828, currentTime)
+
+      expect(result.cards).toEqual([card, card2, nonHandCard])
     })
   })
 })

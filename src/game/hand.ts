@@ -36,15 +36,13 @@ export class Hand {
         card.zLevel = 999
       }
 
-      const goal: TransposeGoal = {
-        timestamp: currentTime,
-        position: [x,y],
-        rotation: angle * HAND_ANGLE_FACTOR,
-        scale: scale
-      }
+      card = Card.move(card, x, y, currentTime)
+      card = Card.rotateGlobal(card, angle * HAND_ANGLE_FACTOR, currentTime)
+      card = Card.scale(card, scale, currentTime)
+
       i += 1
 
-      return Card.transpose(card, goal)
+      return card 
     })
 
     return state
@@ -66,13 +64,12 @@ export class OpponentHand {
       const x = OPPONENT_HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
       const y = OPPONENT_HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
 
-      const goal: TransposeGoal = {
-        timestamp: currentTime,
-        position: [x,y],
-        rotation: (angle + Math.PI) * HAND_ANGLE_FACTOR
-      }
+      card = Card.move(card, x, y, currentTime)
+      card = Card.rotateGlobal(card, (angle + Math.PI) * HAND_ANGLE_FACTOR, currentTime)
+
       i += 1
-      return Card.transpose(card, goal)
+
+      return card
     })
 
     return state

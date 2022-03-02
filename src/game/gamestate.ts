@@ -318,6 +318,7 @@ export class GameState {
     for (const card of state.cards) {
       if (Card.isMouseHovering(card, mouseX, mouseY) && !state.hoveredCardIDs.has(card.id)) {
         events = [...events, new CardHoveredEvent(card.id)]
+        state.hoveredCardIDs.add(card.id)
       } else if (!Card.isMouseHovering(card, mouseX, mouseY) && state.hoveredCardIDs.has(card.id)) {
         events = [...events, new CardUnhoveredEvent(card.id)]
       }
@@ -329,30 +330,24 @@ export class GameState {
   // TODO: Unit test this
   card_hovered(event: CardHoveredEvent, timePassed: number): [GameState, EventToAdd[]] {
     let state = this.new()
-    const hoveredCardIDs = state.hoveredCardIDs
 
     const card = state.cards.find(c => c.id === event.payload.cardID)
     if (!card)
       return [state, []]
 
-    // If card not already hovered
-    if (!hoveredCardIDs.has(card.id)) {
+    // If hand card is selected, ignore non-space cards
+    if (state.selectedCardID) {
+      if (card.container === "emissions-line" && !card.isSpace) return [state, []]
+    // Else, ignore space cards
+    } else {
+      if (card.container === "emissions-line" && card.isSpace) return [state, []]
+    }
 
-      // If hand card is selected, ignore non-space cards
-      if (state.selectedCardID) {
-        if (card.container === "emissions-line" && !card.isSpace) return [state, []]
-      // Else, ignore space cards
-      } else {
-        if (card.container === "emissions-line" && card.isSpace) return [state, []]
-      }
 
-      hoveredCardIDs.add(card.id)
-
-      // If it's the first hovered card, rearrange and trigger animations
-      if (hoveredCardIDs.size === 1) {
-        state = Hand.rearrange(state, timePassed)
-        state = state.rearrangeEL()
-      }
+    // If it's the first hovered card, rearrange and trigger animations
+    if (state.hoveredCardIDs.size === 1) {
+      state = Hand.rearrange(state, timePassed)
+      state = state.rearrangeEL()
     }
 
     return [state, []]
@@ -393,14 +388,19 @@ export class GameState {
     }
 
     state.cards = state.cards.map(card => {
+      card = {...card}
+
       if (card.id !== event.payload.cardID) return card;
 
-      card.flipped = true
+      const [x, y] = DISCARD_PILE_POSITION
+      card = Card.move(card, x, y, currentTime)
+      card = Card.rotateGlobal(card, 0, currentTime)
+      card = Card.rotateLocal(card, 0, currentTime)
 
-      return Card.transpose({
-        ...card,
-        container: "discard-pile",
-      }, goal)
+      card.flipped = true
+      card.container = "discard-pile"
+
+      return card
     })
 
     state.selectedCardID = undefined

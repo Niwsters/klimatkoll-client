@@ -40,7 +40,7 @@ export class Card {
     ]
   }
 
-  static transpose(
+  private static transpose(
     card: Card,
     goal: TransposeGoal
   ): Card {
