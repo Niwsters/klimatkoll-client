@@ -1,4 +1,4 @@
-import { Card, SpaceCard, TransposeGoal } from './card'
+import { Card } from './card'
 import { Hand, OpponentHand } from './hand'
 import { CardHoveredEvent, CardUnhoveredEvent, Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
 import { AppConfig } from '../App'
@@ -9,10 +9,12 @@ import {
   EMISSIONS_LINE_MAX_LENGTH
 } from './constants'
 
+import { EmissionsLine } from './emissionsline'
+
 export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
   // containers being actual arrays
-  cards: Card[] = []
+  _cards: Card[] = []
   emissionsLineCardOrder: number[] = []
   isMyTurn: boolean = false
   socketID: number = -1
@@ -21,9 +23,18 @@ export class GameState {
   statusMessage: string = ""
   roomID: string = ""
   config: AppConfig
+  emissionsLine: EmissionsLine = new EmissionsLine()
 
   constructor(config: AppConfig) {
     this.config = config
+  }
+
+  get cards(): Card[] {
+    return [...this._cards, ...this.emissionsLine.cards]
+  }
+
+  set cards(cards: Card[]) {
+    this._cards = cards
   }
 
   private new(): GameState {
@@ -39,41 +50,8 @@ export class GameState {
   addToEL(card: Card, position: number = 0): GameState {
     let state = this.new()
 
-    // Flip card
-    card.flipped = true
-
     // Add new card in specified position
-    state.cards = [...state.cards, card]
-    state.emissionsLineCardOrder = [
-      ...state.emissionsLineCardOrder.slice(0, position+1),
-      card.id,
-      ...state.emissionsLineCardOrder.slice(position+1, state.emissionsLineCardOrder.length)
-    ]
-
-    // Reset space cards
-    state.emissionsLineCardOrder = state.emissionsLineCardOrder
-      .filter(cardID => cardID >= 0)
-      .reduce((elCardOrder, cardID, i) => {
-        return [
-          ...elCardOrder,
-          ...[cardID, -1-(i+1)]
-        ]
-      }, [-1])
-
-    state.cards = state.cards.filter(c => !c.isSpace)
-    const missingSpaceCards = state.emissionsLineCardOrder
-      .filter(cardID => cardID < 0)
-      .reduce((spaceCards: Card[], cardID: number, i: number) => {
-        const exists = state.cards.findIndex(c => c.id === cardID) > -1
-
-        if (exists) return spaceCards
-
-        return [
-          ...spaceCards,
-          new SpaceCard(-1-i)
-        ]
-      }, [])
-    state.cards = [...state.cards, ...missingSpaceCards]
+    state.emissionsLine = state.emissionsLine.addCard(card, position)
 
     return state
   }
@@ -82,7 +60,7 @@ export class GameState {
     let state = this
 
     let elCards: Card[] = []
-    for (const cardID of state.emissionsLineCardOrder) {
+    for (const cardID of state.emissionsLine.cardOrder) {
         const card = state.cards.find(c => c.id === cardID)
         if (!card) throw new Error("Can't find card with ID: " + cardID);
         elCards = [...elCards, card]
@@ -93,7 +71,7 @@ export class GameState {
   private getEmissionsLineWidth(): number {
     let state = this
 
-    const cardCount = state.emissionsLineCardOrder.length
+    const cardCount = state.emissionsLine.cardOrder.length
     const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
     const totalELWidth = cardWidth * cardCount
     let width = cardWidth / 2
@@ -273,7 +251,7 @@ export class GameState {
 
     // If card is selected and space card is focused, play card
     if (state.isMyTurn && state.selectedCardID !== undefined && focusedCard !== undefined && focusedCard.isSpace) {
-      const position = state.emissionsLineCardOrder.findIndex(cardID => focusedCard.id === cardID)
+      const position = state.emissionsLine.cardOrder.findIndex((cardID: number) => focusedCard.id === cardID)
       events.push(new PlayCardRequestEvent(state.selectedCardID, position))
     }
 
@@ -380,13 +358,6 @@ export class GameState {
   ): [GameState, EventToAdd[]] {
     let state = this.new()
 
-    const goal: TransposeGoal = {
-      timestamp: currentTime,
-      position: DISCARD_PILE_POSITION,
-      rotation: 0,
-      addedRotation: 0
-    }
-
     state.cards = state.cards.map(card => {
       card = {...card}
 
@@ -418,12 +389,12 @@ export class GameState {
     if (event.payload.socketID === state.socketID) {
       const card = new Card(server_card.id, server_card.name, "hand")
       card.position = DECK_POSITION
-      state.cards.push(card)
+      state.cards = [...state.cards, card]
       state = Hand.rearrange(state, timePassed)
     } else {
       const card = new Card(server_card.id, server_card.name, "opponent-hand")
       card.position = DECK_POSITION
-      state.cards.push(card)
+      state.cards = [...state.cards, card]
       state = OpponentHand.rearrange(state, timePassed)
     }
 
@@ -441,7 +412,10 @@ export class GameState {
 
     const serverCard = event.payload.card
     const position = event.payload.position
-    state = state.addToEL(new Card(serverCard.id, serverCard.name, "emissions-line"), position)
+    state.emissionsLine = state.emissionsLine.addCard(
+      new Card(serverCard.id,serverCard.name, "emissions-line"),
+      position
+    )
     
     return [state, []]
   }
@@ -451,15 +425,23 @@ export class GameState {
     // { socketID, cardID, position }
     // Move card to emissions line
     const playedCard = state.cards.find(c => c.id === event.payload.cardID)
-    const position = event.payload.position
     if (!playedCard) {
       throw new Error("Played card does not exist with ID: " + event.payload.cardID)
     }
+
+    const position = event.payload.position
+
+    // Deselect hand card
     state.selectedCardID = undefined
+
+    // Add EL card
     const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
     movedCard.position = playedCard.position
-    state.cards = state.cards.filter(c => c !== playedCard)
     state = state.addToEL(movedCard, position)
+
+    // Remove hand card
+    state.cards = state.cards.filter(c => c !== playedCard)
+
     state = state.rearrangeEL()
     state = Hand.rearrange(state, timePassed)
     state = OpponentHand.rearrange(state, timePassed)

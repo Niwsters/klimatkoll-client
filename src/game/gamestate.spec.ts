@@ -81,31 +81,40 @@ describe('GameState', () => {
     })
   })
 
-  describe('addToEL()', () => {
-    it('adds new card to emissions line', () => {
-      const card = new Card(0, "blargh", "emissions-line")
-      const card2 = new Card(1, "honk", "emissions-line")
-      const card3 = new Card(2, "1337", "emissions-line")
+  describe('card_played_from_deck', () => {
+    const card = new Card(0, "blargh", "emissions-line")
+    const card2 = new Card(1, "honk", "emissions-line")
+    const card3 = new Card(2, "1337", "emissions-line")
 
-      let result = state.addToEL(card, 0)
-      let expected = [-1, 0, -2]
-      expect(result.emissionsLineCardOrder).toEqual(expected)
-      expect(result.cards.filter(c => c.isSpace).length).toEqual(2)
+    function playCard(state: GameState, card: Card, position: number): GameState {
+      const event = new Event(0, 'card_played_from_deck', {
+        card: card,
+        position: position
+      })
+      return state.card_played_from_deck(event)[0]
+    }
 
-      result = result.addToEL(card2, 2)
-      result = result.addToEL(card3, 2)
-      expected = [-1, 0, -2, 2, -3, 1, -4]
-      expect(result.emissionsLineCardOrder).toEqual(expected)
+    it('adds card to emissions line', () => {
+      state = playCard(state, card, 0)
+
+      const expected = [-1, 0, -2]
+      expect(state.emissionsLine.cardOrder).toEqual(expected)
+      expect(state.cards.filter(c => c.isSpace).length).toEqual(2)
+    })
+
+    it('adds card to given position', () => {
+      state = playCard(state, card, 0)
+      state = playCard(state, card2, 2)
+      state = playCard(state, card3, 2)
+
+      const expected = [-1, 0, -2, 2, -3, 1, -4]
+      expect(state.emissionsLine.cardOrder).toEqual(expected)
     })
 
     it('flips card', () => {
-      const card = new Card(0, "blargh", "emissions-line")
       card.flipped = false
-      let result = state
-        .addToEL(card, 0)
-        .cards
-        .find(c => c.id === card.id)
-      expect(result.flipped).toEqual(true)
+      state = playCard(state, card, 0)
+      expect(state.cards.find(c => c.id === card.id).flipped).toEqual(true)
     })
   })
 
@@ -116,7 +125,7 @@ describe('GameState', () => {
         sc = new SpaceCard(-1)
         state.selectedCardID = undefined
         state.cards = [sc]
-        state.emissionsLineCardOrder = [-1]
+        state.emissionsLine.cardOrder = [-1]
       })
 
       it('sets space cards to invisible if no card is selected', () => {
@@ -147,7 +156,7 @@ describe('GameState', () => {
       card2.zLevel = 1
       const nonELCard = new Card(2, "honk", "hand")
       state.cards = [card, card2, nonELCard]
-      state.emissionsLineCardOrder = [0,1]
+      state.emissionsLine.cardOrder = [0,1]
 
       let result = state.rearrangeEL(0)
 
@@ -161,8 +170,8 @@ describe('GameState', () => {
 
       result = state.rearrangeEL(currentTime)
       expect(result.cards).toEqual([
-        Card.transpose(card, { timestamp: currentTime, scale: 0.275 }),
-        Card.transpose(card2, { timestamp: currentTime, scale: 0.275 }),
+        Card.scale(card, 0.275, currentTime),
+        Card.scale(card2, 0.275, currentTime),
         nonELCard
       ])
     })
@@ -172,11 +181,11 @@ describe('GameState', () => {
       const sc2 = new SpaceCard(-2)
       const card = new Card(0, "blargh", "emissions-line")
       state.cards = [sc1, sc2, card]
-      state.emissionsLineCardOrder = [-1, 0, -2]
+      state.emissionsLine.cardOrder = [-1, 0, -2]
       const result = state.rearrangeEL(ANIMATION_DURATION_MS)
 
       // Sort by x-coordinate and see if order matches
-      const positionalOrder = result.emissionsLineCardOrder
+      const positionalOrder = result.emissionsLine.cardOrder
         .reduce((cards, cardID) => {
           return [...cards, result.cards.find(c => c.id === cardID)]
         }, [])
@@ -201,7 +210,7 @@ describe('GameState', () => {
         card5,
         card6
       ]
-      state.emissionsLineCardOrder = [0, 1, 2, 3, 4, 5]
+      state.emissionsLine.cardOrder = [0, 1, 2, 3, 4, 5]
 
       const result = state.rearrangeEL(ANIMATION_DURATION_MS)
       const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
@@ -216,7 +225,7 @@ describe('GameState', () => {
       state.cards = [
         card
       ]
-      state.emissionsLineCardOrder = [0]
+      state.emissionsLine.cardOrder = [0]
       state.hoveredCardIDs = new Set([0])
 
       const currentTime = 1337
@@ -239,7 +248,7 @@ describe('GameState', () => {
       state.cards = [
         card
       ]
-      state.emissionsLineCardOrder = [0]
+      state.emissionsLine.cardOrder = [0]
       state.hoveredCardIDs = new Set([0])
       state.selectedCardID = 1
 
