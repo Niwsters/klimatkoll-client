@@ -1,4 +1,5 @@
 import { Card, SpaceCard } from './card'
+import {GameState} from './gamestate'
 
 export class EmissionsLine {
   cardOrder: number[] = []
@@ -23,6 +24,33 @@ export class EmissionsLine {
     return [...this._cards, ...this.spaceCards]
   }
 
+  getOrderedEmissionsLine(): Card[] {
+    let self = this.new()
+
+    let elCards: Card[] = []
+    for (const cardID of self.cardOrder) {
+        const card = self.cards.find(c => c.id === cardID)
+        if (!card) throw new Error("Can't find card with ID: " + cardID);
+        elCards = [...elCards, card]
+    }
+
+    return elCards
+  }
+
+
+  getELCardZLevel(card: Card, i: number, state: GameState): number {
+    let zLevel = i
+    if (
+      !card.isSpace &&
+      state.selectedCardID === undefined &&
+      GameState.getFocusedCardID(state) === card.id
+    ) {
+      zLevel = 999
+    }
+
+    return zLevel
+  }
+
   addCard(card: Card, position: number): EmissionsLine {
     const self = this.new()
 
@@ -43,7 +71,6 @@ export class EmissionsLine {
           ...[cardID, -1-(i+1)]
         ]
       }, [-1])
-
 
     self._cards = [...self._cards, card]
 

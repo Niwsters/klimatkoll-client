@@ -1,3 +1,5 @@
+import { Card } from '../game/card'
+
 export class EventToAdd {
   public event_type: string
   public payload: any
@@ -68,5 +70,11 @@ export class CardHoveredEvent extends EventToAdd {
 export class CardUnhoveredEvent extends EventToAdd {
   constructor(cardID: number) {
     super("card_unhovered", { cardID })
+  }
+}
+
+export class EmissionsLineCardAddedEvent extends EventToAdd {
+  constructor(card: Card, position: number) {
+    super("emissions_line_card_added", { card, position })
   }
 }

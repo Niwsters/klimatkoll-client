@@ -47,15 +47,6 @@ export class GameState {
     return state
   }
 
-  addToEL(card: Card, position: number = 0): GameState {
-    let state = this.new()
-
-    // Add new card in specified position
-    state.emissionsLine = state.emissionsLine.addCard(card, position)
-
-    return state
-  }
-
   private getOrderedEmissionsLine(): Card[] {
     let state = this
 
@@ -97,7 +88,6 @@ export class GameState {
     const width = state.getEmissionsLineWidth()
     const startOffset = 0 - width*cardCount/2 - width/2
 
-
     const x = EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1)
     const y = EMISSIONS_LINE_POSITION[1]
     return Card.move(card, x, y, currentTime)
@@ -131,21 +121,6 @@ export class GameState {
     return card
   }
 
-  private getELCardZLevel(card: Card, i: number): number {
-    let state = this
-
-    let zLevel = i
-    if (
-      !card.isSpace &&
-      state.selectedCardID === undefined &&
-      GameState.getFocusedCardID(state) === card.id
-    ) {
-      zLevel = 999
-    }
-
-    return zLevel
-  }
-
   private getSpaceCardName(card: Card): string {
     const state = this
 
@@ -175,7 +150,7 @@ export class GameState {
     elCards = elCards.map((card: Card, i: number) => {
       return {
         ...card,
-        zLevel: state.getELCardZLevel(card, i)
+        zLevel: state.emissionsLine.getELCardZLevel(card, i, state)
       }
     })
 
@@ -412,11 +387,9 @@ export class GameState {
 
     const serverCard = event.payload.card
     const position = event.payload.position
-    state.emissionsLine = state.emissionsLine.addCard(
-      new Card(serverCard.id,serverCard.name, "emissions-line"),
-      position
-    )
-    
+
+    const card = new Card(serverCard.id, serverCard.name, "emissions-line")
+    state.emissionsLine = state.emissionsLine.addCard(card, position)
     return [state, []]
   }
 
@@ -434,17 +407,17 @@ export class GameState {
     // Deselect hand card
     state.selectedCardID = undefined
 
-    // Add EL card
-    const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
-    movedCard.position = playedCard.position
-    state = state.addToEL(movedCard, position)
-
     // Remove hand card
     state.cards = state.cards.filter(c => c !== playedCard)
 
     state = state.rearrangeEL()
     state = Hand.rearrange(state, timePassed)
     state = OpponentHand.rearrange(state, timePassed)
+
+    // Add EL card
+    const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
+    movedCard.position = playedCard.position
+    state.emissionsLine = state.emissionsLine.addCard(movedCard, position)
 
     return [state, []]
   }

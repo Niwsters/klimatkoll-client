@@ -1,7 +1,7 @@
 import { GameState } from './gamestate'
 import { Hand, OpponentHand } from './hand'
 import { Card, SpaceCard } from './card'
-import { CardHoveredEvent, CardUnhoveredEvent, Event, MouseMovedEvent } from '../event/event'
+import { CardHoveredEvent, CardUnhoveredEvent, Event, EventToAdd, MouseMovedEvent } from '../event/event'
 import {
   ANIMATION_DURATION_MS,
   DISCARD_PILE_POSITION,
@@ -86,16 +86,16 @@ describe('GameState', () => {
     const card2 = new Card(1, "honk", "emissions-line")
     const card3 = new Card(2, "1337", "emissions-line")
 
-    function playCard(state: GameState, card: Card, position: number): GameState {
+    function playCard(state: GameState, card: Card, position: number): [GameState, EventToAdd[]] {
       const event = new Event(0, 'card_played_from_deck', {
         card: card,
         position: position
       })
-      return state.card_played_from_deck(event)[0]
+      return state.card_played_from_deck(event)
     }
 
     it('adds card to emissions line', () => {
-      state = playCard(state, card, 0)
+      state = playCard(state, card, 0)[0]
 
       const expected = [-1, 0, -2]
       expect(state.emissionsLine.cardOrder).toEqual(expected)
@@ -103,9 +103,9 @@ describe('GameState', () => {
     })
 
     it('adds card to given position', () => {
-      state = playCard(state, card, 0)
-      state = playCard(state, card2, 2)
-      state = playCard(state, card3, 2)
+      state = playCard(state, card, 0)[0]
+      state = playCard(state, card2, 2)[0]
+      state = playCard(state, card3, 2)[0]
 
       const expected = [-1, 0, -2, 2, -3, 1, -4]
       expect(state.emissionsLine.cardOrder).toEqual(expected)
@@ -113,8 +113,53 @@ describe('GameState', () => {
 
     it('flips card', () => {
       card.flipped = false
-      state = playCard(state, card, 0)
+      state = playCard(state, card, 0)[0]
       expect(state.cards.find(c => c.id === card.id).flipped).toEqual(true)
+    })
+  })
+
+  describe('card_played_from_hand', () => {
+    const card = new Card(0, "blargh", "hand")
+    const card2 = new Card(1, "honk", "emissions-line")
+    const card3 = new Card(2, "1337", "emissions-line")
+
+    function playCard(state: GameState, card: Card, position: number): [GameState, EventToAdd[]] {
+      state.cards = [...state.cards, card]
+      state.selectedCardID = card.id
+      const event = new Event(0, 'card_played_from_hand', {
+        socketID: state.socketID,
+        cardID: card.id,
+        position: position
+      })
+      return state.card_played_from_hand(event)
+    }
+
+    it('deselects hand card', () => {
+      state = playCard(state, card, 0)[0]
+      expect(state.selectedCardID).toBe(undefined)
+    })
+
+    it('adds card to EL', () => {
+      state = playCard(state, card, 0)[0]
+      expect(state.emissionsLine.cards).toEqual([
+        {...card, container: "emissions-line", flipped: true},
+        new SpaceCard(-1),
+        new SpaceCard(-2)
+      ])
+    })
+
+    it('removes card from hand', () => {
+      state = playCard(state, card, 0)[0]
+      expect(state.cards.findIndex(c => c.container === "hand")).toEqual(-1)
+    })
+
+    it('plays card to given position', () => {
+      state = playCard(state, card, 0)[0]
+      state = playCard(state, card2, 2)[0]
+      state = playCard(state, card3, 2)[0]
+
+      const expected = [-1, 0, -2, 2, -3, 1, -4]
+      expect(state.emissionsLine.cardOrder).toEqual(expected)
     })
   })
 
@@ -124,7 +169,7 @@ describe('GameState', () => {
       beforeEach(() => {
         sc = new SpaceCard(-1)
         state.selectedCardID = undefined
-        state.cards = [sc]
+        state.emissionsLine._cards = [sc]
         state.emissionsLine.cardOrder = [-1]
       })
 
