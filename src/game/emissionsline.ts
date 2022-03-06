@@ -75,4 +75,22 @@ export class EmissionsLine {
     self._cards = self._cards.map(c => Card.update(c, time))
     return self
   }
+
+  mouse_moved(mouseX: number, mouseY: number, currentTime: number): EmissionsLine {
+    let self = this.new()
+
+    const lowerBounds = EMISSIONS_LINE_POSITION[1] - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
+    const upperBounds = EMISSIONS_LINE_POSITION[1] + Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
+
+    self._cards = self._cards.map(c => {
+      if (c.isSpace) return c
+
+      if (mouseY > lowerBounds && mouseY < upperBounds)
+        return Card.scale(c, Card.DEFAULT_SCALE * 2, currentTime)
+
+      return Card.scale(c, Card.DEFAULT_SCALE, currentTime)
+    })
+
+    return self
+  }
 }

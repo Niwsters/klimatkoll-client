@@ -118,38 +118,16 @@ export class GameState {
     return [state, []]
   }
 
-  mouse_moved(event: Event): [GameState, EventToAdd[]] {
+  mouse_moved(event: Event, currentTime: number = Date.now()): [GameState, EventToAdd[]] {
     let state = this.new()
 
     const mouseX = event.payload.mouseX
     const mouseY = event.payload.mouseY
 
-    let events: EventToAdd[] = []
-    for (const card of state.cards) {
-      if (Card.isMouseHovering(card, mouseX, mouseY) && !state.hoveredCardIDs.has(card.id)) {
-        events = [...events, new CardHoveredEvent(card.id)]
-        state.hoveredCardIDs.add(card.id)
-      } else if (!Card.isMouseHovering(card, mouseX, mouseY) && state.hoveredCardIDs.has(card.id)) {
-        events = [...events, new CardUnhoveredEvent(card.id)]
-      }
-    }
-
-    return [state, events]
-  }
-
-  /*
-  card_hovered(event: CardHoveredEvent, timePassed: number): [GameState, EventToAdd[]] {
-    let state = this.new()
+    state.emissionsLine = state.emissionsLine.mouse_moved(mouseX, mouseY, currentTime)
 
     return [state, []]
   }
-
-  card_unhovered(event: CardUnhoveredEvent, timePassed: number): [GameState, EventToAdd[]] {
-    let state = this.new()
-
-    return [state, []]
-  }
-  */
 
   incorrect_card_placement(
     event: Event,

@@ -1,11 +1,12 @@
 import { GameState } from './gamestate'
 import { Hand, OpponentHand } from './hand'
-import { Card, SpaceCard } from './card'
+import { Card, SpaceCard, TransposeGoal } from './card'
 import { CardHoveredEvent, CardUnhoveredEvent, Event, EventToAdd, MouseMovedEvent } from '../event/event'
 import {
   ANIMATION_DURATION_MS,
   DISCARD_PILE_POSITION,
-  DECK_POSITION
+  DECK_POSITION,
+  EMISSIONS_LINE_POSITION
 } from './constants'
 import { AppConfig } from '../App'
 
@@ -323,40 +324,64 @@ describe('GameState', () => {
     })
   })
 
-  describe('mouse_moved', () => {
-    let card: Card
+  describe('Hovering EmissionsLine cards', () => {
+    const currentTime = 1337
+    const card = new Card(0, "some-card", "emissions-line")
+
     beforeEach(() => {
-      card = new Card(3, "some-card", "hand")
-      state.cards = [card]
+      state.emissionsLine = state.emissionsLine.addCard(card, 0, currentTime)
+      const [x, y] = EMISSIONS_LINE_POSITION
+      state = moveMouse(state, x, y)
     })
 
-    it('triggers card_hovered event if hovering card', () => {
-      const event = {...new MouseMovedEvent(0, 0), event_id: 0}
-      const result = state.mouse_moved(event)[1]
-      expect(result).toEqual([
-        new CardHoveredEvent(card.id)
+    function moveMouse(state: GameState, x: number, y: number): GameState {
+      const event = {...new MouseMovedEvent(x, y), event_id: 0}
+      return state.mouse_moved(event, currentTime)[0]
+    }
+
+    function getScaleTranspositions(cards: Card[]): TransposeGoal[] {
+      return cards
+        .reduce((t, c) => [...t, ...c.transpositions], [])
+        .filter(t => t.scale ? true : false)
+    }
+
+    it("zooms in on emissions line card", () => {
+      // Zooms in on middle card
+      const transpositions = getScaleTranspositions(
+        state.emissionsLine.cards.filter(c => c.id === card.id)
+      )
+      expect(transpositions).toEqual([
+        {
+          scale: Card.DEFAULT_SCALE * 2,
+          timestamp: currentTime
+        }
       ])
     })
 
-    it("doesn't trigger event if card already hovered", () => {
-      const event = {...new MouseMovedEvent(0, 0), event_id: 0}
-      state.hoveredCardIDs.add(card.id)
-      const result = state.mouse_moved(event)[1]
-      expect(result).toEqual([])
+    it("doesn't zoom in on surrounding cards", () => {
+      // Doesn't zoom in on surrounding cards
+      const transpositions = getScaleTranspositions(
+        state.emissionsLine.cards.filter(c => c.id !== card.id)
+      )
+      expect(transpositions).toEqual([])
     })
 
-    it("doesn't trigger card_hovered event if not hovering card", () => {
-      const event = {...new MouseMovedEvent(9999, 9999), event_id: 0}
-      const result = state.mouse_moved(event)[1]
-      expect(result).toEqual([])
-    })
+    it("zooms out if mouse moves outside emissions line", () => {
+      // Move mouse outside emissions line
+      state = moveMouse(state, 0, 0)
 
-    it("triggers card_unhovered event if card was previously hovered but now isn't", () => {
-      const event = {...new MouseMovedEvent(9999, 9999), event_id: 0}
-      state.hoveredCardIDs.add(card.id)
-      const result = state.mouse_moved(event)[1]
-      expect(result).toEqual([
-        new CardUnhoveredEvent(card.id)
+      const transpositions = getScaleTranspositions(
+        state.emissionsLine.cards.filter(c => c.id === card.id)
+      )
+      expect(transpositions).toEqual([
+        {
+          scale: Card.DEFAULT_SCALE * 2,
+          timestamp: currentTime
+        },
+        {
+          scale: Card.DEFAULT_SCALE,
+          timestamp: currentTime
+        },
       ])
     })
   })
