@@ -17,7 +17,19 @@ export class Card {
   isSpace: boolean = false
   visible: boolean = true
   flipped: boolean = false
-  transpositions: TransposeGoal[] = []
+
+  positionGoal: PositionGoal = {
+    position: [0, 0],
+    timestamp: 0
+  }
+  rotationGoal: RotationGoal = {
+    rotation: 0,
+    timestamp: 0
+  }
+  addedRotationGoal: AddedRotationGoal = {
+    addedRotation: 0,
+    timestamp: 0
+  }
   scaleGoal: ScaleGoal = {
     scale: Card.DEFAULT_SCALE,
     timestamp: 0
@@ -44,53 +56,48 @@ export class Card {
     ]
   }
 
-  private static transpose(
-    card: Card,
-    goal: TransposeGoal
-  ): Card {
+  static move(card: Card, x: number, y: number, currentTime: number): Card {
+    const existing = card.positionGoal
+    if (existing.position[0] === x && existing.position[1] === y)
+      return {...card}
+
     return {
       ...card,
-      transpositions: [...card.transpositions, goal]
+      positionGoal: {
+        timestamp: currentTime,
+        position: [x, y]
+      }
     }
   }
 
-  static move(card: Card, x: number, y: number, currentTime: number) {
-    const existing = card.transpositions.find(t => t.position && t.position[0] === x && t.position[1] === y)
-    if (existing)
+  static rotateGlobal(card: Card, rotation: number, currentTime: number): Card {
+    if (card.rotationGoal.rotation === rotation)
       return {...card}
 
-    return Card.transpose(card, {
-      timestamp: currentTime,
-      position: [x, y] 
-    })
+    return {
+      ...card,
+      rotationGoal: {
+        timestamp: currentTime,
+        rotation: rotation
+      }
+    }
   }
 
-  static rotateGlobal(card: Card, rotation: number, currentTime: number) {
-    const existing = card.transpositions.find(t => t.rotation && t.rotation === rotation)
-    if (existing)
+  static rotateLocal(card: Card, rotation: number, currentTime: number): Card {
+    if (card.addedRotationGoal.addedRotation === rotation)
       return {...card}
 
-    return Card.transpose(card, {
-      timestamp: currentTime,
-      rotation: rotation
-    })
-  }
-
-  static rotateLocal(card: Card, rotation: number, currentTime: number) {
-    const existing = card.transpositions.find(t => t.addedRotation && t.addedRotation === rotation)
-    if (existing)
-      return {...card}
-
-    return Card.transpose(card, {
-      timestamp: currentTime,
-      addedRotation: rotation
-    })
+    return {
+      ...card,
+      addedRotationGoal: {
+        timestamp: currentTime,
+        addedRotation: rotation
+      }
+    }
   }
 
   static scale(card: Card, scale: number, currentTime: number): Card {
-    const existing = card.scaleGoal
-
-    if (existing && existing.scale === scale)
+    if (card.scaleGoal.scale === scale)
       return {...card}
 
     return {
@@ -102,32 +109,36 @@ export class Card {
     }
   }
 
+  private static transposePosition(card: Card, time: number): Card {
+    return {
+      ...card,
+      position: [
+        transpose(
+          card.position[0], card.positionGoal.position[0], time - card.positionGoal.timestamp
+        ),
+        transpose(
+          card.position[1], card.positionGoal.position[1], time - card.positionGoal.timestamp
+        )
+      ]
+    }
+  }
+
   static update(
-    card: Card,
+    oldCard: Card,
     time: number
   ): Card {
-    const newCard = { ...card }
+    let card = { ...oldCard }
 
-    newCard.transpositions.forEach((t: TransposeGoal) => {
-      if (t.position !== undefined) {
-        newCard.position = [
-          transpose(card.position[0], t.position[0], time - t.timestamp),
-          transpose(card.position[1], t.position[1], time - t.timestamp)
-        ]
-      }
+    card = Card.transposePosition(card, time)
+    card.scale = transpose(card.scale, card.scaleGoal.scale, time - card.scaleGoal.timestamp)
+    card.rotation = transpose(
+      card.rotation, card.rotationGoal.rotation, time - card.rotationGoal.timestamp
+    )
+    card.addedRotation = transpose(
+      card.addedRotation, card.addedRotationGoal.addedRotation, time - card.addedRotationGoal.timestamp
+    )
 
-      if (t.rotation !== undefined)
-        newCard.rotation = transpose(card.rotation, t.rotation, time - t.timestamp)
-
-      if (t.addedRotation !== undefined)
-        newCard.addedRotation = transpose(card.addedRotation, t.addedRotation, time - t.timestamp)
-    })
-
-    newCard.transpositions = newCard.transpositions.filter(t => time - t.timestamp < ANIMATION_DURATION_MS)
-
-    newCard.scale = transpose(card.scale, newCard.scaleGoal.scale, time - newCard.scaleGoal.timestamp)
-
-    return newCard
+    return card
   }
 
   static isMouseHovering(card: Card, mouseX: number, mouseY: number): boolean {
@@ -157,13 +168,22 @@ export class Card {
 
 export type TransposeGoal = {
   timestamp: number
-  position?: number[]
-  rotation?: number
-  addedRotation?: number
+}
+
+type PositionGoal = TransposeGoal & {
+  position: [number, number]
 }
 
 type ScaleGoal = TransposeGoal & {
   scale: number
+}
+
+type RotationGoal = TransposeGoal & {
+  rotation: number
+}
+
+type AddedRotationGoal = TransposeGoal & {
+  addedRotation: number
 }
 
 export function transpose(from: number, to: number, timePassed: number) {

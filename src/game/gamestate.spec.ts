@@ -220,7 +220,9 @@ describe('GameState', () => {
     it('throws specified card into discard pile', () => {
       const card = new Card(7, "blargh", "hand")
       card.rotation = 30
+      card.rotationGoal.rotation = 30
       card.addedRotation = 15
+      card.addedRotationGoal.addedRotation = 15
       card.position = [1, 1]
       const card2 = new Card(1, "blargh", "emissions-line")
 
@@ -235,23 +237,21 @@ describe('GameState', () => {
       const currentTime = 1337
       let result = state.incorrect_card_placement(event, timePassed, currentTime)[0]
       expect(result.cards[1]).toEqual(card2)
-      const movedCard = result.cards[0]
+      const movedCard = result.cards.find(c => c.id === card.id)
 
       expect(movedCard.container).toEqual("discard-pile")
-      expect(movedCard.transpositions).toEqual([
-        {
-          position: DISCARD_PILE_POSITION,
-          timestamp: currentTime
-        },
-        {
-          rotation: 0,
-          timestamp: currentTime
-        },
-        {
-          addedRotation: 0,
-          timestamp: currentTime
-        }
-      ])
+      expect(movedCard.positionGoal).toEqual({
+        position: DISCARD_PILE_POSITION,
+        timestamp: currentTime
+      })
+      expect(movedCard.rotationGoal).toEqual({
+        rotation: 0,
+        timestamp: currentTime
+      })
+      expect(movedCard.addedRotationGoal).toEqual({
+        addedRotation: 0,
+        timestamp: currentTime
+      })
     })
 
     it('deselects card', () => {
