@@ -4,9 +4,7 @@ import { CardHoveredEvent, CardUnhoveredEvent, Event, EventToAdd, PlayCardReques
 import { AppConfig } from '../App'
 import {
   DISCARD_PILE_POSITION,
-  DECK_POSITION,
-  EMISSIONS_LINE_POSITION,
-  EMISSIONS_LINE_MAX_LENGTH
+  DECK_POSITION
 } from './constants'
 
 import { EmissionsLine } from './emissionsline'
@@ -44,150 +42,9 @@ export class GameState {
   update(time: number): GameState {
     let state = this.new()
     state.cards = state.cards.map((card: Card) => Card.update(card, time))
-    return state
-  }
 
-  private getOrderedEmissionsLine(): Card[] {
-    let state = this
-
-    let elCards: Card[] = []
-    for (const cardID of state.emissionsLine.cardOrder) {
-        const card = state.cards.find(c => c.id === cardID)
-        if (!card) throw new Error("Can't find card with ID: " + cardID);
-        elCards = [...elCards, card]
-    }
-    return elCards
-  }
-
-  private getEmissionsLineWidth(): number {
-    let state = this
-
-    const cardCount = state.emissionsLine.cardOrder.length
-    const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
-    const totalELWidth = cardWidth * cardCount
-    let width = cardWidth / 2
-    if (totalELWidth > EMISSIONS_LINE_MAX_LENGTH) {
-      width = (EMISSIONS_LINE_MAX_LENGTH - cardWidth) / (cardCount-1)
-    }
-    return width
-  }
-
-  private isCardFocused(card: Card): boolean {
-    return GameState.getFocusedCardID(this) === card.id
-  }
-
-  private isACardSelected(): boolean {
-    return this.selectedCardID !== undefined
-  }
-
-  private moveELCard(card: Card, i: number, currentTime: number): Card {
-    const state = this
-
-    let elCards = state.getOrderedEmissionsLine()
-    const cardCount = elCards.length
-    const width = state.getEmissionsLineWidth()
-    const startOffset = 0 - width*cardCount/2 - width/2
-
-    const x = EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1)
-    const y = EMISSIONS_LINE_POSITION[1]
-    return Card.move(card, x, y, currentTime)
-  }
-
-  private scaleELCard(card: Card, currentTime: number): Card {
-    const state = this
-
-    let scale = Card.DEFAULT_SCALE
-    if (
-      !card.isSpace &&
-      !state.isACardSelected() &&
-      state.isCardFocused(card)
-    ) {
-      scale = Card.DEFAULT_SCALE * 2
-    }
-
-    return Card.scale(card, scale, currentTime)
-  }
-
-  private transposeELCard(
-    card: Card,
-    i: number,
-    currentTime: number
-  ): Card {
-    let state = this
-
-    card = state.moveELCard(card, i, currentTime)
-    card = state.scaleELCard(card, currentTime)
-
-    return card
-  }
-
-  private getSpaceCardName(card: Card): string {
-    const state = this
-
-    let name = "space"
-    const selectedCard = state.cards.find(c => c.id === state.selectedCardID)
-    if (selectedCard !== undefined && state.isCardFocused(card))
-      name = selectedCard.name
-
-    return name
-  }
-
-  private updateSpaceCard(oldCard: Card): Card {
-    let state = this
-    let card = {...oldCard}
-
-    card.visible = state.isACardSelected()
-    card.name = state.getSpaceCardName(card)
-
-    return card
-  }
-
-  private updateELZLevels(): GameState {
-    let state = this.new()
-
-    let elCards: Card[] = state.getOrderedEmissionsLine()
-
-    elCards = elCards.map((card: Card, i: number) => {
-      return {
-        ...card,
-        zLevel: state.emissionsLine.getELCardZLevel(card, i, state)
-      }
-    })
-
-    return GameState.updateCards(state, elCards)
-  }
-
-  private updateELSpaceCards(): GameState {
-    let state = this.new()
-
-    let elCards = state.getOrderedEmissionsLine()
-    elCards = elCards.map((card: Card) => {
-      if (card.isSpace)
-        return state.updateSpaceCard(card)
-
-      return card
-    })
-
-    return GameState.updateCards(state, elCards)
-  }
-
-  private transposeELCards(currentTime: number): GameState {
-    let state = this.new()
-
-    let elCards = state.getOrderedEmissionsLine()
-    elCards = elCards.map((card: Card, i: number) => {
-      return state.transposeELCard(card, i, currentTime)
-    })
-
-    return GameState.updateCards(state, elCards)
-  }
-
-  rearrangeEL(currentTime: number = Date.now()): GameState {
-    let state = this.new()
-
-    state = state.updateELZLevels()
-    state = state.updateELSpaceCards()
-    state = state.transposeELCards(currentTime)
+    // TODO: Test this
+    state.emissionsLine = state.emissionsLine.update(time)
 
     return state
   }
@@ -226,7 +83,7 @@ export class GameState {
 
     // If card is selected and space card is focused, play card
     if (state.isMyTurn && state.selectedCardID !== undefined && focusedCard !== undefined && focusedCard.isSpace) {
-      const position = state.emissionsLine.cardOrder.findIndex((cardID: number) => focusedCard.id === cardID)
+      const position = state.emissionsLine.cards.findIndex(card => focusedCard.id === card.id)
       events.push(new PlayCardRequestEvent(state.selectedCardID, position))
     }
 
@@ -280,51 +137,19 @@ export class GameState {
     return [state, events]
   }
 
-  // TODO: Unit test this
+  /*
   card_hovered(event: CardHoveredEvent, timePassed: number): [GameState, EventToAdd[]] {
     let state = this.new()
 
-    const card = state.cards.find(c => c.id === event.payload.cardID)
-    if (!card)
-      return [state, []]
-
-    // If hand card is selected, ignore non-space cards
-    if (state.selectedCardID) {
-      if (card.container === "emissions-line" && !card.isSpace) return [state, []]
-    // Else, ignore space cards
-    } else {
-      if (card.container === "emissions-line" && card.isSpace) return [state, []]
-    }
-
-
-    // If it's the first hovered card, rearrange and trigger animations
-    if (state.hoveredCardIDs.size === 1) {
-      state = Hand.rearrange(state, timePassed)
-      state = state.rearrangeEL()
-    }
-
     return [state, []]
   }
 
-  // TODO: Unit test this
   card_unhovered(event: CardUnhoveredEvent, timePassed: number): [GameState, EventToAdd[]] {
     let state = this.new()
 
-    const card = state.cards.find(c => c.id === event.payload.cardID)
-    if (!card)
-      return [state, []]
-
-    const previousFocusedCardID = GameState.getFocusedCardID(state)
-    state.hoveredCardIDs.delete(card.id)
-    const currentFocusedCardID = GameState.getFocusedCardID(state)
-
-    if (previousFocusedCardID !== currentFocusedCardID) {
-      state = Hand.rearrange(state, timePassed)
-      state = state.rearrangeEL()
-    }
-
     return [state, []]
   }
+  */
 
   incorrect_card_placement(
     event: Event,
@@ -382,14 +207,14 @@ export class GameState {
     return [state, []]
   }
 
-  card_played_from_deck(event: Event): [GameState, EventToAdd[]] {
+  card_played_from_deck(event: Event, currentTime: number = Date.now()): [GameState, EventToAdd[]] {
     let state = this.new()
 
     const serverCard = event.payload.card
     const position = event.payload.position
 
     const card = new Card(serverCard.id, serverCard.name, "emissions-line")
-    state.emissionsLine = state.emissionsLine.addCard(card, position)
+    state.emissionsLine = state.emissionsLine.addCard(card, position, currentTime)
     return [state, []]
   }
 
@@ -410,14 +235,13 @@ export class GameState {
     // Remove hand card
     state.cards = state.cards.filter(c => c !== playedCard)
 
-    state = state.rearrangeEL()
     state = Hand.rearrange(state, timePassed)
     state = OpponentHand.rearrange(state, timePassed)
 
     // Add EL card
     const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
     movedCard.position = playedCard.position
-    state.emissionsLine = state.emissionsLine.addCard(movedCard, position)
+    state.emissionsLine = state.emissionsLine.addCard(movedCard, position, timePassed)
 
     return [state, []]
   }
@@ -435,15 +259,5 @@ export class GameState {
     }
 
     return [state, []]
-  }
-
-  private static updateCards(state: GameState, updated: Card[]): GameState {
-    state.cards = state.cards.map(card => {
-      const updatedCard = updated.find(c => c.id === card.id)
-
-      return updatedCard ? updatedCard : card
-    })
-
-    return state
   }
 }

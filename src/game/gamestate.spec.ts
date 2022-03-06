@@ -5,21 +5,9 @@ import { CardHoveredEvent, CardUnhoveredEvent, Event, EventToAdd, MouseMovedEven
 import {
   ANIMATION_DURATION_MS,
   DISCARD_PILE_POSITION,
-  DECK_POSITION,
-  EMISSIONS_LINE_POSITION,
-  EMISSIONS_LINE_MAX_LENGTH
+  DECK_POSITION
 } from './constants'
 import { AppConfig } from '../App'
-
-function getELCardPosition(i: number, cardCount: number): number[] {
-  const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
-  const startOffset = 0 - cardWidth*cardCount/4 - cardWidth/4
-
-  return [
-    EMISSIONS_LINE_POSITION[0] + startOffset + cardWidth/2 * (i+1),
-    EMISSIONS_LINE_POSITION[1]
-  ]
-}
 
 const Factory = {
   event: {
@@ -96,10 +84,7 @@ describe('GameState', () => {
 
     it('adds card to emissions line', () => {
       state = playCard(state, card, 0)[0]
-
-      const expected = [-1, 0, -2]
-      expect(state.emissionsLine.cardOrder).toEqual(expected)
-      expect(state.cards.filter(c => c.isSpace).length).toEqual(2)
+      expect(state.emissionsLine.cards.map(c => c.id)).toEqual([-1, card.id, -2])
     })
 
     it('adds card to given position', () => {
@@ -107,8 +92,8 @@ describe('GameState', () => {
       state = playCard(state, card2, 2)[0]
       state = playCard(state, card3, 2)[0]
 
-      const expected = [-1, 0, -2, 2, -3, 1, -4]
-      expect(state.emissionsLine.cardOrder).toEqual(expected)
+      const result = state.emissionsLine.cards.filter(c => !c.isSpace).map(c => c.id)
+      expect(result).toEqual([card.id, card3.id, card2.id])
     })
 
     it('flips card', () => {
@@ -141,11 +126,7 @@ describe('GameState', () => {
 
     it('adds card to EL', () => {
       state = playCard(state, card, 0)[0]
-      expect(state.emissionsLine.cards).toEqual([
-        {...card, container: "emissions-line", flipped: true},
-        new SpaceCard(-1),
-        new SpaceCard(-2)
-      ])
+      expect(state.emissionsLine.cards.map(c => c.id)).toEqual([-1, card.id, -2])
     })
 
     it('removes card from hand', () => {
@@ -158,152 +139,8 @@ describe('GameState', () => {
       state = playCard(state, card2, 2)[0]
       state = playCard(state, card3, 2)[0]
 
-      const expected = [-1, 0, -2, 2, -3, 1, -4]
-      expect(state.emissionsLine.cardOrder).toEqual(expected)
-    })
-  })
-
-  describe('rearrangeEL()', () => {
-    describe('space cards', () => {
-      let sc: SpaceCard
-      beforeEach(() => {
-        sc = new SpaceCard(-1)
-        state.selectedCardID = undefined
-        state.emissionsLine._cards = [sc]
-        state.emissionsLine.cardOrder = [-1]
-      })
-
-      it('sets space cards to invisible if no card is selected', () => {
-        state.selectedCardID = undefined
-        const result = state.rearrangeEL(0)
-        expect(result.cards[0].visible).toEqual(false)
-      })
-
-      it('sets space cards to visible if card is selected', () => {
-        state.selectedCardID = 3
-        const result = state.rearrangeEL(0)
-        expect(result.cards[0].visible).toEqual(true)
-      })
-
-      it('sets space cards to visible if selected card ID is 0', () => {
-        state.selectedCardID = 0
-        const result = state.rearrangeEL(0)
-        expect(result.cards[0].visible).toEqual(true)
-      })
-    })
-
-    it('transposes emissions line cards to their proper positions', () => {
-      let card = new Card(0, "blargh", "emissions-line")
-      card.position = [1,1]
-      card.zLevel = 0
-      let card2 = new Card(1, "1337", "emissions-line")
-      card2.position = [2,2]
-      card2.zLevel = 1
-      const nonELCard = new Card(2, "honk", "hand")
-      state.cards = [card, card2, nonELCard]
-      state.emissionsLine.cardOrder = [0,1]
-
-      let result = state.rearrangeEL(0)
-
-      const currentTime = 1337
-
-      let pos1 = getELCardPosition(0, 2)
-      let pos2 = getELCardPosition(1, 2)
-
-      card = Card.move(card, pos1[0], pos1[1], currentTime)
-      card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
-
-      result = state.rearrangeEL(currentTime)
-      expect(result.cards).toEqual([
-        Card.scale(card, 0.275, currentTime),
-        Card.scale(card2, 0.275, currentTime),
-        nonELCard
-      ])
-    })
-
-    it('puts cards in specified order', () => {
-      const sc1 = new SpaceCard(-1)
-      const sc2 = new SpaceCard(-2)
-      const card = new Card(0, "blargh", "emissions-line")
-      state.cards = [sc1, sc2, card]
-      state.emissionsLine.cardOrder = [-1, 0, -2]
-      const result = state.rearrangeEL(ANIMATION_DURATION_MS)
-
-      // Sort by x-coordinate and see if order matches
-      const positionalOrder = result.emissionsLine.cardOrder
-        .reduce((cards, cardID) => {
-          return [...cards, result.cards.find(c => c.id === cardID)]
-        }, [])
-        .sort((a, b) => a.position[0] - b.position[0])
-        .map(c => c.id)
-
-      expect(positionalOrder).toEqual([-1, 0, -2])
-    })
-
-    it('does not go over max emissions line length', () => {
-      const card = new Card(0, "a", "emissions-line")
-      const card2 = new Card(1, "b", "emissions-line")
-      const card3 = new Card(2, "c", "emissions-line")
-      const card4 = new Card(3, "d", "emissions-line")
-      const card5 = new Card(4, "e", "emissions-line")
-      const card6 = new Card(5, "f", "emissions-line")
-      state.cards = [
-        card,
-        card2,
-        card3,
-        card4,
-        card5,
-        card6
-      ]
-      state.emissionsLine.cardOrder = [0, 1, 2, 3, 4, 5]
-
-      const result = state.rearrangeEL(ANIMATION_DURATION_MS)
-      const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
-      const leftEdge = result.cards.find(c => c.id === 0).transpositions[0].position[0] - cardWidth/2
-      const rightEdge = result.cards.find(c => c.id === 5).transpositions[0].position[0] + cardWidth/2
-
-      expect(rightEdge - leftEdge).toEqual(EMISSIONS_LINE_MAX_LENGTH)
-    })
-
-    it('hover-zooms card if no card is selected', () => {
-      const card = new Card(0, "a", "emissions-line")
-      state.cards = [
-        card
-      ]
-      state.emissionsLine.cardOrder = [0]
-      state.hoveredCardIDs = new Set([0])
-
-      const currentTime = 1337
-      const result = state
-        .rearrangeEL(currentTime)
-        .cards
-        .find(c => c.id === card.id)
-
-      const x = EMISSIONS_LINE_POSITION[0]
-      const y = EMISSIONS_LINE_POSITION[1]
-      let expected = Card.move(card, x, y, currentTime)
-      expected = Card.scale(expected, Card.DEFAULT_SCALE * 2, currentTime)
-      expected.zLevel = 999
-
-      expect(result).toEqual(expected)
-    })
-
-    it('does not hover-zoom card if card is selected', () => {
-      const card = new Card(0, "a", "emissions-line")
-      state.cards = [
-        card
-      ]
-      state.emissionsLine.cardOrder = [0]
-      state.hoveredCardIDs = new Set([0])
-      state.selectedCardID = 1
-
-      const result = state
-        .rearrangeEL(ANIMATION_DURATION_MS)
-        .cards
-        .find(c => c.id === card.id)
-        .scale
-
-      expect(result).toEqual(Card.DEFAULT_SCALE)
+      const result = state.emissionsLine.cards.filter(c => !c.isSpace).map(c => c.id)
+      expect(result).toEqual([card.id, card3.id, card2.id])
     })
   })
 

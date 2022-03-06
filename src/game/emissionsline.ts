@@ -1,79 +1,78 @@
 import { Card, SpaceCard } from './card'
-import {GameState} from './gamestate'
+import { EMISSIONS_LINE_MAX_LENGTH, EMISSIONS_LINE_POSITION } from './constants'
+
+function insert(array: any[], item: any, position: number): any[] {
+  return [
+    ...array.slice(0, position+1),
+    item,
+    ...array.slice(position+1, array.length)
+  ]
+}
 
 export class EmissionsLine {
-  cardOrder: number[] = []
-  _cards: Card[] = []
+  private _cards: Card[] = []
 
   private new(): EmissionsLine {
     return Object.assign(new EmissionsLine(), this)
   }
 
-  private get spaceCards(): SpaceCard[] {
-    return this.cardOrder
-      .filter(cardID => cardID < 0)
-      .reduce((spaceCards: Card[], _: number, i: number) => {
+  private getEmissionsLineWidth(): number {
+    const cardCount = this.cards.length
+    const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+    const totalELWidth = cardWidth * cardCount
+    let width = cardWidth / 2
+    if (totalELWidth > EMISSIONS_LINE_MAX_LENGTH) {
+      width = (EMISSIONS_LINE_MAX_LENGTH - cardWidth) / (cardCount-1)
+    }
+    return width
+  }
+
+  private moveELCard(card: Card, i: number, currentTime: number): Card {
+    let elCards = this.cards
+    const cardCount = elCards.length
+    const width = this.getEmissionsLineWidth()
+    const startOffset = 0 - width*cardCount/2 - width/2
+
+    const x = EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1)
+    const y = EMISSIONS_LINE_POSITION[1]
+    return Card.move(card, x, y, currentTime)
+  }
+  
+  private reformSpaceCards(): Card[] {
+    return this._cards
+      .filter(c => c.id >= 0)
+      .reduce((cards: Card[], card, i) => {
         return [
-          ...spaceCards,
-          new SpaceCard(-1-i)
+          ...cards,
+          card,
+          new SpaceCard(-1-(i+1))
         ]
-      }, [])
+      }, [new SpaceCard(-1)])
   }
 
   get cards() {
-    return [...this._cards, ...this.spaceCards]
+    return this._cards
   }
 
-  getOrderedEmissionsLine(): Card[] {
+  addCard(card: Card, position: number, currentTime: number): EmissionsLine {
     let self = this.new()
-
-    let elCards: Card[] = []
-    for (const cardID of self.cardOrder) {
-        const card = self.cards.find(c => c.id === cardID)
-        if (!card) throw new Error("Can't find card with ID: " + cardID);
-        elCards = [...elCards, card]
-    }
-
-    return elCards
-  }
-
-
-  getELCardZLevel(card: Card, i: number, state: GameState): number {
-    let zLevel = i
-    if (
-      !card.isSpace &&
-      state.selectedCardID === undefined &&
-      GameState.getFocusedCardID(state) === card.id
-    ) {
-      zLevel = 999
-    }
-
-    return zLevel
-  }
-
-  addCard(card: Card, position: number): EmissionsLine {
-    const self = this.new()
 
     // Make sure card is flipped
     card.flipped = true
 
-    self.cardOrder = [
-       ...self.cardOrder.slice(0, position+1),
-      card.id,
-      ...self.cardOrder.slice(position+1, self.cardOrder.length)
-    ]
+    self._cards = insert(self._cards, card, position)
+    self._cards = self.reformSpaceCards()
 
-    self.cardOrder = self.cardOrder
-      .filter(cardID => cardID >= 0)
-      .reduce((elCardOrder, cardID, i) => {
-        return [
-          ...elCardOrder,
-          ...[cardID, -1-(i+1)]
-        ]
-      }, [-1])
+    self._cards = self._cards.map((card, i) => {
+      return self.moveELCard(card, i, currentTime)
+    })
 
-    self._cards = [...self._cards, card]
+    return self
+  }
 
+  update(time: number): EmissionsLine {
+    let self = this.new()
+    self._cards = self._cards.map(c => Card.update(c, time))
     return self
   }
 }
