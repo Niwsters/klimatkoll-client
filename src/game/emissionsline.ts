@@ -76,16 +76,35 @@ export class EmissionsLine {
     return self
   }
 
+  private get nonSpaceCards(): Card[] {
+    return this.cards.filter(c => !c.isSpace)
+  }
+
   mouse_moved(mouseX: number, mouseY: number, currentTime: number): EmissionsLine {
     let self = this.new()
 
     const lowerBounds = EMISSIONS_LINE_POSITION[1] - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
     const upperBounds = EMISSIONS_LINE_POSITION[1] + Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
 
+    if (self.nonSpaceCards.length < 0)
+      return self
+
+    let closest: Card = self.nonSpaceCards[0]
+    for (const card of self.nonSpaceCards.slice(1)) {
+      if (!closest) {
+        closest = card
+        continue
+      }
+
+      if (Math.abs(card.position[0] - mouseX) < Math.abs(closest.position[0] - mouseX)) {
+        closest = card
+      }
+    }
+
     self._cards = self._cards.map(c => {
       if (c.isSpace) return c
 
-      if (mouseY > lowerBounds && mouseY < upperBounds)
+      if (mouseY > lowerBounds && mouseY < upperBounds && c.id === closest.id)
         return Card.scale(c, Card.DEFAULT_SCALE * 2, currentTime)
 
       return Card.scale(c, Card.DEFAULT_SCALE, currentTime)

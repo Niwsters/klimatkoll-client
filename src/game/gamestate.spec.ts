@@ -330,8 +330,6 @@ describe('GameState', () => {
 
     beforeEach(() => {
       state.emissionsLine = state.emissionsLine.addCard(card, 0, currentTime)
-      const [x, y] = EMISSIONS_LINE_POSITION
-      state = moveMouse(state, x, y)
     })
 
     function moveMouse(state: GameState, x: number, y: number): GameState {
@@ -346,6 +344,9 @@ describe('GameState', () => {
     }
 
     it("zooms in on emissions line card", () => {
+      const [x, y] = EMISSIONS_LINE_POSITION
+      state = moveMouse(state, x, y)
+
       // Zooms in on middle card
       const transpositions = getScaleTranspositions(
         state.emissionsLine.cards.filter(c => c.id === card.id)
@@ -359,6 +360,9 @@ describe('GameState', () => {
     })
 
     it("doesn't zoom in on surrounding cards", () => {
+      const [x, y] = EMISSIONS_LINE_POSITION
+      state = moveMouse(state, x, y)
+
       // Doesn't zoom in on surrounding cards
       const transpositions = getScaleTranspositions(
         state.emissionsLine.cards.filter(c => c.id !== card.id)
@@ -366,7 +370,10 @@ describe('GameState', () => {
       expect(transpositions).toEqual([])
     })
 
-    it("zooms out if mouse moves outside emissions line", () => {
+    it("zooms out if mouse moves outside emissions line Y bounds", () => {
+      const [x, y] = EMISSIONS_LINE_POSITION
+      state = moveMouse(state, x, y)
+
       // Move mouse outside emissions line
       state = moveMouse(state, 0, 0)
 
@@ -382,6 +389,34 @@ describe('GameState', () => {
           scale: Card.DEFAULT_SCALE,
           timestamp: currentTime
         },
+      ])
+    })
+
+    it("zooms in only on the closest card to the mouse", () => {
+      const card2 = new Card(1, "other-card", "emissions-line")
+      card2.position = [100, 100]
+      state.emissionsLine = state.emissionsLine.addCard(card2, 2, currentTime)
+
+      const [x, y] = [card2.position[0], EMISSIONS_LINE_POSITION[1]]
+      state = moveMouse(state, x, y)
+
+      let transpositions = getScaleTranspositions(
+        state.emissionsLine.cards.filter(c => c.id === card2.id)
+      )
+      expect(transpositions).toEqual([
+        {
+          scale: Card.DEFAULT_SCALE * 2,
+          timestamp: currentTime
+        }
+      ])
+      transpositions = getScaleTranspositions(
+        state.emissionsLine.cards.filter(c => c.id === card.id)
+      )
+      expect(transpositions).toEqual([
+        {
+          scale: Card.DEFAULT_SCALE,
+          timestamp: currentTime
+        }
       ])
     })
   })
