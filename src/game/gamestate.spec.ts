@@ -370,7 +370,16 @@ describe('GameState', () => {
       const transpositions = getScaleTranspositions(
         state.emissionsLine.cards.filter(c => c.id !== card.id)
       )
-      expect(transpositions).toEqual([])
+      expect(transpositions).toEqual([
+        {
+          scale: 0.275,
+          timestamp: 0,
+        },
+        {
+          scale: 0.275,
+          timestamp: 0,
+        },
+      ])
     })
 
     it("zooms out if mouse moves outside emissions line Y bounds", () => {
@@ -417,7 +426,7 @@ describe('GameState', () => {
       expect(transpositions).toEqual([
         {
           scale: Card.DEFAULT_SCALE,
-          timestamp: currentTime
+          timestamp: 0 
         }
       ])
     })

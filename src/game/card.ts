@@ -18,7 +18,10 @@ export class Card {
   visible: boolean = true
   flipped: boolean = false
   transpositions: TransposeGoal[] = []
-  scaleGoal?: TransposeGoal
+  scaleGoal: TransposeGoal = {
+    scale: Card.DEFAULT_SCALE,
+    timestamp: 0
+  }
 
   constructor(
     id: number,

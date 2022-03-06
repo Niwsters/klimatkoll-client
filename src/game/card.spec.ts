@@ -145,7 +145,6 @@ describe('Card', () => {
     it("adds transition goal with scale", () => {
       expect(card).toEqual({
         ...card,
-        transpositions: [goal],
         scaleGoal: goal
       })
     })
@@ -154,7 +153,6 @@ describe('Card', () => {
       card = Card.scale(card, scale, currentTime)
       expect(card).toEqual({
         ...card,
-        transpositions: [goal],
         scaleGoal: goal
       })
     })
@@ -198,10 +196,7 @@ describe('Card', () => {
 
     it('applies transposition scale on card', () => {
       card.scale = 0
-      card = Card.transpose(card, {
-        scale: 1337,
-        timestamp: 0
-      })
+      card = Card.scale(card, 1337, 0)
       card = Card.update(card, ANIMATION_DURATION_MS)
       expect(card.scale).toEqual(1337)
     })
