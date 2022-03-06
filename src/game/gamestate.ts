@@ -21,6 +21,8 @@ export class GameState {
   statusMessage: string = ""
   roomID: string = ""
   config: AppConfig
+  private mouseX: number = 0
+  private mouseY: number = 0
   emissionsLine: EmissionsLine = new EmissionsLine()
 
   constructor(config: AppConfig) {
@@ -45,6 +47,7 @@ export class GameState {
 
     // TODO: Test this
     state.emissionsLine = state.emissionsLine.update(time)
+    state.emissionsLine = state.emissionsLine.mouse_moved(state.mouseX, state.mouseY, time)
 
     return state
   }
@@ -123,8 +126,8 @@ export class GameState {
 
     const mouseX = event.payload.mouseX
     const mouseY = event.payload.mouseY
-
-    state.emissionsLine = state.emissionsLine.mouse_moved(mouseX, mouseY, currentTime)
+    state.mouseX = mouseX
+    state.mouseY = mouseY
 
     return [state, []]
   }

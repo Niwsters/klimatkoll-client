@@ -145,7 +145,8 @@ describe('Card', () => {
     it("adds transition goal with scale", () => {
       expect(card).toEqual({
         ...card,
-        transpositions: [goal]
+        transpositions: [goal],
+        scaleGoal: goal
       })
     })
 
@@ -153,7 +154,8 @@ describe('Card', () => {
       card = Card.scale(card, scale, currentTime)
       expect(card).toEqual({
         ...card,
-        transpositions: [goal]
+        transpositions: [goal],
+        scaleGoal: goal
       })
     })
   })

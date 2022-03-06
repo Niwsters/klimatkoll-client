@@ -1,7 +1,7 @@
 import { GameState } from './gamestate'
 import { Hand, OpponentHand } from './hand'
-import { Card, SpaceCard, TransposeGoal } from './card'
-import { CardHoveredEvent, CardUnhoveredEvent, Event, EventToAdd, MouseMovedEvent } from '../event/event'
+import { Card, TransposeGoal } from './card'
+import { Event, EventToAdd, MouseMovedEvent } from '../event/event'
 import {
   ANIMATION_DURATION_MS,
   DISCARD_PILE_POSITION,
@@ -339,13 +339,15 @@ describe('GameState', () => {
 
     function getScaleTranspositions(cards: Card[]): TransposeGoal[] {
       return cards
-        .reduce((t, c) => [...t, ...c.transpositions], [])
+        .reduce((t, c) => [...t, c.scaleGoal], [])
+        .filter(t => t ? true : false)
         .filter(t => t.scale ? true : false)
     }
 
     it("zooms in on emissions line card", () => {
       const [x, y] = EMISSIONS_LINE_POSITION
       state = moveMouse(state, x, y)
+      state = state.update(currentTime)
 
       // Zooms in on middle card
       const transpositions = getScaleTranspositions(
@@ -362,6 +364,7 @@ describe('GameState', () => {
     it("doesn't zoom in on surrounding cards", () => {
       const [x, y] = EMISSIONS_LINE_POSITION
       state = moveMouse(state, x, y)
+      state = state.update(currentTime)
 
       // Doesn't zoom in on surrounding cards
       const transpositions = getScaleTranspositions(
@@ -373,18 +376,16 @@ describe('GameState', () => {
     it("zooms out if mouse moves outside emissions line Y bounds", () => {
       const [x, y] = EMISSIONS_LINE_POSITION
       state = moveMouse(state, x, y)
+      state = state.update(currentTime)
 
       // Move mouse outside emissions line
       state = moveMouse(state, 0, 0)
+      state = state.update(currentTime)
 
       const transpositions = getScaleTranspositions(
         state.emissionsLine.cards.filter(c => c.id === card.id)
       )
       expect(transpositions).toEqual([
-        {
-          scale: Card.DEFAULT_SCALE * 2,
-          timestamp: currentTime
-        },
         {
           scale: Card.DEFAULT_SCALE,
           timestamp: currentTime
@@ -399,6 +400,7 @@ describe('GameState', () => {
 
       const [x, y] = [card2.position[0], EMISSIONS_LINE_POSITION[1]]
       state = moveMouse(state, x, y)
+      state = state.update(currentTime)
 
       let transpositions = getScaleTranspositions(
         state.emissionsLine.cards.filter(c => c.id === card2.id)

@@ -18,6 +18,7 @@ export class Card {
   visible: boolean = true
   flipped: boolean = false
   transpositions: TransposeGoal[] = []
+  scaleGoal?: TransposeGoal
 
   constructor(
     id: number,
@@ -83,15 +84,19 @@ export class Card {
     })
   }
 
-  static scale(card: Card, scale: number, currentTime: number) {
-    const existing = card.transpositions.find(t => t.scale && t.scale === scale)
-    if (existing)
+  static scale(card: Card, scale: number, currentTime: number): Card {
+    const existing = card.scaleGoal
+
+    if (existing && existing.scale === scale)
       return {...card}
 
-    return Card.transpose(card, {
-      timestamp: currentTime,
-      scale: scale
-    })
+    return {
+      ...card,
+      scaleGoal: {
+        timestamp: currentTime,
+        scale: scale
+      }
+    }
   }
 
   static update(
@@ -114,11 +119,16 @@ export class Card {
       if (t.addedRotation !== undefined)
         newCard.addedRotation = transpose(card.addedRotation, t.addedRotation, time - t.timestamp)
 
+      /*
       if (t.scale !== undefined)
         newCard.scale = transpose(card.scale, t.scale, time - t.timestamp)
+        */
     })
 
     newCard.transpositions = newCard.transpositions.filter(t => time - t.timestamp < ANIMATION_DURATION_MS)
+
+    if (newCard.scaleGoal && newCard.scaleGoal.scale)
+      newCard.scale = transpose(card.scale, newCard.scaleGoal.scale, time - newCard.scaleGoal.timestamp)
 
     return newCard
   }
