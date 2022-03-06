@@ -340,7 +340,6 @@ describe('GameState', () => {
     function getScaleTranspositions(cards: Card[]): TransposeGoal[] {
       return cards
         .reduce((t, c) => [...t, c.scaleGoal], [])
-        .filter(t => t ? true : false)
         .filter(t => t.scale ? true : false)
     }
 

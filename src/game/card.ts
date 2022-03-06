@@ -18,7 +18,7 @@ export class Card {
   visible: boolean = true
   flipped: boolean = false
   transpositions: TransposeGoal[] = []
-  scaleGoal: TransposeGoal = {
+  scaleGoal: ScaleGoal = {
     scale: Card.DEFAULT_SCALE,
     timestamp: 0
   }
@@ -121,17 +121,11 @@ export class Card {
 
       if (t.addedRotation !== undefined)
         newCard.addedRotation = transpose(card.addedRotation, t.addedRotation, time - t.timestamp)
-
-      /*
-      if (t.scale !== undefined)
-        newCard.scale = transpose(card.scale, t.scale, time - t.timestamp)
-        */
     })
 
     newCard.transpositions = newCard.transpositions.filter(t => time - t.timestamp < ANIMATION_DURATION_MS)
 
-    if (newCard.scaleGoal && newCard.scaleGoal.scale)
-      newCard.scale = transpose(card.scale, newCard.scaleGoal.scale, time - newCard.scaleGoal.timestamp)
+    newCard.scale = transpose(card.scale, newCard.scaleGoal.scale, time - newCard.scaleGoal.timestamp)
 
     return newCard
   }
@@ -161,12 +155,15 @@ export class Card {
   }
 }
 
-export interface TransposeGoal {
+export type TransposeGoal = {
   timestamp: number
   position?: number[]
   rotation?: number
   addedRotation?: number
-  scale?: number
+}
+
+type ScaleGoal = TransposeGoal & {
+  scale: number
 }
 
 export function transpose(from: number, to: number, timePassed: number) {
