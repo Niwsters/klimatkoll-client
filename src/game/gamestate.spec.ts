@@ -1,12 +1,11 @@
 import { GameState } from './gamestate'
 import { Hand, OpponentHand } from './hand'
-import { Card, TransposeGoal } from './card'
-import { Event, EventToAdd, MouseMovedEvent } from '../event/event'
+import { Card } from './card'
+import { Event, EventToAdd } from '../event/event'
 import {
   ANIMATION_DURATION_MS,
   DISCARD_PILE_POSITION,
-  DECK_POSITION,
-  EMISSIONS_LINE_POSITION
+  DECK_POSITION
 } from './constants'
 import { AppConfig } from '../App'
 
@@ -321,113 +320,6 @@ describe('GameState', () => {
 
       expect(result.cards.find(c => c.id === card2.id).position).toEqual(expected1.position)
       expect(result.cards.find(c => c.id === card3.id).position).toEqual(expected2.position)
-    })
-  })
-
-  describe('Hovering EmissionsLine cards', () => {
-    const currentTime = 1337
-    const card = new Card(0, "some-card", "emissions-line")
-
-    beforeEach(() => {
-      state.emissionsLine = state.emissionsLine.addCard(card, 0, currentTime)
-    })
-
-    function moveMouse(state: GameState, x: number, y: number): GameState {
-      const event = {...new MouseMovedEvent(x, y), event_id: 0}
-      return state.mouse_moved(event, currentTime)[0]
-    }
-
-    function getScaleTranspositions(cards: Card[]): TransposeGoal[] {
-      return cards
-        .reduce((t, c) => [...t, c.scaleGoal], [])
-        .filter(t => t.scale ? true : false)
-    }
-
-    it("zooms in on emissions line card", () => {
-      const [x, y] = EMISSIONS_LINE_POSITION
-      state = moveMouse(state, x, y)
-      state = state.update(currentTime)
-
-      // Zooms in on middle card
-      const transpositions = getScaleTranspositions(
-        state.emissionsLine.cards.filter(c => c.id === card.id)
-      )
-      expect(transpositions).toEqual([
-        {
-          scale: Card.DEFAULT_SCALE * 2,
-          timestamp: currentTime
-        }
-      ])
-    })
-
-    it("doesn't zoom in on surrounding cards", () => {
-      const [x, y] = EMISSIONS_LINE_POSITION
-      state = moveMouse(state, x, y)
-      state = state.update(currentTime)
-
-      // Doesn't zoom in on surrounding cards
-      const transpositions = getScaleTranspositions(
-        state.emissionsLine.cards.filter(c => c.id !== card.id)
-      )
-      expect(transpositions).toEqual([
-        {
-          scale: 0.275,
-          timestamp: 0,
-        },
-        {
-          scale: 0.275,
-          timestamp: 0,
-        },
-      ])
-    })
-
-    it("zooms out if mouse moves outside emissions line Y bounds", () => {
-      const [x, y] = EMISSIONS_LINE_POSITION
-      state = moveMouse(state, x, y)
-      state = state.update(currentTime)
-
-      // Move mouse outside emissions line
-      state = moveMouse(state, 0, 0)
-      state = state.update(currentTime)
-
-      const transpositions = getScaleTranspositions(
-        state.emissionsLine.cards.filter(c => c.id === card.id)
-      )
-      expect(transpositions).toEqual([
-        {
-          scale: Card.DEFAULT_SCALE,
-          timestamp: currentTime
-        },
-      ])
-    })
-
-    it("zooms in only on the closest card to the mouse", () => {
-      const card2 = new Card(1, "other-card", "emissions-line")
-      card2.position = [100, 100]
-      state.emissionsLine = state.emissionsLine.addCard(card2, 2, currentTime)
-
-      const [x, y] = [card2.position[0], EMISSIONS_LINE_POSITION[1]]
-      state = moveMouse(state, x, y)
-      state = state.update(currentTime)
-
-      let transpositions = getScaleTranspositions(
-        state.emissionsLine.cards.filter(c => c.id === card2.id)
-      )
-      expect(transpositions).toEqual([
-        {
-          scale: Card.DEFAULT_SCALE * 2,
-          timestamp: currentTime
-        }
-      ])
-      transpositions = getScaleTranspositions(
-        state.emissionsLine.cards.filter(c => c.id === card.id)
-      )
-      expect(transpositions).toEqual([
-        {
-          scale: Card.DEFAULT_SCALE,
-          timestamp: 0 
-        }
-      ])
     })
   })
 })
