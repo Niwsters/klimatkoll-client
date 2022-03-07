@@ -43,9 +43,9 @@ export class GameState {
 
   update(time: number): GameState {
     let state = this.new()
-    state.cards = state.cards.map((card: Card) => Card.update(card, time))
 
-    // TODO: Test this
+    state.cards = state._cards.map((card: Card) => Card.update(card, time))
+
     state.emissionsLine = state.emissionsLine.update(time)
     state.emissionsLine = state.emissionsLine.mouse_moved(state.mouseX, state.mouseY, time)
 

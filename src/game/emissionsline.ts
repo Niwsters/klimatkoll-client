@@ -77,32 +77,6 @@ export class EmissionsLine {
       }, [new SpaceCard(-1)])
   }
 
-  get cards() {
-    return this._cards
-  }
-
-  addCard(card: Card, position: number, currentTime: number): EmissionsLine {
-    let self = this.new()
-
-    // Make sure card is flipped
-    card.flipped = true
-
-    self._cards = insert(self._cards, card, position)
-    self._cards = self.reformSpaceCards()
-
-    self._cards = self._cards.map((card, i) => {
-      return self.moveELCard(card, i, currentTime)
-    })
-
-    return self
-  }
-
-  update(time: number): EmissionsLine {
-    let self = this.new()
-    self._cards = self._cards.map(c => Card.update(c, time))
-    return self
-  }
-
   private get nonSpaceCards(): Card[] {
     return this.cards.filter(c => !c.isSpace)
   }
@@ -156,6 +130,33 @@ export class EmissionsLine {
     self._cards = self._cards.map(card => 
       self.scaleCard(card, mouseX, mouseY, currentTime)
     )
+
+    return self
+  }
+
+
+  update(time: number): EmissionsLine {
+    let self = this.new()
+    self._cards = self._cards.map(c => Card.update(c, time))
+    return self
+  }
+
+  get cards() {
+    return this._cards
+  }
+
+  addCard(card: Card, position: number, currentTime: number): EmissionsLine {
+    let self = this.new()
+
+    // Make sure card is flipped
+    card.flipped = true
+
+    self._cards = insert(self._cards, card, position)
+    self._cards = self.reformSpaceCards()
+
+    self._cards = self._cards.map((card, i) => {
+      return self.moveELCard(card, i, currentTime)
+    })
 
     return self
   }
