@@ -1,8 +1,8 @@
-import { AppConfig } from "../App"
 import { MouseMovedEvent } from "../event/event"
 import { Card } from "../game/card"
 import { ANIMATION_DURATION_MS, EMISSIONS_LINE_POSITION } from "../game/constants"
 import { GameState } from "../game/gamestate"
+import { Factory } from './test-factory'
 
 describe('Hovering EmissionsLine cards', () => {
   const currentTime = 1337
@@ -10,29 +10,7 @@ describe('Hovering EmissionsLine cards', () => {
 
   let state: GameState
   beforeEach(() => {
-    const text = {
-      connectedToServer: "string",
-      roomFull: "string",
-      roomExists: "string",
-      roomLeft: "string",
-      roomJoined: "string",
-      roomOpponentLeft: "string",
-      reconnecting: "string",
-      btnCreateGame: "string",
-      btnJoinGame: "string",
-      inputRoomID: "string",
-      altClimateCallLogo: "string",
-      waitingForPlayer: "string",
-      yourTurn: "string",
-      opponentsTurn: "string",
-      youWon: "string",
-      youLost: "string",
-      labelRoom: "string",
-      btnLeaveGame: "string"
-    }
-    const config = new AppConfig(true, "blargh", text)
-    state = new GameState(config)
-
+    state = Factory.GameState()
     state.emissionsLine = state.emissionsLine.addCard(card, 0, currentTime)
   })
 
