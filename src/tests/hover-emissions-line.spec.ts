@@ -16,7 +16,7 @@ describe('Hovering EmissionsLine cards', () => {
 
   function moveMouse(state: GameState, x: number, y: number): GameState {
     const event = {...new MouseMovedEvent(x, y), event_id: 0}
-    state = state.mouse_moved(event, currentTime)[0]
+    state = state.mouse_moved(event)[0]
     state = state.update(currentTime + ANIMATION_DURATION_MS)
     return state
   }

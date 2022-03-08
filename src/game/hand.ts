@@ -1,5 +1,5 @@
 import { GameState } from './gamestate'
-import { Card, TransposeGoal } from './card'
+import { Card } from './card'
 import {
   HAND_POSITION,
   OPPONENT_HAND_POSITION,

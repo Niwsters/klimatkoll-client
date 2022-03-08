@@ -1,6 +1,6 @@
 import { Card } from './card'
 import { Hand, OpponentHand } from './hand'
-import { CardHoveredEvent, CardUnhoveredEvent, Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
+import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
 import { AppConfig } from '../App'
 import {
   DISCARD_PILE_POSITION,
@@ -121,7 +121,7 @@ export class GameState {
     return [state, []]
   }
 
-  mouse_moved(event: Event, currentTime: number = Date.now()): [GameState, EventToAdd[]] {
+  mouse_moved(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
 
     const mouseX = event.payload.mouseX
