@@ -21,13 +21,27 @@ export class GameState {
   statusMessage: string = ""
   roomID: string = ""
   config: AppConfig
-  private mouseX: number = 0
-  private mouseY: number = 0
   emissionsLine: EmissionsLine = new EmissionsLine()
   opponentHand: OpponentHand = new OpponentHand()
   hand: Hand = new Hand()
   deck: Deck = new Deck()
   discardPile: DiscardPile = new DiscardPile()
+
+  private mouseX: number = 0
+  private mouseY: number = 0
+
+  private new(): GameState {
+    return Object.assign(new GameState(this.config), this)
+  }
+
+  private removeHandCard(card: Card): GameState {
+    let state = this.new()
+
+    state.hand = state.hand.removeCard(card)
+    state.opponentHand = state.opponentHand.removeCard(card)
+
+    return state
+  }
 
   constructor(config: AppConfig) {
     this.config = config
@@ -37,17 +51,11 @@ export class GameState {
     return [...this.emissionsLine.cards, ...this.opponentHand.cards, ...this.hand.cards, ...this.deck.cards, ...this.discardPile.cards]
   }
 
-  private new(): GameState {
-    return Object.assign(new GameState(this.config), this)
-  }
-
   update(time: number): GameState {
     let state = this.new()
 
-    state.emissionsLine = state.emissionsLine.update(time)
-    state.emissionsLine = state.emissionsLine.mouse_moved(state.mouseX, state.mouseY, time)
-
-    state.hand = state.hand.rearrange(time, GameState.getFocusedCardID(state))
+    state.emissionsLine = state.emissionsLine.update(time, state.mouseX, state.mouseY)
+    state.hand = state.hand.update(time, GameState.getFocusedCardID(state))
     state.opponentHand = state.opponentHand.update(time)
 
     return state
@@ -61,7 +69,6 @@ export class GameState {
     const id = GameState.getFocusedCardID(state)
     return state.cards.find(c => c.id === id)
   }
-
 
   static getSelectedCard(state: GameState): Card | undefined {
     return state.cards.find(c => c.id === state.selectedCardID)
@@ -131,15 +138,6 @@ export class GameState {
     state.mouseY = mouseY
 
     return [state, []]
-  }
-
-  private removeHandCard(card: Card): GameState {
-    let state = this.new()
-
-    state.hand = state.hand.removeCard(card)
-    state.opponentHand = state.opponentHand.removeCard(card)
-
-    return state
   }
 
   incorrect_card_placement(

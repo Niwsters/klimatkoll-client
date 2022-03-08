@@ -26,7 +26,7 @@ export class Hand {
     return new Hand([...this._cards, card])
   }
 
-  rearrange(currentTime: number, focusedCardID: number | undefined): Hand {
+  update(currentTime: number, focusedCardID: number | undefined): Hand {
     let hand = this.new()
 
     const n = hand.cards.length - 1

@@ -125,7 +125,7 @@ export class EmissionsLine {
     return Card.scale(card, Card.DEFAULT_SCALE, currentTime)
   }
 
-  mouse_moved(mouseX: number, mouseY: number, currentTime: number): EmissionsLine {
+  private mouse_moved(mouseX: number, mouseY: number, currentTime: number): EmissionsLine {
     let self = this.new()
 
     if (self.nonSpaceCards.length < 0)
@@ -138,10 +138,10 @@ export class EmissionsLine {
     return self
   }
 
-
-  update(time: number): EmissionsLine {
+  update(time: number, mouseX: number, mouseY: number): EmissionsLine {
     let self = this.new()
     self._cards = self._cards.map(c => Card.update(c, time))
+    self = self.mouse_moved(mouseX, mouseY, time)
     return self
   }
 
