@@ -25,13 +25,14 @@ export class GameState {
   private mouseX: number = 0
   private mouseY: number = 0
   emissionsLine: EmissionsLine = new EmissionsLine()
+  opponentHand: OpponentHand = new OpponentHand()
 
   constructor(config: AppConfig) {
     this.config = config
   }
 
   get cards(): Card[] {
-    return [...this._cards, ...this.emissionsLine.cards]
+    return [...this._cards, ...this.emissionsLine.cards, ...this.opponentHand.cards]
   }
 
   set cards(cards: Card[]) {
@@ -49,6 +50,8 @@ export class GameState {
 
     state.emissionsLine = state.emissionsLine.update(time)
     state.emissionsLine = state.emissionsLine.mouse_moved(state.mouseX, state.mouseY, time)
+
+    state.opponentHand = state.opponentHand.update(time)
 
     return state
   }
@@ -159,7 +162,6 @@ export class GameState {
     state.selectedCardID = undefined
 
     state = Hand.rearrange(state, timePassed, currentTime)
-    state = OpponentHand.rearrange(state, currentTime)
 
     return [state, []]
   }
@@ -176,8 +178,7 @@ export class GameState {
     } else {
       const card = new Card(server_card.id, server_card.name, "opponent-hand")
       card.position = DECK_POSITION
-      state.cards = [...state.cards, card]
-      state = OpponentHand.rearrange(state, timePassed)
+      state.opponentHand = state.opponentHand.addCard(card)
     }
 
     return [state, []]
@@ -218,7 +219,6 @@ export class GameState {
     state.cards = state.cards.filter(c => c !== playedCard)
 
     state = Hand.rearrange(state, timePassed)
-    state = OpponentHand.rearrange(state, timePassed)
 
     // Add EL card
     const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")

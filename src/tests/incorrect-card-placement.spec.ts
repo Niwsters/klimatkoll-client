@@ -1,6 +1,5 @@
 import { Card } from '../game/card'
 import { Hand } from '../game/hand'
-import { OpponentHand } from '../game/opponent-hand'
 import { Factory } from './test-factory'
 import { GameState } from '../game/gamestate'
 import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from '../game/constants'
@@ -86,7 +85,7 @@ describe('incorrect_card_placement', () => {
     expect(result.flipped).toEqual(true)
   })
 
-  it('rearranges hands', () => {
+  it('rearranges hand', () => {
     const card = new Card(7, "blargh", "hand")
     const card2 = new Card(1, "honk", "hand")
     const card3 = new Card(3, "1337", "opponent-hand")
@@ -109,12 +108,6 @@ describe('incorrect_card_placement', () => {
       .cards
       .find(c => c.id === card2.id)
 
-    let expected2 = OpponentHand
-      .rearrange(state, ANIMATION_DURATION_MS)
-      .cards
-      .find(c => c.id === card3.id)
-
     expect(result.cards.find(c => c.id === card2.id).position).toEqual(expected1.position)
-    expect(result.cards.find(c => c.id === card3.id).position).toEqual(expected2.position)
   })
 })

@@ -1,5 +1,5 @@
 import { Card } from '../game/card'
-import { HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from '../game/constants'
+import { ANIMATION_DURATION_MS, HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from '../game/constants'
 import { OpponentHand } from '../game/opponent-hand'
 import { Factory } from './test-factory'
 
@@ -13,27 +13,33 @@ function getOpponentHandCardPosition(i: number, cardCount: number): number[] {
 }
 
 describe('Rearrange opponent hand', () => {
-  it('transposes emissions line cards to their proper positions', () => {
-    let card = new Card(0, "blargh", "opponent-hand")
-    card.position = [1,1]
-    let card2 = new Card(1, "1337", "opponent-hand")
-    card2.position = [2,2]
-    const nonHandCard = new Card(2, "honk", "hand")
-    const state = Factory.GameState()
-    state.cards = [card, card2, nonHandCard]
-    state.emissionsLineCardOrder = [0,1]
+  const state = Factory.GameState()
+  const currentTime = 1337
 
-    const currentTime = 1337
-    let result = OpponentHand.rearrange(state, currentTime)
+  it('moves OpponenHand cards to their positions', () => {
+    let card = new Card(0, "blargh", "opponent-hand")
+    let card2 = new Card(1, "1337", "opponent-hand")
+
+    // Given cards are in opponent hand
+    state.opponentHand = state.opponentHand.addCard(card)
+    state.opponentHand = state.opponentHand.addCard(card2)
+
+    // It moves them to their positions
+    let result = state.update(currentTime)
+
     let pos1 = getOpponentHandCardPosition(0, 2)
     let pos2 = getOpponentHandCardPosition(1, 2)
 
     card = Card.move(card, pos1[0], pos1[1], currentTime)
     card = Card.rotateGlobal(card, 2.9845130209103035, currentTime)
+    card = Card.update(card, currentTime + ANIMATION_DURATION_MS)
 
     card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
     card2 = Card.rotateGlobal(card2, 3.2986722862692828, currentTime)
+    card2 = Card.update(card2, currentTime + ANIMATION_DURATION_MS)
 
-    expect(result.cards).toEqual([card, card2, nonHandCard])
+    result = result.update(currentTime + ANIMATION_DURATION_MS)
+
+    expect(result.cards).toEqual([card, card2])
   })
 })

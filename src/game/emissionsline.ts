@@ -10,10 +10,14 @@ function insert(array: any[], item: any, position: number): any[] {
 }
 
 export class EmissionsLine {
-  private _cards: Card[] = []
+  private _cards: Card[]
+
+  constructor(cards: Card[] = []) {
+    this._cards = cards
+  }
 
   private new(): EmissionsLine {
-    return Object.assign(new EmissionsLine(), this)
+    return new EmissionsLine(this._cards)
   }
 
   private get width(): number {
