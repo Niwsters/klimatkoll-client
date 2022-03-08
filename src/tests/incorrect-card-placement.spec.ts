@@ -1,5 +1,6 @@
 import { Card } from '../game/card'
-import { Hand, OpponentHand } from '../game/hand'
+import { Hand } from '../game/hand'
+import { OpponentHand } from '../game/opponent-hand'
 import { Factory } from './test-factory'
 import { GameState } from '../game/gamestate'
 import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from '../game/constants'

@@ -1,6 +1,6 @@
 import { Card } from '../game/card'
-import { ANIMATION_DURATION_MS, HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from '../game/constants'
-import { OpponentHand } from '../game/hand'
+import { HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from '../game/constants'
+import { OpponentHand } from '../game/opponent-hand'
 import { Factory } from './test-factory'
 
 function getOpponentHandCardPosition(i: number, cardCount: number): number[] {
@@ -23,9 +23,8 @@ describe('Rearrange opponent hand', () => {
     state.cards = [card, card2, nonHandCard]
     state.emissionsLineCardOrder = [0,1]
 
-    let timePassed = ANIMATION_DURATION_MS
     const currentTime = 1337
-    let result = OpponentHand.rearrange(state, timePassed, currentTime)
+    let result = OpponentHand.rearrange(state, currentTime)
     let pos1 = getOpponentHandCardPosition(0, 2)
     let pos2 = getOpponentHandCardPosition(1, 2)
 

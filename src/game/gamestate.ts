@@ -1,5 +1,6 @@
 import { Card } from './card'
-import { Hand, OpponentHand } from './hand'
+import { Hand } from './hand'
+import { OpponentHand } from './opponent-hand'
 import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
 import { AppConfig } from '../App'
 import {
@@ -158,7 +159,7 @@ export class GameState {
     state.selectedCardID = undefined
 
     state = Hand.rearrange(state, timePassed, currentTime)
-    state = OpponentHand.rearrange(state, timePassed, currentTime)
+    state = OpponentHand.rearrange(state, currentTime)
 
     return [state, []]
   }
