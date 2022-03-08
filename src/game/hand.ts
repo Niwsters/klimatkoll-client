@@ -59,4 +59,8 @@ export class Hand {
 
     return hand
   }
+
+  removeCard(card: Card): Hand {
+    return new Hand(this.cards.filter(c => c.id !== card.id))
+  }
 }

@@ -48,4 +48,8 @@ export class OpponentHand {
 
     return hand
   }
+
+  removeCard(card: Card): OpponentHand {
+    return new OpponentHand(this.cards.filter(c => c.id !== card.id))
+  }
 }

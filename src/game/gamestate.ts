@@ -4,16 +4,16 @@ import { OpponentHand } from './opponent-hand'
 import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
 import { AppConfig } from '../App'
 import {
-  DISCARD_PILE_POSITION,
   DECK_POSITION
 } from './constants'
 
 import { EmissionsLine } from './emissionsline'
+import { Deck } from './deck'
+import { DiscardPile } from './discard-pile'
 
 export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
   // containers being actual arrays
-  _cards: Card[] = []
   isMyTurn: boolean = false
   socketID: number = -1
   hoveredCardIDs = new Set<number>()
@@ -26,17 +26,15 @@ export class GameState {
   emissionsLine: EmissionsLine = new EmissionsLine()
   opponentHand: OpponentHand = new OpponentHand()
   hand: Hand = new Hand()
+  deck: Deck = new Deck()
+  discardPile: DiscardPile = new DiscardPile()
 
   constructor(config: AppConfig) {
     this.config = config
   }
 
   get cards(): Card[] {
-    return [...this._cards, ...this.emissionsLine.cards, ...this.opponentHand.cards, ...this.hand.cards]
-  }
-
-  set cards(cards: Card[]) {
-    this._cards = cards
+    return [...this.emissionsLine.cards, ...this.opponentHand.cards, ...this.hand.cards, ...this.deck.cards, ...this.discardPile.cards]
   }
 
   private new(): GameState {
@@ -45,8 +43,6 @@ export class GameState {
 
   update(time: number): GameState {
     let state = this.new()
-
-    state.cards = state._cards.map((card: Card) => Card.update(card, time))
 
     state.emissionsLine = state.emissionsLine.update(time)
     state.emissionsLine = state.emissionsLine.mouse_moved(state.mouseX, state.mouseY, time)
@@ -121,7 +117,7 @@ export class GameState {
 
     cards = [...cards, card]
 
-    state.cards = cards
+    state.deck = state.deck.setTopCard(card)
 
     return [state, []]
   }
@@ -137,28 +133,30 @@ export class GameState {
     return [state, []]
   }
 
+  private removeHandCard(card: Card): GameState {
+    let state = this.new()
+
+    state.hand = state.hand.removeCard(card)
+    state.opponentHand = state.opponentHand.removeCard(card)
+
+    return state
+  }
+
   incorrect_card_placement(
     event: Event,
     currentTime: number = Date.now()
   ): [GameState, EventToAdd[]] {
     let state = this.new()
 
-    state.cards = state.cards.map(card => {
-      card = {...card}
+    let card = state.cards.find(card => card.id === event.payload.cardID)
+    if (!card)
+      return [state, []]
+    card = {...card}
 
-      if (card.id !== event.payload.cardID) return card;
+    state = state.removeHandCard(card)
+    state.discardPile = state.discardPile.setTopCard(card, currentTime)
 
-      const [x, y] = DISCARD_PILE_POSITION
-      card = Card.move(card, x, y, currentTime)
-      card = Card.rotateGlobal(card, 0, currentTime)
-      card = Card.rotateLocal(card, 0, currentTime)
-
-      card.flipped = true
-      card.container = "discard-pile"
-
-      return card
-    })
-
+    // Deselect selected card
     state.selectedCardID = undefined
 
     return [state, []]
@@ -213,7 +211,7 @@ export class GameState {
     state.selectedCardID = undefined
 
     // Remove hand card
-    state.cards = state.cards.filter(c => c !== playedCard)
+    state = state.removeHandCard(playedCard)
 
     // Add EL card
     const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")

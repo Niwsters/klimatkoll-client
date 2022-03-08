@@ -13,8 +13,12 @@ describe('card_played_from_hand', () => {
     state = Factory.GameState()
   })
 
-  function playCard(state: GameState, card: Card, position: number): [GameState, EventToAdd[]] {
-    state.cards = [...state.cards, card]
+  function playCard(state: GameState, card: Card, position: number, opponentHand: boolean = false): [GameState, EventToAdd[]] {
+    if (opponentHand)
+      state.opponentHand = state.opponentHand.addCard(card)
+    else
+      state.hand = state.hand.addCard(card)
+
     state.selectedCardID = card.id
     const event = new Event(0, 'card_played_from_hand', {
       socketID: state.socketID,
@@ -36,6 +40,11 @@ describe('card_played_from_hand', () => {
 
   it('removes card from hand', () => {
     state = playCard(state, card, 0)[0]
+    expect(state.cards.findIndex(c => c.container === "hand")).toEqual(-1)
+  })
+
+  it("removes card from opponent hand", () => {
+    state = playCard(state, card, 0, true)[0]
     expect(state.cards.findIndex(c => c.container === "hand")).toEqual(-1)
   })
 
