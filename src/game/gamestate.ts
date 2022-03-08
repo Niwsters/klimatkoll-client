@@ -14,7 +14,6 @@ export class GameState {
   // Every Card has a parameter for whatever container it is in, instead of
   // containers being actual arrays
   _cards: Card[] = []
-  emissionsLineCardOrder: number[] = []
   isMyTurn: boolean = false
   socketID: number = -1
   hoveredCardIDs = new Set<number>()
