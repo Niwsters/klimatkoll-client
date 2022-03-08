@@ -25,13 +25,14 @@ export class GameState {
   private mouseY: number = 0
   emissionsLine: EmissionsLine = new EmissionsLine()
   opponentHand: OpponentHand = new OpponentHand()
+  hand: Hand = new Hand()
 
   constructor(config: AppConfig) {
     this.config = config
   }
 
   get cards(): Card[] {
-    return [...this._cards, ...this.emissionsLine.cards, ...this.opponentHand.cards]
+    return [...this._cards, ...this.emissionsLine.cards, ...this.opponentHand.cards, ...this.hand.cards]
   }
 
   set cards(cards: Card[]) {
@@ -50,6 +51,7 @@ export class GameState {
     state.emissionsLine = state.emissionsLine.update(time)
     state.emissionsLine = state.emissionsLine.mouse_moved(state.mouseX, state.mouseY, time)
 
+    state.hand = state.hand.rearrange(time, GameState.getFocusedCardID(state))
     state.opponentHand = state.opponentHand.update(time)
 
     return state
@@ -137,7 +139,6 @@ export class GameState {
 
   incorrect_card_placement(
     event: Event,
-    timePassed: number,
     currentTime: number = Date.now()
   ): [GameState, EventToAdd[]] {
     let state = this.new()
@@ -160,20 +161,17 @@ export class GameState {
 
     state.selectedCardID = undefined
 
-    state = Hand.rearrange(state, timePassed, currentTime)
-
     return [state, []]
   }
 
-  draw_card(event: Event, timePassed: number = Date.now()): [GameState, EventToAdd[]] {
+  draw_card(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
     const server_card = event.payload.card
 
     if (event.payload.socketID === state.socketID) {
       const card = new Card(server_card.id, server_card.name, "hand")
       card.position = DECK_POSITION
-      state.cards = [...state.cards, card]
-      state = Hand.rearrange(state, timePassed)
+      state.hand = state.hand.addCard(card)
     } else {
       const card = new Card(server_card.id, server_card.name, "opponent-hand")
       card.position = DECK_POSITION
@@ -216,8 +214,6 @@ export class GameState {
 
     // Remove hand card
     state.cards = state.cards.filter(c => c !== playedCard)
-
-    state = Hand.rearrange(state, timePassed)
 
     // Add EL card
     const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")

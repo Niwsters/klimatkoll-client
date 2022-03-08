@@ -1,6 +1,5 @@
 import { Card } from '../game/card'
 import { ANIMATION_DURATION_MS, HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from '../game/constants'
-import { OpponentHand } from '../game/opponent-hand'
 import { Factory } from './test-factory'
 
 function getOpponentHandCardPosition(i: number, cardCount: number): number[] {
@@ -25,7 +24,9 @@ describe('Rearrange opponent hand', () => {
     state.opponentHand = state.opponentHand.addCard(card2)
 
     // It moves them to their positions
-    let result = state.update(currentTime)
+    const result = state
+      .update(currentTime) // Queue animations
+      .update(currentTime + ANIMATION_DURATION_MS) // Finish animations
 
     let pos1 = getOpponentHandCardPosition(0, 2)
     let pos2 = getOpponentHandCardPosition(1, 2)
@@ -37,8 +38,6 @@ describe('Rearrange opponent hand', () => {
     card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
     card2 = Card.rotateGlobal(card2, 3.2986722862692828, currentTime)
     card2 = Card.update(card2, currentTime + ANIMATION_DURATION_MS)
-
-    result = result.update(currentTime + ANIMATION_DURATION_MS)
 
     expect(result.cards).toEqual([card, card2])
   })

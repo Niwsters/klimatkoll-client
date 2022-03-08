@@ -9,15 +9,30 @@ import {
 } from './constants'
 
 export class Hand {
-  static rearrange(
-    state: GameState,
-    timePassed: number,
-    currentTime: number = Date.now()
-  ): GameState {
-    let i = 0
-    const n = state.cards.filter(c => c.container === "hand").length - 1
-    state.cards = state.cards.map((card: Card) => {
-      if (card.container !== "hand") return card
+  private _cards: Card[]
+
+  private new(): Hand {
+    return new Hand(this._cards)
+  }
+
+  constructor(cards: Card[] = []) {
+    this._cards = cards
+  }
+
+  get cards(): Card[] {
+    return this._cards
+  }
+
+  addCard(card: Card): Hand {
+    return new Hand([...this._cards, card])
+  }
+
+  rearrange(currentTime: number, focusedCardID: number | undefined): Hand {
+    let hand = this.new()
+
+    const n = hand.cards.length - 1
+    hand._cards = hand.cards.map((card: Card, i: number) => {
+      card = {...card}
 
       let angle = HAND_CARD_ANGLE * (i - n/2)
       let x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
@@ -27,7 +42,6 @@ export class Hand {
       // + 10 to prevent first card going under emissions line card when zooming out
       card.zLevel = i + 10 
 
-      const focusedCardID = GameState.getFocusedCardID(state)
       if (focusedCardID === card.id) {
         y = HAND_POSITION[1] - 230
         scale = Card.DEFAULT_SCALE * 2
@@ -39,11 +53,11 @@ export class Hand {
       card = Card.rotateGlobal(card, angle * HAND_ANGLE_FACTOR, currentTime)
       card = Card.scale(card, scale, currentTime)
 
-      i += 1
-
       return card 
     })
 
-    return state
+    hand._cards = hand.cards.map(card => Card.update(card, currentTime))
+
+    return hand
   }
 }
