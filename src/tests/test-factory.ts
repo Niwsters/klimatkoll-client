@@ -1,4 +1,4 @@
-import { AppConfig } from "../App"
+import { AppConfig, AppState } from "../App"
 import { GameState } from "../game/gamestate"
 import { Event } from '../event/event'
 
@@ -32,4 +32,8 @@ export const Factory = {
       return new Event(0, "draw_card", { card: { id: cardID, name: cardName }, socketID })
     }
   },
+  AppState: function () {
+    return new AppState()
+  }
 }
+
