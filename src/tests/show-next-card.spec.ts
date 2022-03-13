@@ -3,45 +3,30 @@ import { Card } from '../game/card'
 import { DECK_POSITION } from '../game/constants'
 import { GameState } from '../game/gamestate'
 import { Factory } from './test-factory'
+import { spec } from './spec'
 
-describe('next_card', () => {
-  const card = new Card(13, "blargh", "deck")
+function nextCard(state: GameState, card: Card): GameState {
+  const event = new Event(0, "next_card", {card})
+  return state.next_card(event)[0]
+}
 
-  let state: GameState
-  beforeEach(() => {
-    state = Factory.GameState()
-  })
+const card = new Card(13, "blargh", "deck")
+card.position = DECK_POSITION
+const card2 = new Card(1, "honk", "deck")
+card2.position = DECK_POSITION
 
-  it("creates a new deck card if none exists", () => {
-    const event = new Event(0, "next_card", {
-      card: {
-        id: 13,
-        name: "blargh"
-      }
-    })
+const test = spec('Next card')
+  .when(() => nextCard(Factory.GameState(), card))
 
-    const result = state.next_card(event)[0]
-    card.position = DECK_POSITION
+// Creates a new deck card if none exists
+test
+  .expect(state => state.cards)
+  .toEqual([card])
 
-    expect(result.cards).toEqual([card])
-  })
+// Replaces existing deck card
+test
+  .when(state => nextCard(state, card2))
+  .expect(state => state.cards)
+  .toEqual([card2])
 
-  it("replaces existing deck card if exists", () => {
-    const card = new Card(13, "blargh", "deck")
-    state.deck = state.deck.setTopCard(card)
-
-    const event = new Event(0, "next_card", {
-      card: {
-        id: 1,
-        name: "honk"
-      }
-    })
-
-    const expectedCard = new Card(1, "honk", "deck")
-    expectedCard.position = DECK_POSITION
-
-    const result = state.next_card(event)[0]
-
-    expect(result.cards).toEqual([expectedCard])
-  })
-})
+describe('', () => it('', () => {}))
