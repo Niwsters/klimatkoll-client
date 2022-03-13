@@ -1,5 +1,4 @@
 import { Card } from '../game/card'
-import { Hand } from '../game/hand'
 import {
   HAND_POSITION,
   HAND_X_RADIUS,
@@ -8,6 +7,9 @@ import {
   ANIMATION_DURATION_MS,
 } from '../game/constants'
 import { Factory } from './test-factory'
+import { spec } from './spec'
+
+const currentTime = 1337
 
 function getHandCardPosition(i: number, cardCount: number): number[] {
   const n = cardCount - 1
@@ -18,34 +20,43 @@ function getHandCardPosition(i: number, cardCount: number): number[] {
   return [x, y]
 }
 
-describe('Rearrange hand', () => {
-  const currentTime = 1337
-  const state = Factory.GameState()
+function initialiseCards(): [Card, Card] {
+  let card = new Card(0, "blargh", "hand")
+  let card2 = new Card(1, "1337", "hand")
+  return [card, card2]
+}
 
-  it('moves hand cards to their right positions', () => {
-    let card = new Card(0, "blargh", "hand")
-    let card2 = new Card(1, "1337", "hand")
+function expectedCards(): [Card, Card] {
+  let [card, card2] = initialiseCards()
+  const pos1 = getHandCardPosition(0, 2)
+  const pos2 = getHandCardPosition(1, 2)
+  card = Card.move(card, pos1[0], pos1[1], currentTime)
+  card = Card.rotateGlobal(card, -0.15707963267948966, currentTime)
+  card = Card.scale(card, 0.275, currentTime)
+  card.zLevel = 10
+  card = Card.update(card, currentTime + ANIMATION_DURATION_MS)
 
+  card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
+  card2 = Card.rotateGlobal(card2, 0.15707963267948966, currentTime)
+  card2 = Card.scale(card2, 0.275, currentTime)
+  card2.zLevel = 11
+  card2 = Card.update(card2, currentTime + ANIMATION_DURATION_MS)
+
+  return [card, card2]
+}
+
+spec('Rearrange hand')
+  .when(() => {
+    const [card, card2] = initialiseCards()
+
+    let state = Factory.GameState()
     state.hand = state.hand
       .addCard(card)
       .addCard(card2)
 
-    const pos1 = getHandCardPosition(0, 2)
-    const pos2 = getHandCardPosition(1, 2)
-    const result = state.update(currentTime).update(currentTime + ANIMATION_DURATION_MS)
-
-    card = Card.move(card, pos1[0], pos1[1], currentTime)
-    card = Card.rotateGlobal(card, -0.15707963267948966, currentTime)
-    card = Card.scale(card, 0.275, currentTime)
-    card.zLevel = 10
-    card = Card.update(card, currentTime + ANIMATION_DURATION_MS)
-
-    card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
-    card2 = Card.rotateGlobal(card2, 0.15707963267948966, currentTime)
-    card2 = Card.scale(card2, 0.275, currentTime)
-    card2.zLevel = 11
-    card2 = Card.update(card2, currentTime + ANIMATION_DURATION_MS)
-
-    expect(result.cards).toEqual([card, card2])
+    return state.update(currentTime).update(currentTime + ANIMATION_DURATION_MS)
   })
-})
+  .expect(state => state.cards)
+  .toEqual(expectedCards())
+
+describe('', () => it('', () => {}))

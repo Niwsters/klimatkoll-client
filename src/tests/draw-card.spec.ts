@@ -1,32 +1,43 @@
 import { Card } from '../game/card'
-import { Hand } from '../game/hand'
 import { Factory } from './test-factory'
 import { GameState } from '../game/gamestate'
 import { DECK_POSITION } from '../game/constants'
+import { spec } from './spec'
+import { Event } from '../event/event'
 
-describe('draw_card', () => {
-  let card: Card
-  let state: GameState
-  beforeEach(() => {
-    card = new Card(0, "some-card", "hand")
-    state = Factory.GameState()
+const card = new Card(0, "some-card", "hand")
+function createEvent(socketID: number): Event {
+  return new Event(0, "draw_card", { card: card, socketID })
+}
+
+function drawCard(state: GameState, socketID: number): GameState {
+  return state.draw_card(createEvent(socketID))[0]
+}
+
+const test = spec('Draw card')
+  .when(() => {
+    const state = Factory.GameState()
     state.socketID = 3
-    Hand.rearrange = (state: any) => { return state }
+    return state
   })
 
-  it("puts card in player's hand if socketID is player's socketID", () => {
-    const event = Factory.event.draw_card(card.id, card.name, 3)
-    const result = state.draw_card(event, 0)[0].cards[0]
+const playerHand = test
+  .when(state => drawCard(state, 3))
 
-    expect(result.position).toEqual(DECK_POSITION)
-    expect(result.container).toEqual("hand")
-  })
+// Puts card in player's hand
+playerHand
+  .expect((state: GameState) => state.hand.cards.map(c => c.id))
+  .toEqual([card.id])
 
-  it("puts card in opponent's hand if socketID is not player's socketID", () => {
-    const event = Factory.event.draw_card(card.id, card.name, 4)
-    const result = state.draw_card(event, 0)[0].cards[0]
+// Puts card initiallity at deck position
+playerHand
+  .expect((state: GameState) => state.hand.cards[0].position)
+  .toEqual(DECK_POSITION)
 
-    expect(result.position).toEqual(DECK_POSITION)
-    expect(result.container).toEqual("opponent-hand")
-  })
-})
+// Puts card in opponent's hand
+test
+  .when(state => drawCard(state, 4))
+  .expect((state: GameState) => state.opponentHand.cards.map(c => c.id))
+  .toEqual([card.id])
+
+describe('', () => it('', () => {}))
