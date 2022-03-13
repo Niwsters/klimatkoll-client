@@ -53,3 +53,5 @@ spec('Rearrange opponent hand')
   })
   .expect((state: GameState) => state.cards)
   .toEqual(expectedCards())
+
+describe('', () => it('', () => {}))
