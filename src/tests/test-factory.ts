@@ -4,6 +4,17 @@ import { Event } from '../event/event'
 
 export const Factory = {
   GameState: function() {
+    return new GameState(this.AppConfig())
+  },
+  event: {
+    draw_card: (cardID: number, cardName: string, socketID: number) => {
+      return new Event(0, "draw_card", { card: { id: cardID, name: cardName }, socketID })
+    }
+  },
+  AppState: function () {
+    return new AppState()
+  },
+  AppConfig: function () {
     const text = {
       connectedToServer: "string",
       roomFull: "string",
@@ -24,16 +35,7 @@ export const Factory = {
       labelRoom: "string",
       btnLeaveGame: "string"
     }
-    const config = new AppConfig(true, "blargh", text)
-    return new GameState(config)
-  },
-  event: {
-    draw_card: (cardID: number, cardName: string, socketID: number) => {
-      return new Event(0, "draw_card", { card: { id: cardID, name: cardName }, socketID })
-    }
-  },
-  AppState: function () {
-    return new AppState()
+    return new AppConfig(true, "blargh", text)
   }
 }
 
