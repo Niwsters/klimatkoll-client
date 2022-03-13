@@ -53,34 +53,3 @@ spec('Rearrange opponent hand')
   })
   .expect((state: GameState) => state.cards)
   .toEqual(expectedCards())
-
-describe('Rearrange opponent hand', () => {
-  const state = Factory.GameState()
-
-  it('moves OpponenHand cards to their positions', () => {
-    let card = new Card(0, "blargh", "opponent-hand")
-    let card2 = new Card(1, "1337", "opponent-hand")
-
-    // Given cards are in opponent hand
-    state.opponentHand = state.opponentHand.addCard(card)
-    state.opponentHand = state.opponentHand.addCard(card2)
-
-    // It moves them to their positions
-    const result = state
-      .update(currentTime) // Queue animations
-      .update(currentTime + ANIMATION_DURATION_MS) // Finish animations
-
-    let pos1 = getOpponentHandCardPosition(0, 2)
-    let pos2 = getOpponentHandCardPosition(1, 2)
-
-    card = Card.move(card, pos1[0], pos1[1], currentTime)
-    card = Card.rotateGlobal(card, 2.9845130209103035, currentTime)
-    card = Card.update(card, currentTime + ANIMATION_DURATION_MS)
-
-    card2 = Card.move(card2, pos2[0], pos2[1], currentTime)
-    card2 = Card.rotateGlobal(card2, 3.2986722862692828, currentTime)
-    card2 = Card.update(card2, currentTime + ANIMATION_DURATION_MS)
-
-    expect(result.cards).toEqual([card, card2])
-  })
-})
