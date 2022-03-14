@@ -6,14 +6,13 @@ import { execSync } from 'child_process'
 function onFileChange(func) {
   for (const file of findFiles()) {
     fs.watchFile(file, { interval: 100 }, () => {
-      console.log('change happened')
       func()
     })
   }
 }
 
 onFileChange(() => {
-  console.time('test')
+  console.time('Ran all tests in')
   esbuild.buildSync({
     entryPoints: ['./src/tests/tests.ts'],
     bundle: true,
@@ -27,5 +26,5 @@ onFileChange(() => {
   } catch (e) {
     console.log(e.trace)
   }
-  console.timeEnd('test')
+  console.timeEnd('Ran all tests in')
 })
