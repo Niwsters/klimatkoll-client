@@ -14,5 +14,5 @@ export default function main() {
   // Sets page to game when room joined
   test
     .when(app => app.room_joined(new Event(1, "room_joined", { roomID: "blargh" })))
-    .expect(app => app.currentPage).toEqual('gamee')
+    .expect(app => app.currentPage).toEqual('game')
 }
