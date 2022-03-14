@@ -3,7 +3,7 @@ import { Event } from '../event/event'
 import { spec } from './spec'
 
 export default function main() {
-  const test = spec('Join room')
+  const test = spec()
     .when(() => Factory.AppState())
 
   // Sets default page to menu

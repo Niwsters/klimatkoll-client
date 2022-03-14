@@ -13,6 +13,7 @@ function build() {
 }
 
 function run() {
+  console.clear()
   build()
   try {
     execSync('node --enable-source-maps ./dist-tests/tests.js', { stdio: 'inherit' })
