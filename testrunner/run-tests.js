@@ -12,8 +12,7 @@ function build() {
   })
 }
 
-function run() {
-  console.clear()
+function executeTests() {
   build()
   try {
     execSync('node --enable-source-maps ./dist-tests/tests.js', { stdio: 'inherit' })
@@ -22,9 +21,14 @@ function run() {
   }
 }
 
+function run() {
+  console.time('Ran all tests in')
+  console.clear()
+  executeTests()
+  console.timeEnd('Ran all tests in')
+}
+
 run()
 onFileChange(() => {
-  console.time('Ran all tests in')
   run()
-  console.timeEnd('Ran all tests in')
 })
