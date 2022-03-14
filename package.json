@@ -14,7 +14,7 @@
   "scripts": {
     "start": "webpack --config webpack.config.js --watch --mode=development & http-server . --port=4200",
     "build": "webpack --config webpack.config.js --mode=production",
-    "test": "node ./testrunner/build-tests.js && node --enable-source-maps ./dist-tests/tests.js",
+    "test": "node ./testrunner/run-tests.js",
     "coverage": "npm test -- --coverage --watchAll=false",
     "eject": "react-scripts eject",
     "dependencies": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > deps.svg"

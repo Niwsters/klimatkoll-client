@@ -1,18 +1,8 @@
 import esbuild from 'esbuild'
-import fs from 'fs'
-import { findFiles } from './find-files.js'
 import { execSync } from 'child_process'
+import { onFileChange } from './file-watcher.js'
 
-function onFileChange(func) {
-  for (const file of findFiles()) {
-    fs.watchFile(file, { interval: 100 }, () => {
-      func()
-    })
-  }
-}
-
-onFileChange(() => {
-  console.time('Ran all tests in')
+function build() {
   esbuild.buildSync({
     entryPoints: ['./src/tests/tests.ts'],
     bundle: true,
@@ -20,11 +10,20 @@ onFileChange(() => {
     sourcemap: true,
     platform: 'node'
   })
+}
 
+function run() {
+  build()
   try {
     execSync('node --enable-source-maps ./dist-tests/tests.js', { stdio: 'inherit' })
   } catch (e) {
     console.log(e.trace)
   }
+}
+
+run()
+onFileChange(() => {
+  console.time('Ran all tests in')
+  run()
   console.timeEnd('Ran all tests in')
 })
