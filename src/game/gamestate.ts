@@ -30,7 +30,7 @@ export class GameState {
   private mouseX: number = 0
   private mouseY: number = 0
 
-  private new(): GameState {
+  new(): GameState {
     return Object.assign(new GameState(this.config), this)
   }
 

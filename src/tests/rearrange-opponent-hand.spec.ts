@@ -38,20 +38,19 @@ function expectedCards() {
 
 const currentTime = 1337
 
-// moves OpponentHand cards to their positions
-spec('Rearrange opponent hand')
-  .when(() => {
-    const state = Factory.GameState()
-    const [card, card2] = initCards()
+export default function main() {
+  spec()
+    .when(() => {
+      const state = Factory.GameState()
+      const [card, card2] = initCards()
 
-    state.opponentHand = state.opponentHand.addCard(card)
-    state.opponentHand = state.opponentHand.addCard(card2)
+      state.opponentHand = state.opponentHand.addCard(card)
+      state.opponentHand = state.opponentHand.addCard(card2)
 
-    return state
-      .update(currentTime) // Queue animations
-      .update(currentTime + ANIMATION_DURATION_MS) // Finish animations
-  })
-  .expect((state: GameState) => state.cards)
-  .toEqual(expectedCards())
-
-describe('', () => it('', () => {}))
+      return state
+        .update(currentTime) // Queue animations
+        .update(currentTime + ANIMATION_DURATION_MS) // Finish animations
+    })
+    .expect((state: GameState) => state.cards)
+    .toEqual(expectedCards())
+}

@@ -45,18 +45,18 @@ function expectedCards(): [Card, Card] {
   return [card, card2]
 }
 
-spec('Rearrange hand')
-  .when(() => {
-    const [card, card2] = initialiseCards()
+export default function main() {
+  spec()
+    .when(() => {
+      const [card, card2] = initialiseCards()
 
-    let state = Factory.GameState()
-    state.hand = state.hand
-      .addCard(card)
-      .addCard(card2)
+      let state = Factory.GameState()
+      state.hand = state.hand
+        .addCard(card)
+        .addCard(card2)
 
-    return state.update(currentTime).update(currentTime + ANIMATION_DURATION_MS)
-  })
-  .expect(state => state.cards)
-  .toEqual(expectedCards())
-
-describe('', () => it('', () => {}))
+      return state.update(currentTime).update(currentTime + ANIMATION_DURATION_MS)
+    })
+    .expect(state => state.cards)
+    .toEqual(expectedCards())
+}

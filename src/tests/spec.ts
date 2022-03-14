@@ -55,6 +55,6 @@ class Spec {
   }
 }
 
-export function spec(description?: string) {
+export function spec() {
   return new Spec()
 }
