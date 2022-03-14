@@ -10,23 +10,23 @@ function nextCard(state: GameState, card: Card): GameState {
   return state.next_card(event)[0]
 }
 
-const card = new Card(13, "blargh", "deck")
-card.position = DECK_POSITION
-const card2 = new Card(1, "honk", "deck")
-card2.position = DECK_POSITION
+export default function main() {
+  const card = new Card(13, "blargh", "deck")
+  card.position = DECK_POSITION
+  const card2 = new Card(1, "honk", "deck")
+  card2.position = DECK_POSITION
 
-const test = spec('Next card')
-  .when(() => nextCard(Factory.GameState(), card))
+  const test = spec()
+    .when(() => nextCard(Factory.GameState(), card))
 
-// Creates a new deck card if none exists
-test
-  .expect(state => state.cards)
-  .toEqual([card])
+  // Creates a new deck card if none exists
+  test
+    .expect(state => state.cards)
+    .toEqual([card])
 
-// Replaces existing deck card
-test
-  .when(state => nextCard(state, card2))
-  .expect(state => state.cards)
-  .toEqual([card2])
-
-describe('', () => it('', () => {}))
+  // Replaces existing deck card
+  test
+    .when(state => nextCard(state, card2))
+    .expect(state => state.cards)
+    .toEqual([card2])
+}

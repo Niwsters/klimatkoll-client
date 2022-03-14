@@ -6,6 +6,8 @@ import drawCard from './draw-card.spec'
 import rearrangeHand from './rearrange-hand.spec'
 import rearrangeOpponentHand from './rearrange-opponent-hand.spec'
 import hoverEmissionsLine from './hover-emissions-line.spec'
+import incorrectCardPlacement from './incorrect-card-placement.spec'
+import showNextCard from './show-next-card.spec'
 
 appSpec()
 playCardFromDeck()
@@ -15,3 +17,5 @@ drawCard()
 rearrangeHand()
 rearrangeOpponentHand()
 hoverEmissionsLine()
+incorrectCardPlacement()
+showNextCard()
