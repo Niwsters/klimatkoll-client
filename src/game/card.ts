@@ -1,14 +1,33 @@
 import { ANIMATION_DURATION_MS } from './constants'
-import { vec2 } from 'gl-matrix'
 
-export class Card {
+type Container = "hand" | "opponent-hand" | "emissions-line" | "deck"
+
+export type ICard = {
+  id: number
+  name: string
+  container: Container 
+  position: [number, number]
+  scale: number
+  rotation: number
+  addedRotation: number
+  zLevel: number
+  isSpace: boolean
+  visible: boolean
+  flipped: boolean
+  positionGoal: PositionGoal
+  rotationGoal: RotationGoal
+  addedRotationGoal: AddedRotationGoal
+  scaleGoal: ScaleGoal
+}
+
+export class Card implements ICard {
   static DEFAULT_WIDTH = 445
   static DEFAULT_HEIGHT = 656
   static DEFAULT_SCALE = 0.275
 
   id: number
   name: string
-  container: string
+  container: Container
   position: [number, number] = [0, 0]
   scale: number = Card.DEFAULT_SCALE
   rotation: number = 0
@@ -38,7 +57,7 @@ export class Card {
   constructor(
     id: number,
     name: string,
-    container: "hand" | "opponent-hand" | "emissions-line" | "deck"
+    container: Container
   ) {
     this.id = id
     this.name = name
@@ -46,17 +65,7 @@ export class Card {
     this.container = container
   }
 
-  static getRectangle(card: Card): number[][] {
-    const width = Card.DEFAULT_WIDTH*card.scale
-    const height = Card.DEFAULT_HEIGHT*card.scale
-
-    return [
-      [-width/2, -height/2],
-      [width/2, height/2]
-    ]
-  }
-
-  static move(card: Card, x: number, y: number, currentTime: number): Card {
+  static move(card: ICard, x: number, y: number, currentTime: number): ICard {
     const existing = card.positionGoal
     if (existing.position[0] === x && existing.position[1] === y)
       return {...card}
@@ -70,7 +79,7 @@ export class Card {
     }
   }
 
-  static rotateGlobal(card: Card, rotation: number, currentTime: number): Card {
+  static rotateGlobal(card: ICard, rotation: number, currentTime: number): ICard {
     if (card.rotationGoal.rotation === rotation)
       return {...card}
 
@@ -83,7 +92,7 @@ export class Card {
     }
   }
 
-  static rotateLocal(card: Card, rotation: number, currentTime: number): Card {
+  static rotateLocal(card: ICard, rotation: number, currentTime: number): ICard {
     if (card.addedRotationGoal.addedRotation === rotation)
       return {...card}
 
@@ -96,7 +105,7 @@ export class Card {
     }
   }
 
-  static scale(card: Card, scale: number, currentTime: number): Card {
+  static scale(card: ICard, scale: number, currentTime: number): ICard {
     if (card.scaleGoal.scale === scale)
       return {...card}
 
@@ -109,7 +118,7 @@ export class Card {
     }
   }
 
-  private static transposePosition(card: Card, time: number): Card {
+  private static transposePosition(card: ICard, time: number): ICard {
     return {
       ...card,
       position: [
@@ -124,9 +133,9 @@ export class Card {
   }
 
   static update(
-    oldCard: Card,
+    oldCard: ICard,
     time: number
-  ): Card {
+  ): ICard {
     let card = { ...oldCard }
 
     card = Card.transposePosition(card, time)
@@ -139,30 +148,6 @@ export class Card {
     )
 
     return card
-  }
-
-  static isMouseHovering(card: Card, mouseX: number, mouseY: number): boolean {
-    let mouse_position: vec2 = vec2.fromValues(mouseX, mouseY)
-    let card_position = vec2.fromValues(card.position[0], card.position[1])
-
-    // Get mouse coordinates relative to card rotation and position
-    const origin = vec2.fromValues(0, 0)
-    vec2.rotate(mouse_position, mouse_position, origin, -card.rotation)
-    vec2.rotate(card_position, card_position, origin, -card.rotation)
-    vec2.subtract(mouse_position, mouse_position, card_position)
-
-    // Check if mouse is within card width and height
-    const rect = Card.getRectangle(card)
-    if (
-      // within width
-      mouse_position[0] > rect[0][0] && mouse_position[0] < rect[1][0] &&
-      // within height
-      mouse_position[1] > rect[0][1] && mouse_position[1] < rect[1][1]
-    ) {
-      return true
-    }
-
-    return false
   }
 }
 
