@@ -92,66 +92,79 @@ export class Card implements ICard {
     return Card.fromICard(icard).move(x, y, currentTime)
   }
 
-  static rotateGlobal(card: ICard, rotation: number, currentTime: number): ICard {
+  rotateGlobal(rotation: number, currentTime: number): Card {
+    let card = this.new()
+
     if (card.rotationGoal.rotation === rotation)
-      return {...card}
+      return card
 
-    return {
-      ...card,
-      rotationGoal: {
-        timestamp: currentTime,
-        rotation: rotation
-      }
+    card.rotationGoal = {
+      timestamp: currentTime,
+      rotation: rotation
     }
+    
+    return card
   }
 
-  static rotateLocal(card: ICard, rotation: number, currentTime: number): ICard {
+  static rotateGlobal(icard: ICard, rotation: number, currentTime: number): ICard {
+    return Card.fromICard(icard).rotateGlobal(rotation, currentTime)
+  }
+
+  rotateLocal(rotation: number, currentTime: number): Card {
+    let card = this.new()
+
     if (card.addedRotationGoal.addedRotation === rotation)
-      return {...card}
+      return card
 
-    return {
-      ...card,
-      addedRotationGoal: {
-        timestamp: currentTime,
-        addedRotation: rotation
-      }
+    card.addedRotationGoal = {
+      timestamp: currentTime,
+      addedRotation: rotation
     }
+
+    return card
   }
 
-  static scale(card: ICard, scale: number, currentTime: number): ICard {
+  static rotateLocal(icard: ICard, rotation: number, currentTime: number): ICard {
+    return Card.fromICard(icard).rotateLocal(rotation, currentTime)
+  }
+
+  setScale(scale: number, currentTime: number): Card {
+    let card = this.new()
+
     if (card.scaleGoal.scale === scale)
-      return {...card}
+      return card
 
-    return {
-      ...card,
-      scaleGoal: {
-        timestamp: currentTime,
-        scale: scale
-      }
+    card.scaleGoal = {
+      timestamp: currentTime,
+      scale: scale
     }
+
+    return card
   }
 
-  private static transposePosition(card: ICard, time: number): ICard {
-    return {
-      ...card,
-      position: [
-        transpose(
-          card.position[0], card.positionGoal.position[0], time - card.positionGoal.timestamp
-        ),
-        transpose(
-          card.position[1], card.positionGoal.position[1], time - card.positionGoal.timestamp
-        )
-      ]
-    }
+  static scale(icard: ICard, scale: number, currentTime: number): ICard {
+    return Card.fromICard(icard).setScale(scale, currentTime)
   }
 
-  static update(
-    oldCard: ICard,
-    time: number
-  ): ICard {
-    let card = { ...oldCard }
+  private transposePosition(time: number): Card {
+    let card = this.new()
 
-    card = Card.transposePosition(card, time)
+    card.position = [
+      transpose(
+        card.position[0], card.positionGoal.position[0], time - card.positionGoal.timestamp
+      ),
+      transpose(
+        card.position[1], card.positionGoal.position[1], time - card.positionGoal.timestamp
+      )
+    ]
+
+    return card
+  }
+
+  update(time: number): Card {
+    let card = this.new()
+
+    card = card.transposePosition(time)
     card.scale = transpose(card.scale, card.scaleGoal.scale, time - card.scaleGoal.timestamp)
     card.rotation = transpose(
       card.rotation, card.rotationGoal.rotation, time - card.rotationGoal.timestamp
@@ -161,6 +174,13 @@ export class Card implements ICard {
     )
 
     return card
+  }
+
+  static update(
+    icard: ICard,
+    time: number
+  ): ICard {
+    return Card.fromICard(icard).update(time)
   }
 }
 

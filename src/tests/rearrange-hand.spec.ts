@@ -1,4 +1,4 @@
-import { Card } from '../game/card'
+import { Card, ICard } from '../game/card'
 import {
   HAND_POSITION,
   HAND_X_RADIUS,
@@ -21,13 +21,13 @@ function getHandCardPosition(i: number, cardCount: number): number[] {
   return [x, y]
 }
 
-function initialiseCards(): [Card, Card] {
+function initialiseCards(): [ICard, ICard] {
   let card = new Card(0, "blargh", "hand")
   let card2 = new Card(1, "1337", "hand")
   return [card, card2]
 }
 
-function expectedCards(): [Card, Card] {
+function expectedCards(): [ICard, ICard] {
   let [card, card2] = initialiseCards()
   const pos1 = getHandCardPosition(0, 2)
   const pos2 = getHandCardPosition(1, 2)
@@ -53,8 +53,8 @@ export default function main() {
 
       let state = Factory.GameState()
       state.hand = state.hand
-        .addCard(card)
-        .addCard(card2)
+        .addCard(Card.fromICard(card))
+        .addCard(Card.fromICard(card2))
       state = state.mouse_moved({event_id: 0, ...new MouseMovedEvent(0, 0)})[0]
 
       return state.update(currentTime).update(currentTime + ANIMATION_DURATION_MS)
