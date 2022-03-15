@@ -12,7 +12,8 @@
     "typescript": "^4.2.3"
   },
   "scripts": {
-    "start": "webpack --config webpack.config.js --watch --mode=development & http-server . --port=4200",
+    "start": "node ./build.js & http-server . --port=4200",
+    "start-old": "webpack --config webpack.config.js --watch --mode=development & http-server . --port=4200",
     "build": "webpack --config webpack.config.js --mode=production",
     "test": "node ./testrunner/run-tests.js",
     "coverage": "npm test -- --coverage --watchAll=false",
