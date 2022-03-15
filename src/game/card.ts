@@ -65,18 +65,31 @@ export class Card implements ICard {
     this.container = container
   }
 
-  static move(card: ICard, x: number, y: number, currentTime: number): ICard {
+  static fromICard(icard: ICard): Card {
+    return Object.assign(new Card(icard.id, icard.name, icard.container), icard)
+  }
+
+  private new(): Card {
+    return Object.assign(new Card(this.id, this.name, this.container), this)
+  }
+
+  move(x: number, y: number, currentTime: number): Card {
+    let card = this.new()
+
     const existing = card.positionGoal
     if (existing.position[0] === x && existing.position[1] === y)
-      return {...card}
+      return card
 
-    return {
-      ...card,
-      positionGoal: {
-        timestamp: currentTime,
-        position: [x, y]
-      }
+    card.positionGoal = {
+      timestamp: currentTime,
+      position: [x, y]
     }
+
+    return card
+  }
+
+  static move(icard: ICard, x: number, y: number, currentTime: number): ICard {
+    return Card.fromICard(icard).move(x, y, currentTime)
   }
 
   static rotateGlobal(card: ICard, rotation: number, currentTime: number): ICard {

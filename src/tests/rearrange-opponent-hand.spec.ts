@@ -1,4 +1,4 @@
-import { Card } from '../game/card'
+import { Card, ICard } from '../game/card'
 import { ANIMATION_DURATION_MS, HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from '../game/constants'
 import { Factory } from './test-factory'
 import { spec } from './spec'
@@ -13,7 +13,7 @@ function getOpponentHandCardPosition(i: number, cardCount: number): number[] {
   return [x, y]
 }
 
-function initCards() {
+function initCards(): [ICard, ICard] {
   const card = new Card(0, "blargh", "opponent-hand")
   const card2 = new Card(1, "1337", "opponent-hand")
   return [card, card2]
@@ -44,8 +44,8 @@ export default function main() {
       const state = Factory.GameState()
       const [card, card2] = initCards()
 
-      state.opponentHand = state.opponentHand.addCard(card)
-      state.opponentHand = state.opponentHand.addCard(card2)
+      state.opponentHand = state.opponentHand.addCard(Card.fromICard(card))
+      state.opponentHand = state.opponentHand.addCard(Card.fromICard(card2))
 
       return state
         .update(currentTime) // Queue animations
