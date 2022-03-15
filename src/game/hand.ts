@@ -43,10 +43,6 @@ export class Hand {
     return this._cards
   }
 
-  private set cards(cards: Card[]) {
-    this._cards = cards
-  }
-
   addCard(card: Card): Hand {
     return new Hand([...this._cards, card])
   }
@@ -80,23 +76,34 @@ export class Hand {
     return Card.scale(card, scale, currentTime)
   }
 
+  private handWidth(): number {
+    const leftCard = this.cards[0]
+    const rightCard = this.cards[this.cards.length - 1]
+    return rightCard.position[0] - leftCard.position[0] + Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+  }
+
   private readonly hoverYAxisLimit: number = HAND_POSITION[1] - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE
   private isCardFocused(card: Card, mouseX: number, mouseY: number): boolean {
+    const width = this.handWidth()
     const closestCard = this.closestCardToMouse(mouseX)
-    return closestCard !== undefined && card.id === closestCard.id && mouseY > this.hoverYAxisLimit
+    return closestCard !== undefined &&
+           card.id === closestCard.id &&
+           mouseY > this.hoverYAxisLimit &&
+           mouseX > HAND_POSITION[0] - width / 2 &&
+           mouseX < HAND_POSITION[0] + width / 2
   }
 
   update(currentTime: number, mouseX: number, mouseY: number): Hand {
     let hand = this.new()
 
-    hand.cards = hand.cards.map((card: Card, cardIndex: number) => {
+    hand._cards = hand.cards.map((card: Card, cardIndex: number) => {
       if (hand.isCardFocused(card, mouseX, mouseY))
         return hand.zoomInOnCard(card, currentTime)
 
       return hand.moveCardDefault(card, cardIndex, currentTime)
     })
 
-    hand.cards = hand.cards.map(card => Card.update(card, currentTime))
+    hand._cards = hand.cards.map(card => Card.update(card, currentTime))
 
     return hand
   }
