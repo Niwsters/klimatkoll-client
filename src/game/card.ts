@@ -9,7 +9,7 @@ export class Card {
   id: number
   name: string
   container: string
-  position: number[] = [0, 0]
+  position: [number, number] = [0, 0]
   scale: number = Card.DEFAULT_SCALE
   rotation: number = 0
   addedRotation: number = 0

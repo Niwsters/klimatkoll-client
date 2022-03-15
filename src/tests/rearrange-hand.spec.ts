@@ -8,6 +8,7 @@ import {
 } from '../game/constants'
 import { Factory } from './test-factory'
 import { spec } from './spec'
+import { MouseMovedEvent } from '../event/event'
 
 const currentTime = 1337
 
@@ -54,6 +55,7 @@ export default function main() {
       state.hand = state.hand
         .addCard(card)
         .addCard(card2)
+      state = state.mouse_moved({event_id: 0, ...new MouseMovedEvent(0, 0)})[0]
 
       return state.update(currentTime).update(currentTime + ANIMATION_DURATION_MS)
     })
