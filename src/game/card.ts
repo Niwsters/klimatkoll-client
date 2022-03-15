@@ -88,7 +88,7 @@ export class Card implements ICard {
     return card
   }
 
-  static move(icard: ICard, x: number, y: number, currentTime: number): ICard {
+  static move(icard: ICard, x: number, y: number, currentTime: number): Card {
     return Card.fromICard(icard).move(x, y, currentTime)
   }
 
@@ -106,7 +106,7 @@ export class Card implements ICard {
     return card
   }
 
-  static rotateGlobal(icard: ICard, rotation: number, currentTime: number): ICard {
+  static rotateGlobal(icard: ICard, rotation: number, currentTime: number): Card {
     return Card.fromICard(icard).rotateGlobal(rotation, currentTime)
   }
 
@@ -124,7 +124,7 @@ export class Card implements ICard {
     return card
   }
 
-  static rotateLocal(icard: ICard, rotation: number, currentTime: number): ICard {
+  static rotateLocal(icard: ICard, rotation: number, currentTime: number): Card {
     return Card.fromICard(icard).rotateLocal(rotation, currentTime)
   }
 
@@ -142,7 +142,7 @@ export class Card implements ICard {
     return card
   }
 
-  static scale(icard: ICard, scale: number, currentTime: number): ICard {
+  static scale(icard: ICard, scale: number, currentTime: number): Card {
     return Card.fromICard(icard).setScale(scale, currentTime)
   }
 
@@ -179,7 +179,7 @@ export class Card implements ICard {
   static update(
     icard: ICard,
     time: number
-  ): ICard {
+  ): Card {
     return Card.fromICard(icard).update(time)
   }
 }
