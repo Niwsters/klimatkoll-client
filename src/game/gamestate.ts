@@ -59,7 +59,7 @@ export class GameState {
     let state = this.new()
 
     state.hand = state.hand.update(time, state.mouseX, state.mouseY)
-    state.emissionsLine = state.emissionsLine.update(time, state.mouseX, state.mouseY)
+    state.emissionsLine = state.emissionsLine.update(time, state.mouseX, state.mouseY, state.hand.selectedCard)
     state.opponentHand = state.opponentHand.update(time)
     state.discardPile = state.discardPile.update(time)
     state.lastUpdate = time

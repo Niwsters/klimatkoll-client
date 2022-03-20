@@ -23,7 +23,7 @@ export class EmissionsLine {
   private get width(): number {
     let leftCard: Card | undefined
     let rightCard: Card | undefined
-    for (const card of this.nonSpaceCards) {
+    for (const card of this.cards) {
       if (!leftCard)
         leftCard = card
 
@@ -85,9 +85,11 @@ export class EmissionsLine {
     return this.cards.filter(c => !c.isSpace)
   }
 
-  private getClosestCard(x: number): Card {
-    let closest: Card = this.nonSpaceCards[0]
-    for (const card of this.nonSpaceCards.slice(1)) {
+  private getClosestCard(x: number, selectedCard: Card | undefined): Card {
+    const cards = selectedCard ? this.cards : this.nonSpaceCards
+
+    let closest: Card = cards[0]
+    for (const card of cards) {
       if (!closest) {
         closest = card
         continue
@@ -101,45 +103,58 @@ export class EmissionsLine {
     return closest
   }
 
-  private scaleCard(card: Card, mouseX: number, mouseY: number, currentTime: number): Card {
-    if (card.isSpace) return card
-
+  private isCardFocused(card: Card, mouseX: number, mouseY: number, selectedCard: Card | undefined): boolean {
     const lowerBoundsY = EMISSIONS_LINE_POSITION.y - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
     const upperBoundsY = EMISSIONS_LINE_POSITION.y + Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
 
     const lowerBoundsX = EMISSIONS_LINE_POSITION.x - this.width / 2
     const upperBoundsX = EMISSIONS_LINE_POSITION.x + this.width / 2
 
-    if (
-      mouseX > lowerBoundsX &&
-      mouseX < upperBoundsX &&
-      mouseY > lowerBoundsY &&
-      mouseY < upperBoundsY &&
-      card.id === this.getClosestCard(mouseX).id
-    ) {
+    return mouseX > lowerBoundsX &&
+           mouseX < upperBoundsX &&
+           mouseY > lowerBoundsY &&
+           mouseY < upperBoundsY &&
+           card.id === this.getClosestCard(mouseX, selectedCard).id
+  }
+
+  private scaleCard(card: Card, mouseX: number, mouseY: number, currentTime: number, selectedCard: Card | undefined): Card {
+    if (card.isSpace) return card
+
+    if (this.isCardFocused(card, mouseX, mouseY, selectedCard)) {
       return card.setScale(Card.DEFAULT_SCALE * 2, currentTime)
     }
 
     return card.setScale(Card.DEFAULT_SCALE, currentTime)
   }
 
-  private mouse_moved(mouseX: number, mouseY: number, currentTime: number): EmissionsLine {
+  private mouse_moved(mouseX: number, mouseY: number, currentTime: number, selectedCard: Card | undefined): EmissionsLine {
     let self = this.new()
 
     if (self.nonSpaceCards.length < 0)
       return self
 
-    self._cards = self._cards.map(card => 
-      self.scaleCard(card, mouseX, mouseY, currentTime)
-    )
+    self._cards = self._cards
+      .map(card => self.scaleCard(card, mouseX, mouseY, currentTime, selectedCard))
 
     return self
   }
 
-  update(time: number, mouseX: number, mouseY: number): EmissionsLine {
+  update(time: number, mouseX: number, mouseY: number, selectedCard: Card | undefined): EmissionsLine {
     let el = this.new()
-    el = el.mouse_moved(mouseX, mouseY, time)
-    el._cards = el._cards.map(card => card.update(time))
+    el = el.mouse_moved(mouseX, mouseY, time, selectedCard)
+    el._cards = el._cards
+      .map(card => card.update(time))
+      .map(card => {
+        if (card.isSpace) {
+          if (el.isCardFocused(card, mouseX, mouseY, selectedCard) && selectedCard) {
+            card.name = selectedCard.name
+          } else {
+            card.name = "space"
+          }
+        }
+
+        return card
+      })
     return el
   }
 
@@ -186,5 +201,6 @@ class SpaceCard extends Card {
   constructor(id: number) {
     super(id, "space")
     this.visible = false
+    this.isSpace = true
   }
 }

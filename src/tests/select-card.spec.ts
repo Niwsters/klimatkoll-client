@@ -22,8 +22,8 @@ function moveMouse(state: GameState, x: number, y: number): GameState {
   return state
 }
 
-function dontHoverHandCard(state: GameState): GameState {
-  state = moveMouse(state, 0, 0)
+function dontHoverAnyCard(state: GameState): GameState {
+  state = moveMouse(state, -9999, -9999)
   return finishAnimations(state)
 }
 
@@ -79,6 +79,28 @@ function addEmissionsLineCard(state: GameState): GameState {
   return state
 }
 
+function spaceCardNames(state: GameState): string[] {
+  return [...new Set(state.cards.filter(c => c.isSpace).map(c => c.name))]
+}
+
+const spaceCardID = -1
+function getSpaceCard(state: GameState): Card {
+  const spaceCard = state.cards.find(c => c.id === spaceCardID)
+  if (!spaceCard) throw new Error("Space card not found")
+  return spaceCard
+}
+
+function hoverSpaceCard(state: GameState): GameState {
+  const spaceCard = getSpaceCard(state)
+  const { x, y } = spaceCard.position
+  state = moveMouse(state, x, y)
+  return finishAnimations(state)
+}
+
+function hoveredSpaceCardName(state: GameState): string {
+  return getSpaceCard(state).name
+}
+
 export default function() {
   const handCardAdded = spec()
     .when(() => Factory.GameState())
@@ -88,7 +110,7 @@ export default function() {
   handCardAdded.expect(areSpaceCardsVisible).toEqual(false)
 
   handCardAdded
-    .when(dontHoverHandCard)
+    .when(dontHoverAnyCard)
     .when(clickMouse)
     .expect(isCardSelected)
     .toEqual(false)
@@ -101,6 +123,19 @@ export default function() {
   selected.expect(isCardSelected).toEqual(true)
   selected.expect(isOtherCardSelected).toEqual(false)
   selected.expect(areSpaceCardsVisible).toEqual(true)
+  selected.expect(spaceCardNames).toEqual(["space"])
+
+  const hoveredSpaceCard = selected
+    .when(hoverSpaceCard)
+
+  hoveredSpaceCard
+    .expect(hoveredSpaceCardName)
+    .toEqual(card.name)
+
+  hoveredSpaceCard
+    .when(dontHoverAnyCard)
+    .expect(hoveredSpaceCardName)
+    .toEqual("space")
 
   const otherCardSelected = selected
     .when(hoverOtherCard)

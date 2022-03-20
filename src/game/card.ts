@@ -21,7 +21,7 @@ export class Card implements ICard {
   static DEFAULT_SCALE = 0.275
 
   readonly id: number
-  readonly name: string
+  name: string
 
   private x: number = 0
   private y: number = 0
@@ -33,6 +33,7 @@ export class Card implements ICard {
   visible: boolean = true
   flipped: boolean = false
   selected: boolean = false
+  isSpace: boolean = false
 
   private xGoal: TransitionGoal = new TransitionGoal(0, 0)
   private yGoal: TransitionGoal = new TransitionGoal(0, 0)
@@ -46,10 +47,6 @@ export class Card implements ICard {
   ) {
     this.id = id
     this.name = name
-  }
-
-  get isSpace(): boolean {
-    return this.name === "space"
   }
 
   get position(): Position {
