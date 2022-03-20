@@ -7,6 +7,7 @@ import { Factory } from './test-factory'
 
 const card = new Card(0, "some-card")
 const card2 = new Card(1, "other-card")
+const card3 = new Card(2, "third-card")
 
 function addHandCards(state: GameState): GameState {
   state = state.new()
@@ -68,10 +69,23 @@ function isOtherCardSelected(state: GameState): boolean {
   return getOtherCard(state).selected
 }
 
+function areSpaceCardsVisible(state: GameState): boolean {
+  return state.cards.filter(c => c.isSpace).every(c => c.visible)
+}
+
+function addEmissionsLineCard(state: GameState): GameState {
+  state = state.new()
+  state.emissionsLine =  state.emissionsLine.addCard(card3, 0, state.lastUpdate)
+  return state
+}
+
 export default function() {
   const handCardAdded = spec()
     .when(() => Factory.GameState())
     .when(addHandCards)
+    .when(addEmissionsLineCard)
+
+  handCardAdded.expect(areSpaceCardsVisible).toEqual(false)
 
   handCardAdded
     .when(dontHoverHandCard)
@@ -82,9 +96,11 @@ export default function() {
   const selected = handCardAdded
     .when(hoverHandCard)
     .when(clickMouse)
+    .when(finishAnimations)
 
   selected.expect(isCardSelected).toEqual(true)
   selected.expect(isOtherCardSelected).toEqual(false)
+  selected.expect(areSpaceCardsVisible).toEqual(true)
 
   const otherCardSelected = selected
     .when(hoverOtherCard)

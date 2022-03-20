@@ -115,10 +115,16 @@ export class Card implements ICard {
 
     return card
   }
-}
 
-export class SpaceCard extends Card {
-  constructor(id: number) {
-    super(id, "space")
+  hide(): Card {
+    const card = this.new()
+    card.visible = false
+    return card
+  }
+
+  show(): Card {
+    const card = this.new()
+    card.visible = true
+    return card
   }
 }

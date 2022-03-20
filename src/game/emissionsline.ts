@@ -1,4 +1,4 @@
-import { Card, SpaceCard } from './card'
+import { Card } from './card'
 import { EMISSIONS_LINE_MAX_LENGTH, EMISSIONS_LINE_POSITION } from './constants'
 
 function insert(array: any[], item: any, position: number): any[] {
@@ -78,7 +78,7 @@ export class EmissionsLine {
           card,
           new SpaceCard(-1-(i+1))
         ]
-      }, [new SpaceCard(-1)])
+      }, [new SpaceCard(-1)],)
   }
 
   private get nonSpaceCards(): Card[] {
@@ -137,14 +137,32 @@ export class EmissionsLine {
   }
 
   update(time: number, mouseX: number, mouseY: number): EmissionsLine {
-    let self = this.new()
-    self._cards = self._cards.map(card => card.update(time))
-    self = self.mouse_moved(mouseX, mouseY, time)
-    return self
+    let el = this.new()
+    el = el.mouse_moved(mouseX, mouseY, time)
+    el._cards = el._cards.map(card => card.update(time))
+    return el
   }
 
   get cards() {
     return this._cards
+  }
+
+  mouseClicked(selectedCard: Card | undefined): EmissionsLine {
+    let el = this.new()
+
+    el._cards = el._cards.map(card => {
+      if (card.isSpace) {
+        if (selectedCard) {
+          return card.show()
+        } else {
+          return card.hide()
+        }
+      }
+
+      return card
+    })
+
+    return el
   }
 
   addCard(card: Card, position: number, currentTime: number): EmissionsLine {
@@ -161,5 +179,12 @@ export class EmissionsLine {
     })
 
     return self
+  }
+}
+
+class SpaceCard extends Card {
+  constructor(id: number) {
+    super(id, "space")
+    this.visible = false
   }
 }

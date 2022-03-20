@@ -97,6 +97,10 @@ export class Hand {
     return this._cards
   }
 
+  get selectedCard(): Card | undefined {
+    return this.cards.find(c => c.selected === true)
+  }
+
   addCard(card: Card): Hand {
     return new Hand([...this._cards, card])
   }
