@@ -1,10 +1,10 @@
 import { Card } from '../game/card'
-import { Event, EventToAdd } from '../event/event'
+import { Event } from '../event/event'
 import { GameState } from '../game/gamestate'
 import { Factory } from './test-factory'
 import { spec } from './spec'
 
-function playCard(state: GameState, card: Card, position: number, opponentHand: boolean = false): [GameState, EventToAdd[]] {
+function playCard(state: GameState, card: Card, position: number, opponentHand: boolean = false): GameState {
   if (opponentHand)
     state.opponentHand = state.opponentHand.addCard(card)
   else
@@ -15,7 +15,7 @@ function playCard(state: GameState, card: Card, position: number, opponentHand: 
     cardID: card.id,
     position: position
   })
-  return state.card_played_from_hand(event)
+  return state.card_played_from_hand(event)[0]
 }
 
 function hasHandCard(state: GameState): boolean {
@@ -40,12 +40,7 @@ export default function main() {
   const card3 = new Card(2, "1337")
 
   const test = spec().when(() => Factory.GameState())
-  const cardPlayed = test.when(state => playCard(state, card, 0)[0])
-
-  // Deselects hand card
-  cardPlayed
-    .expect(state => state.selectedCardID)
-    .toEqual(undefined)
+  const cardPlayed = test.when(state => playCard(state, card, 0))
 
   // Adds card to EL
   cardPlayed
@@ -59,16 +54,16 @@ export default function main() {
 
   // Removes card from opponent hand
   test
-    .when(state => playCard(state, card, 0, true)[0])
+    .when(state => playCard(state, card, 0, true))
     .expect(hasOpponentHandCard)
     .toEqual(false)
 
   // Plays card to given position
   test
     .when(state => {
-      state = playCard(state, card, 0)[0]
-      state = playCard(state, card2, 2)[0]
-      return playCard(state, card3, 2)[0]
+      state = playCard(state, card, 0)
+      state = playCard(state, card2, 2)
+      return playCard(state, card3, 2)
     })
     .expect(nonSpaceCardIDs)
     .toEqual([card.id, card3.id, card2.id])
