@@ -22,7 +22,8 @@ export class Card implements ICard {
   readonly id: number
   readonly name: string
 
-  position: Position = new Position(0, 0)
+  private x: number = 0
+  private y: number = 0
   scale: number = Card.DEFAULT_SCALE
   rotation: number = 0
   addedRotation: number = 0
@@ -31,10 +32,8 @@ export class Card implements ICard {
   visible: boolean = true
   flipped: boolean = false
 
-  private positionGoal: PositionGoal = {
-    position: new Position(0, 0),
-    timestamp: 0
-  }
+  private xGoal: TransitionGoal = new TransitionGoal(0, 0)
+  private yGoal: TransitionGoal = new TransitionGoal(0, 0)
   private rotationGoal: TransitionGoal = new TransitionGoal(0, 0)
   private addedRotationGoal: TransitionGoal = new TransitionGoal(0, 0)
   private scaleGoal: TransitionGoal = new TransitionGoal(0, Card.DEFAULT_SCALE)
@@ -51,6 +50,15 @@ export class Card implements ICard {
     return this.name === "space"
   }
 
+  get position(): Position {
+    return new Position(this.x, this.y)
+  }
+
+  set position(position: Position) {
+    this.x = position.x
+    this.y = position.y
+  }
+
   private new(): Card {
     return Object.assign(new Card(this.id, this.name), this)
   }
@@ -58,14 +66,8 @@ export class Card implements ICard {
   move(x: number, y: number, currentTime: number): Card {
     let card = this.new()
 
-    const existing = card.positionGoal
-    if (existing.position.x === x && existing.position.y === y)
-      return card
-
-    card.positionGoal = {
-      timestamp: currentTime,
-      position: new Position(x, y)
-    }
+    card.xGoal = card.xGoal.update(currentTime, x)
+    card.yGoal = card.yGoal.update(currentTime, y)
 
     return card
   }
@@ -88,32 +90,14 @@ export class Card implements ICard {
     return card
   }
 
-  private transposePosition(time: number): Card {
-    let card = this.new()
-
-    card.position = new Position(
-      transpose(
-        card.position.x, card.positionGoal.position.x, time - card.positionGoal.timestamp
-      ),
-      transpose(
-        card.position.y, card.positionGoal.position.y, time - card.positionGoal.timestamp
-      )
-    )
-
-    return card
-  }
-
   update(time: number): Card {
     let card = this.new()
 
-    card = card.transposePosition(time)
-    card.scale = transpose(card.scale, card.scaleGoal.goal, time - card.scaleGoal.timestamp)
-    card.rotation = transpose(
-      card.rotation, card.rotationGoal.goal, time - card.rotationGoal.timestamp
-    )
-    card.addedRotation = transpose(
-      card.addedRotation, card.addedRotationGoal.goal, time - card.addedRotationGoal.timestamp
-    )
+    card.y = card.yGoal.transpose(card.y, time)
+    card.x = card.xGoal.transpose(card.x, time)
+    card.scale = card.scaleGoal.transpose(card.scale, time)
+    card.rotation = card.rotationGoal.transpose(card.rotation, time)
+    card.addedRotation = card.addedRotationGoal.transpose(card.addedRotation, time)
 
     return card
   }
@@ -134,11 +118,10 @@ class TransitionGoal {
 
     return new TransitionGoal(timestamp, goal)
   }
-}
 
-type PositionGoal = {
-  timestamp: number,
-  position: Position
+  transpose(start: number, currentTime: number): number {
+    return transpose(start, this.goal, currentTime - this.timestamp)
+  }
 }
 
 export class SpaceCard extends Card {
