@@ -29,7 +29,7 @@ function finishAnimation(state: GameState): GameState {
 }
 
 const currentTime = 1337
-const card = new Card(0, "some-card", "emissions-line")
+const card = new Card(0, "some-card")
 
 export default function main() {
   const test = spec()
@@ -64,7 +64,7 @@ export default function main() {
     .toEqual(Card.DEFAULT_SCALE)
 
   // zooms in only on the closest card to the mouse
-  const card2 = new Card(1, "other-card", "emissions-line")
+  const card2 = new Card(1, "other-card")
   const twoCards = test
     .when((state: GameState) => {
       state = state.new()

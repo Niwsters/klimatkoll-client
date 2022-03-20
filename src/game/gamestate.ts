@@ -12,8 +12,6 @@ import { Deck } from './deck'
 import { DiscardPile } from './discard-pile'
 
 export class GameState {
-  // Every Card has a parameter for whatever container it is in, instead of
-  // containers being actual arrays
   isMyTurn: boolean = false
   socketID: number = -1
   hoveredCardIDs = new Set<number>()
@@ -92,34 +90,15 @@ export class GameState {
 
   mouse_clicked(_: Event): [GameState, EventToAdd[]] {
     let state = this.new()
-    const focusedCard = GameState.getFocusedCard(this)
-    const events: EventToAdd[] = []
 
-    // If card is selected and space card is focused, play card
-    if (state.isMyTurn && state.selectedCardID !== undefined && focusedCard !== undefined && focusedCard.isSpace) {
-      const position = state.emissionsLine.cards.findIndex(card => focusedCard.id === card.id)
-      events.push(new PlayCardRequestEvent(state.selectedCardID, position))
-    }
-
-    // Focus/unfocus card
-    let selectedCardID = undefined
-    if (focusedCard !== undefined) {
-      const card = this.cards.find(c => c.id === focusedCard.id)
-
-      if (card && card.container === "hand") {
-        selectedCardID = focusedCard.id
-      }
-    }
-
-    state.selectedCardID = selectedCardID
-    return [state, events]
+    return [state, []]
   }
 
   next_card(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
 
     const serverCard = event.payload.card
-    const card = new Card(serverCard.id, serverCard.name, "deck")
+    const card = new Card(serverCard.id, serverCard.name)
     card.position = DECK_POSITION
 
     state.deck = state.deck.setTopCard(card)
@@ -162,11 +141,11 @@ export class GameState {
     const server_card = event.payload.card
 
     if (event.payload.socketID === state.socketID) {
-      const card = new Card(server_card.id, server_card.name, "hand")
+      const card = new Card(server_card.id, server_card.name)
       card.position = DECK_POSITION
       state.hand = state.hand.addCard(card)
     } else {
-      const card = new Card(server_card.id, server_card.name, "opponent-hand")
+      const card = new Card(server_card.id, server_card.name)
       card.position = DECK_POSITION
       state.opponentHand = state.opponentHand.addCard(card)
     }
@@ -186,7 +165,7 @@ export class GameState {
     const serverCard = event.payload.card
     const position = event.payload.position
 
-    const card = new Card(serverCard.id, serverCard.name, "emissions-line")
+    const card = new Card(serverCard.id, serverCard.name)
     state.emissionsLine = state.emissionsLine.addCard(card, position, currentTime)
     return [state, []]
   }
@@ -209,7 +188,7 @@ export class GameState {
     state = state.removeHandCard(playedCard)
 
     // Add EL card
-    const movedCard = new Card(playedCard.id, playedCard.name, "emissions-line")
+    const movedCard = new Card(playedCard.id, playedCard.name)
     movedCard.position = playedCard.position
     state.emissionsLine = state.emissionsLine.addCard(movedCard, position, timePassed)
 

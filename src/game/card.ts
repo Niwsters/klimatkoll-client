@@ -1,11 +1,8 @@
 import { ANIMATION_DURATION_MS } from './constants'
 
-type Container = "hand" | "opponent-hand" | "emissions-line" | "deck"
-
 export type ICard = {
   id: number
   name: string
-  container: Container 
   position: [number, number]
   scale: number
   rotation: number
@@ -23,7 +20,6 @@ export class Card implements ICard {
 
   readonly id: number
   readonly name: string
-  readonly container: Container
 
   position: [number, number] = [0, 0]
   scale: number = Card.DEFAULT_SCALE
@@ -54,11 +50,9 @@ export class Card implements ICard {
   constructor(
     id: number,
     name: string,
-    container: Container
   ) {
     this.id = id
     this.name = name
-    this.container = container
   }
 
   get isSpace(): boolean {
@@ -66,11 +60,11 @@ export class Card implements ICard {
   }
 
   static fromICard(icard: ICard): Card {
-    return Object.assign(new Card(icard.id, icard.name, icard.container), icard)
+    return Object.assign(new Card(icard.id, icard.name), icard)
   }
 
   private new(): Card {
-    return Object.assign(new Card(this.id, this.name, this.container), this)
+    return Object.assign(new Card(this.id, this.name), this)
   }
 
   move(x: number, y: number, currentTime: number): Card {
@@ -214,6 +208,6 @@ export function transpose(from: number, to: number, timePassed: number) {
 
 export class SpaceCard extends Card {
   constructor(id: number) {
-    super(id, "space", "emissions-line")
+    super(id, "space")
   }
 }

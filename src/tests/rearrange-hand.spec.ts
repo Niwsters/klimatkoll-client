@@ -22,8 +22,8 @@ function getHandCardPosition(i: number, cardCount: number): [number, number] {
 }
 
 function initialiseCards(): [Card, Card] {
-  let card = new Card(0, "blargh", "hand")
-  let card2 = new Card(1, "1337", "hand")
+  let card = new Card(0, "blargh")
+  let card2 = new Card(1, "1337")
   return [card, card2]
 }
 

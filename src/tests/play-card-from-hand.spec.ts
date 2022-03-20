@@ -36,9 +36,9 @@ function nonSpaceCardIDs(state: GameState): number[] {
 }
 
 export default function main() {
-  const card = new Card(0, "blargh", "hand")
-  const card2 = new Card(1, "honk", "emissions-line")
-  const card3 = new Card(2, "1337", "emissions-line")
+  const card = new Card(0, "blargh")
+  const card2 = new Card(1, "honk")
+  const card3 = new Card(2, "1337")
 
   const test = spec().when(() => Factory.GameState())
   const cardPlayed = test.when(state => playCard(state, card, 0)[0])

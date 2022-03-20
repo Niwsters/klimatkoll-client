@@ -11,7 +11,7 @@ function receiveEvent(state: GameState, card: Card): GameState {
 }
 
 const currentTime: number = 0
-const card = new Card(7, "blargh", "hand")
+const card = new Card(7, "blargh")
 
 export default function main() {
   card.rotation = 30
@@ -27,7 +27,6 @@ export default function main() {
     })
 
   const cardTest = test.when((state: GameState) => state.cards.find(c => c.id === card.id))
-  cardTest.expect((c: Card) => c.container).toEqual("discard-pile")
   cardTest.expect((c: Card) => c.position).toEqual(DISCARD_PILE_POSITION)
   cardTest.expect((c: Card) => c.rotation).toEqual(0)
   cardTest.expect((c: Card) => c.addedRotation).toEqual(0)
@@ -42,7 +41,7 @@ export default function main() {
   }).expect((state: GameState) => state.selectedCardID).toEqual(undefined)
 
   test.when((state: GameState) => {
-    const card = new Card(6, "honk", "opponent-hand")
+    const card = new Card(6, "honk")
     state.opponentHand = state.opponentHand.addCard(card)
     state = receiveEvent(state, card)
     return state

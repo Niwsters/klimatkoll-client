@@ -82,8 +82,8 @@ function moveMouseRightOfHand(state: GameState): GameState {
 }
 
 const currentTime = 1337
-const card = new Card(0, "some-card", "hand")
-const card2 = new Card(1, "other-card", "hand")
+const card = new Card(0, "some-card")
+const card2 = new Card(1, "other-card")
 
 export default function main() {
   const handWithCards = spec().when(addCardsToHand)

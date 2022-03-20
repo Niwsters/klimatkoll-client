@@ -14,8 +14,8 @@ function getOpponentHandCardPosition(i: number, cardCount: number): [number, num
 }
 
 function initCards(): [Card, Card] {
-  const card = new Card(0, "blargh", "opponent-hand")
-  const card2 = new Card(1, "1337", "opponent-hand")
+  const card = new Card(0, "blargh")
+  const card2 = new Card(1, "1337")
   return [card, card2]
 }
 

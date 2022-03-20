@@ -13,9 +13,9 @@ function playCard(state: GameState, card: Card, position: number): [GameState, E
 }
 
 export default function main() {
-  const card = new Card(0, "blargh", "emissions-line")
-  const card2 = new Card(1, "honk", "emissions-line")
-  const card3 = new Card(2, "1337", "emissions-line")
+  const card = new Card(0, "blargh")
+  const card2 = new Card(1, "honk")
+  const card3 = new Card(2, "1337")
 
   const test = spec().when(() => Factory.GameState())
 

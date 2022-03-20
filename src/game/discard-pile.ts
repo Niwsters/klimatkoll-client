@@ -19,7 +19,6 @@ export class DiscardPile {
     card = Card.rotateGlobal(card, 0, currentTime)
     card = Card.rotateLocal(card, 0, currentTime)
     card.flipped = true
-    card.container = "discard-pile"
 
     return new DiscardPile(card)
   }

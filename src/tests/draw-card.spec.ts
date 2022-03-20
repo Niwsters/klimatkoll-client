@@ -14,7 +14,7 @@ function drawCard(state: GameState, socketID: number): GameState {
   return state.draw_card(createEvent(socketID))[0]
 }
 
-const card = new Card(0, "some-card", "hand")
+const card = new Card(0, "some-card")
 
 export default function main() {
   const test = spec()

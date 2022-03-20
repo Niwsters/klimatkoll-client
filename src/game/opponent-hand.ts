@@ -30,7 +30,7 @@ export class OpponentHand {
     const hand = this.new()
 
     let i = 0
-    const n = hand.cards.filter(c => c.container === "opponent-hand").length - 1
+    const n = hand.cards.length - 1
     hand._cards = hand.cards.map((card: Card) => {
       const angle = HAND_CARD_ANGLE * (i - n/2) + Math.PI
       const x = OPPONENT_HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
