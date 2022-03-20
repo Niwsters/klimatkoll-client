@@ -9,10 +9,11 @@ import {
 import { Factory } from './test-factory'
 import { spec } from './spec'
 import { MouseMovedEvent } from '../event/event'
+import { Position } from '../game/position'
 
 const currentTime = 1337
 
-function getHandCardPosition(i: number, cardCount: number): [number, number] {
+function getHandCardPosition(i: number, cardCount: number): Position {
   const n = cardCount - 1
   let angle = HAND_CARD_ANGLE * (i - n/2)
   let x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
@@ -27,7 +28,7 @@ function initialiseCards(): [Card, Card] {
   return [card, card2]
 }
 
-function moveCard(card: Card, position: [number, number], rotation: number, scale: number, zLevel: number): Card {
+function moveCard(card: Card, position: Position, rotation: number, scale: number, zLevel: number): Card {
   card = card.move(position[0], position[1], currentTime)
   card = card.rotateGlobal(rotation, currentTime)
   card = card.setScale(scale, currentTime)

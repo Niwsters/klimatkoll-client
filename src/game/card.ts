@@ -1,9 +1,10 @@
 import { ANIMATION_DURATION_MS } from './constants'
+import { Position } from './position'
 
 export type ICard = {
   id: number
   name: string
-  position: [number, number]
+  position: Position
   scale: number
   rotation: number
   addedRotation: number
@@ -21,7 +22,7 @@ export class Card implements ICard {
   readonly id: number
   readonly name: string
 
-  position: [number, number] = [0, 0]
+  position: Position = [0, 0]
   scale: number = Card.DEFAULT_SCALE
   rotation: number = 0
   addedRotation: number = 0
@@ -183,7 +184,7 @@ export type TransposeGoal = {
 }
 
 type PositionGoal = TransposeGoal & {
-  position: [number, number]
+  position: Position
 }
 
 type ScaleGoal = TransposeGoal & {

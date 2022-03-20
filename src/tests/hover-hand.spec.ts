@@ -4,6 +4,7 @@ import { ANIMATION_DURATION_MS, HAND_POSITION } from "../game/constants"
 import { GameState } from "../game/gamestate"
 import { Factory } from './test-factory'
 import { spec } from './spec'
+import { Position } from "../game/position"
 
 function moveMouse(state: GameState, x: number, y: number): GameState {
   const event = {...new MouseMovedEvent(x, y), event_id: 0}
@@ -30,7 +31,7 @@ function rotation(state: GameState): number {
   return getMainCard(state).rotation
 }
 
-function position(state: GameState): [number, number] {
+function position(state: GameState): Position {
   return getMainCard(state).position
 }
 
