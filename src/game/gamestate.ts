@@ -68,15 +68,6 @@ export class GameState {
     return state
   }
 
-  static getFocusedCardID(state: GameState): number | undefined {
-    return Array.from(state.hoveredCardIDs)[0]
-  }
-
-  static getFocusedCard(state: GameState): Card | undefined {
-    const id = GameState.getFocusedCardID(state)
-    return state.cards.find(c => c.id === id)
-  }
-
   game_won(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
     const text = this.config.text
