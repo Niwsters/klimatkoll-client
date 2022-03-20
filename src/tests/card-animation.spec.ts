@@ -1,5 +1,6 @@
 import { Card } from '../game/card'
 import { ANIMATION_DURATION_MS } from '../game/constants'
+import { Position } from '../game/position'
 import { spec } from './spec'
 
 function finishAnimation(card: Card): Card {
@@ -12,7 +13,7 @@ export default function main() {
   test
     .when((card: Card) => card.move(1337, 1337, 0))
     .when(finishAnimation)
-    .expect((card: Card) => card.position).toEqual([1337, 1337])
+    .expect((card: Card) => card.position).toEqual(new Position(1337, 1337))
 
   test
     .when((card: Card) => card.rotateGlobal(1337, 0))

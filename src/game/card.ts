@@ -22,7 +22,7 @@ export class Card implements ICard {
   readonly id: number
   readonly name: string
 
-  position: Position = [0, 0]
+  position: Position = new Position(0, 0)
   scale: number = Card.DEFAULT_SCALE
   rotation: number = 0
   addedRotation: number = 0
@@ -32,7 +32,7 @@ export class Card implements ICard {
   flipped: boolean = false
 
   private positionGoal: PositionGoal = {
-    position: [0, 0],
+    position: new Position(0, 0),
     timestamp: 0
   }
   private rotationGoal: RotationGoal = {
@@ -144,14 +144,14 @@ export class Card implements ICard {
   private transposePosition(time: number): Card {
     let card = this.new()
 
-    card.position = [
+    card.position = new Position(
       transpose(
         card.position[0], card.positionGoal.position[0], time - card.positionGoal.timestamp
       ),
       transpose(
         card.position[1], card.positionGoal.position[1], time - card.positionGoal.timestamp
       )
-    ]
+    )
 
     return card
   }
