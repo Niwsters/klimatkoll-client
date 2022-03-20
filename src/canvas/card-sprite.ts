@@ -27,7 +27,6 @@ export class CardSprite {
   positionBuffer: WebGLBuffer | null
   program: WebGLProgram
   texture: WebGLTexture
-  selected = false
   static textures = new Map<string, WebGLTexture>()
 
   constructor(gl: WebGLRenderingContext, card: Card) {
@@ -204,7 +203,7 @@ export class CardSprite {
     gl.uniform2fv(translationLocation, [sprite.card.position.x, sprite.card.position.y])
     gl.uniform1f(scaleLocation, sprite.card.scale)
     gl.uniform1f(rotationLocation, sprite.card.rotation + sprite.card.addedRotation)
-    gl.uniform1i(selectedLocation, sprite.selected ? 1 : 0)
+    gl.uniform1i(selectedLocation, sprite.card.selected ? 1 : 0)
     gl.uniform1i(isSpaceLocation, sprite.card.isSpace ? 1 : 0)
     gl.uniform1i(visibleLocation, sprite.card.visible ? 1 : 0)
     gl.bindTexture(gl.TEXTURE_2D, sprite.texture);

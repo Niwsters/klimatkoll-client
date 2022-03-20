@@ -9,6 +9,7 @@ import hoverEmissionsLine from './hover-emissions-line.spec'
 import hoverHand from './hover-hand.spec'
 import incorrectCardPlacement from './incorrect-card-placement.spec'
 import showNextCard from './show-next-card.spec'
+import selectCard from './select-card.spec'
 
 appSpec()
 playCardFromDeck()
@@ -21,3 +22,4 @@ hoverEmissionsLine()
 incorrectCardPlacement()
 showNextCard()
 hoverHand()
+selectCard()

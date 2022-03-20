@@ -12,11 +12,8 @@ function distance(a: number, b: number) {
 }
 
 export class Hand {
-  private _cards: Card[]
 
-  private new(): Hand {
-    return new Hand(this._cards)
-  }
+  private _cards: Card[]
 
   private getCardAngle(i: number) {
     const n = this.cards.length - 1
@@ -33,18 +30,6 @@ export class Hand {
   private getCardRotation(i: number) {
     let angle = this.getCardAngle(i)
     return angle * HAND_ANGLE_FACTOR
-  }
-
-  constructor(cards: Card[] = []) {
-    this._cards = cards
-  }
-
-  get cards(): Card[] {
-    return this._cards
-  }
-
-  addCard(card: Card): Hand {
-    return new Hand([...this._cards, card])
   }
 
   private closestCardToMouse(mouseX: number): Card | undefined {
@@ -93,19 +78,47 @@ export class Hand {
            mouseX < HAND_POSITION.x + width / 2
   }
 
-  update(currentTime: number, mouseX: number, mouseY: number): Hand {
-    let hand = this.new()
+  private zoomHoveredCards(currentTime: number, mouseX: number, mouseY: number): Card[] {
+    const cards = this._cards.map((card: Card, cardIndex: number) => {
+      if (this.isCardFocused(card, mouseX, mouseY))
+        return this.zoomInOnCard(card, currentTime)
 
-    hand._cards = hand.cards.map((card: Card, cardIndex: number) => {
-      if (hand.isCardFocused(card, mouseX, mouseY))
-        return hand.zoomInOnCard(card, currentTime)
-
-      return hand.moveCardDefault(card, cardIndex, currentTime)
+      return this.moveCardDefault(card, cardIndex, currentTime)
     })
 
-    hand._cards = hand.cards.map(card => card.update(currentTime))
+    return cards
+  }
 
-    return hand
+  constructor(cards: Card[] = []) {
+    this._cards = cards
+  }
+
+  get cards(): Card[] {
+    return this._cards
+  }
+
+  addCard(card: Card): Hand {
+    return new Hand([...this._cards, card])
+  }
+
+  mouseClicked(mouseX: number, mouseY: number): Hand {
+    const cards = this.cards.map(card => {
+      if (this.isCardFocused(card, mouseX, mouseY))
+        return card.select()
+
+      return card.deselect()
+    })
+
+    return new Hand(cards)
+  }
+
+  update(currentTime: number, mouseX: number, mouseY: number): Hand {
+    let hand = new Hand(this._cards)
+
+    let cards = hand.zoomHoveredCards(currentTime, mouseX, mouseY)
+    cards = cards.map(card => card.update(currentTime))
+
+    return new Hand(cards) 
   }
 
   removeCard(card: Card): Hand {

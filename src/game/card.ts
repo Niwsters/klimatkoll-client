@@ -12,6 +12,7 @@ export type ICard = {
   isSpace: boolean
   visible: boolean
   flipped: boolean
+  selected: boolean
 }
 
 export class Card implements ICard {
@@ -31,6 +32,7 @@ export class Card implements ICard {
   zLevel: number = 0
   visible: boolean = true
   flipped: boolean = false
+  selected: boolean = false
 
   private xGoal: TransitionGoal = new TransitionGoal(0, 0)
   private yGoal: TransitionGoal = new TransitionGoal(0, 0)
@@ -61,6 +63,18 @@ export class Card implements ICard {
 
   private new(): Card {
     return Object.assign(new Card(this.id, this.name), this)
+  }
+
+  select(): Card {
+    const card = this.new()
+    card.selected = true
+    return card
+  }
+
+  deselect(): Card {
+    const card = this.new()
+    card.selected = false
+    return card
   }
 
   move(x: number, y: number, currentTime: number): Card {

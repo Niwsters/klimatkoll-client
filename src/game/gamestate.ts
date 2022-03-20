@@ -82,6 +82,8 @@ export class GameState {
 
   mouse_clicked(_: Event): [GameState, EventToAdd[]] {
     let state = this.new()
+    
+    state.hand = state.hand.mouseClicked(this.mouseX, this.mouseY)
 
     return [state, []]
   }

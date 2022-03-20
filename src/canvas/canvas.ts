@@ -90,7 +90,6 @@ export class Canvas {
           sprite.card = card
           const texture = CardSprite.textures.get(card.name)
           if (!texture) throw new Error("Could not find texture with name '" + card.name + "'")
-//          sprite.selected = state.selectedCardID === sprite.card.id
           sprite.texture = texture
         }
       })
