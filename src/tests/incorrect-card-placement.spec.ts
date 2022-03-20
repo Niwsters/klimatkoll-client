@@ -1,7 +1,7 @@
 import { Card } from '../game/card'
 import { Factory } from './test-factory'
 import { GameState } from '../game/gamestate'
-import { DISCARD_PILE_POSITION } from '../game/constants'
+import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from '../game/constants'
 import { Event } from '../event/event'
 import { spec } from './spec'
 
@@ -10,12 +10,12 @@ function receiveEvent(state: GameState, card: Card): GameState {
   return state.incorrect_card_placement(event, currentTime)[0]
 }
 
-const currentTime: number = 1337
+const currentTime: number = 0
 const card = new Card(7, "blargh", "hand")
 
 export default function main() {
-  card.rotationGoal.rotation = 30
-  card.addedRotationGoal.addedRotation = 15
+  card.rotation = 30
+  card.addedRotation = 15
 
   const test = spec()
     .when(() => {
@@ -23,14 +23,14 @@ export default function main() {
       state.hand = state.hand.addCard(card)
       state = receiveEvent(state, card)
 
-      return state
+      return state.update(0).update(ANIMATION_DURATION_MS)
     })
 
   const cardTest = test.when((state: GameState) => state.cards.find(c => c.id === card.id))
   cardTest.expect((c: Card) => c.container).toEqual("discard-pile")
-  cardTest.expect((c: Card) => c.positionGoal).toEqual({ position: DISCARD_PILE_POSITION, timestamp: currentTime })
-  cardTest.expect((c: Card) => c.rotationGoal).toEqual({ rotation: 0, timestamp: currentTime })
-  cardTest.expect((c: Card) => c.addedRotationGoal).toEqual({ addedRotation: 0, timestamp: currentTime })
+  cardTest.expect((c: Card) => c.position).toEqual(DISCARD_PILE_POSITION)
+  cardTest.expect((c: Card) => c.rotation).toEqual(0)
+  cardTest.expect((c: Card) => c.addedRotation).toEqual(0)
   cardTest.expect((c: Card) => c.flipped).toEqual(true)
 
   test.expect((state: GameState) => state.hand.cards).toEqual([])

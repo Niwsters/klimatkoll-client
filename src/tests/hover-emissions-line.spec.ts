@@ -13,7 +13,7 @@ function moveMouse(state: GameState, x: number, y: number): GameState {
 }
 
 function getCardScale(state: GameState, cardID: number) {
-  return state.emissionsLine.cards.find(c => c.id === cardID)?.scaleGoal.scale
+  return state.emissionsLine.cards.find(c => c.id === cardID)?.scale
 }
 
 function getOtherCards(state: GameState) {
@@ -22,6 +22,10 @@ function getOtherCards(state: GameState) {
 
 function unique(array: any[]) {
   return [...new Set(array)]
+}
+
+function finishAnimation(state: GameState): GameState {
+  return state.update(state.lastUpdate).update(state.lastUpdate + ANIMATION_DURATION_MS)
 }
 
 const currentTime = 1337
@@ -40,6 +44,7 @@ export default function main() {
       const [x, y] = EMISSIONS_LINE_POSITION
       return moveMouse(state, x, y)
     })
+    .when(finishAnimation)
 
   // zooms in on emissions line card
   hovering
@@ -48,12 +53,13 @@ export default function main() {
 
   // doesn't zoom in on surrounding cards
   hovering
-    .expect((state: GameState) => unique(getOtherCards(state).map(c => c.scaleGoal.scale)))
+    .expect((state: GameState) => unique(getOtherCards(state).map(c => c.scale)))
     .toEqual([Card.DEFAULT_SCALE])
 
   // zooms out if mouse moves outside emissions line Y bounds
   hovering
     .when((state: GameState) => moveMouse(state, 0, 0))
+    .when(finishAnimation)
     .expect((state: GameState) => getCardScale(state, card.id))
     .toEqual(Card.DEFAULT_SCALE)
 
@@ -68,6 +74,7 @@ export default function main() {
       const [x, y] = [card2.position[0], EMISSIONS_LINE_POSITION[1]]
       return moveMouse(state, x, y)
     })
+    .when(finishAnimation)
   twoCards.expect((state: GameState) => getCardScale(state, card.id)).toEqual(Card.DEFAULT_SCALE * 2)
   twoCards.expect((state: GameState) => getCardScale(state, card2.id)).toEqual(Card.DEFAULT_SCALE)
 

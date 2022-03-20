@@ -34,19 +34,19 @@ export class Card implements ICard {
   visible: boolean = true
   flipped: boolean = false
 
-  positionGoal: PositionGoal = {
+  private positionGoal: PositionGoal = {
     position: [0, 0],
     timestamp: 0
   }
-  rotationGoal: RotationGoal = {
+  private rotationGoal: RotationGoal = {
     rotation: 0,
     timestamp: 0
   }
-  addedRotationGoal: AddedRotationGoal = {
+  private addedRotationGoal: AddedRotationGoal = {
     addedRotation: 0,
     timestamp: 0
   }
-  scaleGoal: ScaleGoal = {
+  private scaleGoal: ScaleGoal = {
     scale: Card.DEFAULT_SCALE,
     timestamp: 0
   }

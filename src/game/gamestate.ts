@@ -58,6 +58,7 @@ export class GameState {
     state.emissionsLine = state.emissionsLine.update(time, state.mouseX, state.mouseY)
     state.hand = state.hand.update(time, state.mouseX, state.mouseY)
     state.opponentHand = state.opponentHand.update(time)
+    state.discardPile = state.discardPile.update(time)
     state.lastUpdate = time
 
     return state

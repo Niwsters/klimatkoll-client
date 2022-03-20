@@ -23,4 +23,12 @@ export class DiscardPile {
 
     return new DiscardPile(card)
   }
+
+  update(currentTime: number) {
+    const topCard = this.topCard
+    if (topCard !== undefined)
+      return new DiscardPile(topCard.update(currentTime))
+
+    return new DiscardPile(topCard)
+  }
 }
