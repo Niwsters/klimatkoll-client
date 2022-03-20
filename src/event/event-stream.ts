@@ -3,7 +3,7 @@ import { Event, EventToAdd } from './event'
 
 export class EventStream {
   private stream$: Subject<Event> = new Subject<Event>();
-  private lastEventID: number = 0
+  private lastEventID = 0
 
   public next(event: EventToAdd): void {
     this.stream$.next({

@@ -1,20 +1,25 @@
 import { Subject } from 'rxjs'
 import { Card } from '../game/card'
-import { CardData } from '../cards'
 import { CardSprite } from './card-sprite'
 import { EventToAdd, MouseMovedEvent, MouseClickedEvent } from '../event/event'
 import { GameState } from '../game/gamestate'
+import { CardData } from '../cards'
 
 let cardSprites: CardSprite[] = []
+
+function getCanvas(): HTMLCanvasElement {
+  const canvas = document.getElementById('klimatkoll-canvas')
+  if (!canvas)
+    throw new Error("Can't find canvas element with ID klimatkoll-canvas")
+  return canvas as HTMLCanvasElement
+}
 
 export class Canvas {
   gl: WebGLRenderingContext
   events$: Subject<EventToAdd> = new Subject<EventToAdd>()
 
   constructor() {
-    const canvas: any = document.getElementById('klimatkoll-canvas')
-    if (!canvas)
-      throw new Error("Can't find canvas element with ID klimatkoll-canvas")
+    const canvas = getCanvas()
     const gl = canvas.getContext("webgl")
     if (!gl) throw new Error("gl is null")
     this.gl = gl
@@ -24,12 +29,12 @@ export class Canvas {
     canvas.height = window.innerWidth * 0.5625 * ratio; // 540 / 960 = 0.5625
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
 
-    canvas.addEventListener('mousemove', (e: any) => {
+    canvas.addEventListener('mousemove', (e: MouseEvent) => {
       const ratio = 960 / canvas.width * window.devicePixelRatio
       this.events$.next(new MouseMovedEvent(e.clientX * ratio, e.clientY * ratio))
     }, false)
 
-    canvas.addEventListener('click', (e: any) => {
+    canvas.addEventListener('click', () => {
       this.events$.next(new MouseClickedEvent())
     }, false)
 
@@ -54,8 +59,8 @@ export class Canvas {
   prepare(baseUrl: string): void {
     fetch(`${baseUrl}/cards.json`)
       .then(response => response.json())
-      .then((cards: any[]) => {
-        cards = cards.map((c: any, i: number) => {
+      .then((cards: CardData[]) => {
+        cards = cards.map((c: CardData, i: number) => {
           return {
             ...c,
             id: i

@@ -21,13 +21,13 @@ export class CardSprite {
   selectedLocation: WebGLUniformLocation | null
   isSpaceLocation: WebGLUniformLocation | null
   visibleLocation: WebGLUniformLocation | null
-  texCoordLocation: number = 0
+  texCoordLocation = 0
   frontTexCoordBuffer: WebGLBuffer | null
   backTexCoordBuffer: WebGLBuffer | null
   positionBuffer: WebGLBuffer | null
   program: WebGLProgram
   texture: WebGLTexture
-  selected: boolean = false
+  selected = false
   static textures = new Map<string, WebGLTexture>()
 
   constructor(gl: WebGLRenderingContext, card: Card) {
@@ -141,7 +141,7 @@ export class CardSprite {
     cards: CardData[],
     baseURL: string
   ): Promise<null> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       let loadedCardImages = 0;
       const cardsToLoad = [...cards, { id: -1, name: "space", emissions: 0 }]
       cardsToLoad.forEach((cardData: CardData) => {

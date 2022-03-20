@@ -86,10 +86,8 @@ export class EmissionsLine {
   }
 
   private getClosestCard(x: number): Card {
-    let self = this
-
-    let closest: Card = self.nonSpaceCards[0]
-    for (const card of self.nonSpaceCards.slice(1)) {
+    let closest: Card = this.nonSpaceCards[0]
+    for (const card of this.nonSpaceCards.slice(1)) {
       if (!closest) {
         closest = card
         continue

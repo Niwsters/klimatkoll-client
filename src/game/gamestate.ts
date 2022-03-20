@@ -115,14 +115,9 @@ export class GameState {
   next_card(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
 
-    // remove existing deck card
-    let cards = this.cards.filter(c => c.container !== "deck")
-
     const serverCard = event.payload.card
     const card = new Card(serverCard.id, serverCard.name, "deck")
     card.position = DECK_POSITION
-
-    cards = [...cards, card]
 
     state.deck = state.deck.setTopCard(card)
 

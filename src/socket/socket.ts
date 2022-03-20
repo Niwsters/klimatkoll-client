@@ -1,6 +1,5 @@
 import { Subject } from 'rxjs'
-import { Event, CreateGameEvent } from '../event/event'
-import { TextConfig } from '../models/text-config'
+import { Event } from '../event/event'
 import { AppConfig } from '../App'
 
 export class Socket {
