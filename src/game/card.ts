@@ -72,12 +72,12 @@ export class Card implements ICard {
     let card = this.new()
 
     const existing = card.positionGoal
-    if (existing.position[0] === x && existing.position[1] === y)
+    if (existing.position.x === x && existing.position.y === y)
       return card
 
     card.positionGoal = {
       timestamp: currentTime,
-      position: [x, y]
+      position: new Position(x, y)
     }
 
     return card
@@ -146,10 +146,10 @@ export class Card implements ICard {
 
     card.position = new Position(
       transpose(
-        card.position[0], card.positionGoal.position[0], time - card.positionGoal.timestamp
+        card.position.x, card.positionGoal.position.x, time - card.positionGoal.timestamp
       ),
       transpose(
-        card.position[1], card.positionGoal.position[1], time - card.positionGoal.timestamp
+        card.position.y, card.positionGoal.position.y, time - card.positionGoal.timestamp
       )
     )
 

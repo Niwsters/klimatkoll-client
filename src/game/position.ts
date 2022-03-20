@@ -1,7 +1,9 @@
-export class Position extends Array {
+export class Position {
+  readonly x: number
+  readonly y: number
+
   constructor(x: number, y: number) {
-    super(2)
-    this[0] = x
-    this[1] = y
+    this.x = x
+    this.y = y
   }
 }

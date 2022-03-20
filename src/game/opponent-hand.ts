@@ -33,8 +33,8 @@ export class OpponentHand {
     const n = hand.cards.length - 1
     hand._cards = hand.cards.map((card: Card) => {
       const angle = HAND_CARD_ANGLE * (i - n/2) + Math.PI
-      const x = OPPONENT_HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
-      const y = OPPONENT_HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
+      const x = OPPONENT_HAND_POSITION.x + HAND_X_RADIUS * Math.sin(angle)
+      const y = OPPONENT_HAND_POSITION.y - HAND_Y_RADIUS * Math.cos(angle)
 
       card = Card.move(card, x, y, currentTime)
       card = Card.rotateGlobal(card, (angle + Math.PI) * HAND_ANGLE_FACTOR, currentTime)

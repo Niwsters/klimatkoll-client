@@ -25,8 +25,8 @@ export class Hand {
 
   private getCardPosition(i: number) {
     const angle = this.getCardAngle(i)
-    const x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
-    const y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
+    const x = HAND_POSITION.x + HAND_X_RADIUS * Math.sin(angle)
+    const y = HAND_POSITION.y - HAND_Y_RADIUS * Math.cos(angle)
     return [x, y]
   }
 
@@ -52,14 +52,14 @@ export class Hand {
     for (const card of this.cards) {
       if (!closestCard) closestCard = card
 
-      if (distance(mouseX, card.position[0]) < distance(mouseX, closestCard.position[0]))
+      if (distance(mouseX, card.position.x) < distance(mouseX, closestCard.position.x))
         closestCard = card
     }
     return closestCard
   }
 
   private zoomInOnCard(card: Card, currentTime: number): Card {
-    card = Card.move(card, card.position[0], HAND_POSITION[1] - 230, currentTime)
+    card = Card.move(card, card.position.x, HAND_POSITION.y - 230, currentTime)
     card = Card.scale(card, Card.DEFAULT_SCALE * 2, currentTime)
     card = Card.rotateGlobal(card, 0, currentTime)
     return card
@@ -79,18 +79,18 @@ export class Hand {
   private handWidth(): number {
     const leftCard = this.cards[0]
     const rightCard = this.cards[this.cards.length - 1]
-    return rightCard.position[0] - leftCard.position[0] + Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+    return rightCard.position.x - leftCard.position.x + Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
   }
 
-  private readonly hoverYAxisLimit: number = HAND_POSITION[1] - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE
+  private readonly hoverYAxisLimit: number = HAND_POSITION.y - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE
   private isCardFocused(card: Card, mouseX: number, mouseY: number): boolean {
     const width = this.handWidth()
     const closestCard = this.closestCardToMouse(mouseX)
     return closestCard !== undefined &&
            card.id === closestCard.id &&
            mouseY > this.hoverYAxisLimit &&
-           mouseX > HAND_POSITION[0] - width / 2 &&
-           mouseX < HAND_POSITION[0] + width / 2
+           mouseX > HAND_POSITION.x - width / 2 &&
+           mouseX < HAND_POSITION.x + width / 2
   }
 
   update(currentTime: number, mouseX: number, mouseY: number): Hand {

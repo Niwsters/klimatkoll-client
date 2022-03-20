@@ -30,10 +30,10 @@ export class EmissionsLine {
       if (!rightCard)
         rightCard = card
 
-      if (card.position[0] < leftCard.position[0])
+      if (card.position.x < leftCard.position.x)
         leftCard = card
 
-      if (card.position[0] > rightCard.position[0])
+      if (card.position.x > rightCard.position.x)
         rightCard = card
     }
 
@@ -41,8 +41,8 @@ export class EmissionsLine {
       return 0
 
     const cardWidth = Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
-    const x1 = leftCard.position[0] - cardWidth / 2
-    const x2 = rightCard.position[0] + cardWidth / 2
+    const x1 = leftCard.position.x - cardWidth / 2
+    const x2 = rightCard.position.x + cardWidth / 2
 
     return x2 - x1 
   }
@@ -64,8 +64,8 @@ export class EmissionsLine {
     const width = this.getEmissionsLineCardDistance()
     const startOffset = 0 - width*cardCount/2 - width/2
 
-    const x = EMISSIONS_LINE_POSITION[0] + startOffset + width * (i+1)
-    const y = EMISSIONS_LINE_POSITION[1]
+    const x = EMISSIONS_LINE_POSITION.x + startOffset + width * (i+1)
+    const y = EMISSIONS_LINE_POSITION.y
     return Card.move(card, x, y, currentTime)
   }
   
@@ -93,7 +93,7 @@ export class EmissionsLine {
         continue
       }
 
-      if (Math.abs(card.position[0] - x) < Math.abs(closest.position[0] - x)) {
+      if (Math.abs(card.position.x - x) < Math.abs(closest.position.x - x)) {
         closest = card
       }
     }
@@ -104,11 +104,11 @@ export class EmissionsLine {
   private scaleCard(card: Card, mouseX: number, mouseY: number, currentTime: number): Card {
     if (card.isSpace) return card
 
-    const lowerBoundsY = EMISSIONS_LINE_POSITION[1] - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
-    const upperBoundsY = EMISSIONS_LINE_POSITION[1] + Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
+    const lowerBoundsY = EMISSIONS_LINE_POSITION.y - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
+    const upperBoundsY = EMISSIONS_LINE_POSITION.y + Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE / 2
 
-    const lowerBoundsX = EMISSIONS_LINE_POSITION[0] - this.width / 2
-    const upperBoundsX = EMISSIONS_LINE_POSITION[0] + this.width / 2
+    const lowerBoundsX = EMISSIONS_LINE_POSITION.x - this.width / 2
+    const upperBoundsX = EMISSIONS_LINE_POSITION.x + this.width / 2
 
     if (
       mouseX > lowerBoundsX &&

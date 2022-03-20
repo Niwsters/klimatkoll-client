@@ -16,10 +16,10 @@ const currentTime = 1337
 function getHandCardPosition(i: number, cardCount: number): Position {
   const n = cardCount - 1
   let angle = HAND_CARD_ANGLE * (i - n/2)
-  let x = HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
-  let y = HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
+  let x = HAND_POSITION.x + HAND_X_RADIUS * Math.sin(angle)
+  let y = HAND_POSITION.y - HAND_Y_RADIUS * Math.cos(angle)
 
-  return [x, y]
+  return new Position(x, y)
 }
 
 function initialiseCards(): [Card, Card] {
@@ -29,7 +29,7 @@ function initialiseCards(): [Card, Card] {
 }
 
 function moveCard(card: Card, position: Position, rotation: number, scale: number, zLevel: number): Card {
-  card = card.move(position[0], position[1], currentTime)
+  card = card.move(position.x, position.y, currentTime)
   card = card.rotateGlobal(rotation, currentTime)
   card = card.setScale(scale, currentTime)
   card.zLevel = zLevel 

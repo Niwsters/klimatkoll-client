@@ -41,7 +41,7 @@ export default function main() {
 
   const hovering = test
     .when((state: GameState) => {
-      const [x, y] = EMISSIONS_LINE_POSITION
+      const [x, y] = [EMISSIONS_LINE_POSITION.x, EMISSIONS_LINE_POSITION.y]
       return moveMouse(state, x, y)
     })
     .when(finishAnimation)
@@ -71,7 +71,7 @@ export default function main() {
       card2.position = EMISSIONS_LINE_POSITION
       state.emissionsLine = state.emissionsLine.addCard(card2, 2, currentTime)
 
-      const [x, y] = [card2.position[0], EMISSIONS_LINE_POSITION[1]]
+      const [x, y] = [card2.position.x, EMISSIONS_LINE_POSITION.y]
       return moveMouse(state, x, y)
     })
     .when(finishAnimation)
@@ -81,7 +81,7 @@ export default function main() {
   // zooms in only if mouse is within emissions line x-axis
   test
     .when((state: GameState) => {
-      const y = EMISSIONS_LINE_POSITION[1]
+      const y = EMISSIONS_LINE_POSITION.y
       return moveMouse(state, 0, y)
     })
     .expect((state: GameState) => getCardScale(state, card.id))

@@ -201,7 +201,7 @@ export class CardSprite {
     if (!translationLocation) {
       throw new Error("Could not find WebGL translation location")
     }
-    gl.uniform2fv(translationLocation, sprite.card.position)
+    gl.uniform2fv(translationLocation, [sprite.card.position.x, sprite.card.position.y])
     gl.uniform1f(scaleLocation, sprite.card.scale)
     gl.uniform1f(rotationLocation, sprite.card.rotation + sprite.card.addedRotation)
     gl.uniform1i(selectedLocation, sprite.selected ? 1 : 0)

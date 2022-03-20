@@ -36,7 +36,7 @@ function position(state: GameState): Position {
 }
 
 function positionY(state: GameState): number {
-  return position(state)[1]
+  return position(state).y
 }
 
 function finishAnimation(state: GameState): GameState {
@@ -52,8 +52,8 @@ function addCardsToHand(): GameState {
 }
 
 function moveMouseToCard(state: GameState): GameState {
-  const [x, y] = getMainCard(state).position
-  return moveMouse(state, x, y)
+  const pos = getMainCard(state).position
+  return moveMouse(state, pos.x, pos.y)
 }
 
 function otherCardScale(state: GameState): number {
@@ -62,23 +62,23 @@ function otherCardScale(state: GameState): number {
 }
 
 function moveMouseAboveYLimit(state: GameState): GameState {
-  const [x, y] = [getMainCard(state).position[0], 0]
+  const [x, y] = [getMainCard(state).position.x, 0]
   return moveMouse(state, x, y)
 }
 
 function handWidth(state: GameState): number {
   const leftCard = state.cards[0]
   const rightCard = state.cards[state.cards.length - 1]
-  return rightCard.position[0] - leftCard.position[0] + Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
+  return rightCard.position.x - leftCard.position.x + Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
 }
 
 function moveMouseLeftOfHand(state: GameState): GameState {
-  const [x, y] = [HAND_POSITION[0] - handWidth(state) / 2, getMainCard(state).position[1]]
+  const [x, y] = [HAND_POSITION.x - handWidth(state) / 2, getMainCard(state).position.x]
   return moveMouse(state, x, y)
 }
 
 function moveMouseRightOfHand(state: GameState): GameState {
-  const [x, y] = [HAND_POSITION[0] + handWidth(state) / 2, getMainCard(state).position[1]]
+  const [x, y] = [HAND_POSITION.x + handWidth(state) / 2, getMainCard(state).position.x]
   return moveMouse(state, x, y)
 }
 
@@ -101,7 +101,7 @@ export default function main() {
 
   hovering
     .expect(positionY)
-    .toEqual(HAND_POSITION[1] - 230)
+    .toEqual(HAND_POSITION.y - 230)
 
   // doesn't zoom in on other card
   hovering

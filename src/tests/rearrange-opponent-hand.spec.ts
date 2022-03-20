@@ -3,14 +3,15 @@ import { ANIMATION_DURATION_MS, HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, O
 import { Factory } from './test-factory'
 import { spec } from './spec'
 import { GameState } from '../game/gamestate'
+import { Position } from '../game/position'
 
-function getOpponentHandCardPosition(i: number, cardCount: number): [number, number] {
+function getOpponentHandCardPosition(i: number, cardCount: number): Position {
   const n = cardCount - 1
   const angle = HAND_CARD_ANGLE * (i - n/2) + Math.PI
-  const x = OPPONENT_HAND_POSITION[0] + HAND_X_RADIUS * Math.sin(angle)
-  const y = OPPONENT_HAND_POSITION[1] - HAND_Y_RADIUS * Math.cos(angle)
+  const x = OPPONENT_HAND_POSITION.x + HAND_X_RADIUS * Math.sin(angle)
+  const y = OPPONENT_HAND_POSITION.y - HAND_Y_RADIUS * Math.cos(angle)
 
-  return [x, y]
+  return new Position(x, y)
 }
 
 function initCards(): [Card, Card] {
@@ -19,8 +20,8 @@ function initCards(): [Card, Card] {
   return [card, card2]
 }
 
-function moveCard(card: Card, position: [number, number], rotation: number): Card {
-  card = card.move(position[0], position[1], currentTime)
+function moveCard(card: Card, position: Position, rotation: number): Card {
+  card = card.move(position.x, position.y, currentTime)
   card = card.rotateGlobal(rotation, currentTime)
   return card.update(currentTime + ANIMATION_DURATION_MS)
 }
