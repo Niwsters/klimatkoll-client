@@ -1,5 +1,5 @@
-import { ANIMATION_DURATION_MS } from './constants'
 import { Position } from './position'
+import { transpose } from './transpose'
 
 export type ICard = {
   id: number
@@ -43,10 +43,7 @@ export class Card implements ICard {
     addedRotation: 0,
     timestamp: 0
   }
-  private scaleGoal: ScaleGoal = {
-    scale: Card.DEFAULT_SCALE,
-    timestamp: 0
-  }
+  private scaleGoal: ScaleGoal = new ScaleGoal(0, Card.DEFAULT_SCALE)
 
   constructor(
     id: number,
@@ -129,10 +126,7 @@ export class Card implements ICard {
     if (card.scaleGoal.scale === scale)
       return card
 
-    card.scaleGoal = {
-      timestamp: currentTime,
-      scale: scale
-    }
+    card.scaleGoal = new ScaleGoal(currentTime, scale)
 
     return card
   }
@@ -179,16 +173,22 @@ export class Card implements ICard {
   }
 }
 
-export type TransposeGoal = {
-  timestamp: number
+class TransposeGoal {
+  timestamp!: number
 }
 
 type PositionGoal = TransposeGoal & {
   position: Position
 }
 
-type ScaleGoal = TransposeGoal & {
-  scale: number
+class ScaleGoal extends TransposeGoal {
+  scale!: number
+
+  constructor(timestamp: number, scale: number) {
+    super()
+    this.timestamp = timestamp
+    this.scale = scale
+  }
 }
 
 type RotationGoal = TransposeGoal & {
@@ -197,14 +197,6 @@ type RotationGoal = TransposeGoal & {
 
 type AddedRotationGoal = TransposeGoal & {
   addedRotation: number
-}
-
-export function transpose(from: number, to: number, timePassed: number) {
-  if (timePassed > ANIMATION_DURATION_MS) return to
-
-  const fraction = timePassed/ANIMATION_DURATION_MS
-  const mult = 1 - (1 - fraction) ** 2 // easeOutQuad easing function
-  return from + (to - from)*mult
 }
 
 export class SpaceCard extends Card {
