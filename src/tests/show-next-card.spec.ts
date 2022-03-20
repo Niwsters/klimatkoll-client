@@ -21,12 +21,12 @@ export default function main() {
 
   // Creates a new deck card if none exists
   test
-    .expect(state => state.cards)
+    .expect(state => state.deck.cards)
     .toEqual([card])
 
   // Replaces existing deck card
   test
     .when(state => nextCard(state, card2))
-    .expect(state => state.cards)
+    .expect(state => state.deck.cards)
     .toEqual([card2])
 }

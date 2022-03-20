@@ -1,7 +1,7 @@
 import { Card } from './card'
 import { Hand } from './hand'
 import { OpponentHand } from './opponent-hand'
-import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
+import { Event, EventToAdd } from '../event/event'
 import { AppConfig } from '../App'
 import {
   DECK_POSITION
@@ -47,7 +47,13 @@ export class GameState {
   }
 
   get cards(): Card[] {
-    return [...this.emissionsLine.cards, ...this.opponentHand.cards, ...this.hand.cards, ...this.deck.cards, ...this.discardPile.cards]
+    return [
+      ...this.emissionsLine.cards,
+      ...this.opponentHand.cards,
+      ...this.hand.cards,
+      ...this.deck.cards,
+      ...this.discardPile.cards
+    ]
   }
 
   update(time: number): GameState {
@@ -69,10 +75,6 @@ export class GameState {
   static getFocusedCard(state: GameState): Card | undefined {
     const id = GameState.getFocusedCardID(state)
     return state.cards.find(c => c.id === id)
-  }
-
-  static getSelectedCard(state: GameState): Card | undefined {
-    return state.cards.find(c => c.id === state.selectedCardID)
   }
 
   game_won(event: Event): [GameState, EventToAdd[]] {
