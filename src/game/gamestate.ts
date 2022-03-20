@@ -26,6 +26,7 @@ export class GameState {
   hand: Hand = new Hand()
   deck: Deck = new Deck()
   discardPile: DiscardPile = new DiscardPile()
+  lastUpdate: number = 0
 
   private mouseX: number = 0
   private mouseY: number = 0
@@ -57,6 +58,7 @@ export class GameState {
     state.emissionsLine = state.emissionsLine.update(time, state.mouseX, state.mouseY)
     state.hand = state.hand.update(time, state.mouseX, state.mouseY)
     state.opponentHand = state.opponentHand.update(time)
+    state.lastUpdate = time
 
     return state
   }
@@ -144,7 +146,6 @@ export class GameState {
     let card = state.cards.find(card => card.id === event.payload.cardID)
     if (!card)
       return [state, []]
-    card = {...card}
 
     state = state.removeHandCard(card)
     state.discardPile = state.discardPile.setTopCard(card, currentTime)

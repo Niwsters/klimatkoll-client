@@ -14,10 +14,6 @@ export type ICard = {
   isSpace: boolean
   visible: boolean
   flipped: boolean
-  positionGoal: PositionGoal
-  rotationGoal: RotationGoal
-  addedRotationGoal: AddedRotationGoal
-  scaleGoal: ScaleGoal
 }
 
 export class Card implements ICard {

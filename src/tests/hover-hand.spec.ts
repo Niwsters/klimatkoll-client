@@ -23,26 +23,30 @@ function getMainCard(state: GameState): Card {
 }
 
 function scale(state: GameState): number {
-  return getMainCard(state).scaleGoal.scale
+  return getMainCard(state).scale
 }
 
 function rotation(state: GameState): number {
-  return getMainCard(state).rotationGoal.rotation
+  return getMainCard(state).rotation
 }
 
 function position(state: GameState): [number, number] {
-  return getMainCard(state).positionGoal.position
+  return getMainCard(state).position
 }
 
 function positionY(state: GameState): number {
   return position(state)[1]
 }
 
+function finishAnimation(state: GameState): GameState {
+  return state.update(state.lastUpdate).update(state.lastUpdate + ANIMATION_DURATION_MS)
+}
+
 function addCardsToHand(): GameState {
   let state = Factory.GameState()
   state.hand = state.hand.addCard(card)
   state.hand = state.hand.addCard(card2)
-  state = state.update(0).update(ANIMATION_DURATION_MS)
+  state = finishAnimation(state)
   return state
 }
 
@@ -53,7 +57,7 @@ function moveMouseToCard(state: GameState): GameState {
 
 function otherCardScale(state: GameState): number {
   const card = getCard(state, card2.id)
-  return card.scaleGoal.scale
+  return card.scale
 }
 
 function moveMouseAboveYLimit(state: GameState): GameState {
@@ -83,7 +87,7 @@ const card2 = new Card(1, "other-card", "hand")
 
 export default function main() {
   const handWithCards = spec().when(addCardsToHand)
-  const hovering = handWithCards.when(moveMouseToCard)
+  const hovering = handWithCards.when(moveMouseToCard).when(finishAnimation)
 
   // zooms in on card
   hovering
