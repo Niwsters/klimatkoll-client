@@ -15,9 +15,9 @@ export class DiscardPile {
 
   setTopCard(card: Card, currentTime: number): DiscardPile {
     const pos = DISCARD_PILE_POSITION
-    card = Card.move(card, pos.x, pos.y, currentTime)
-    card = Card.rotateGlobal(card, 0, currentTime)
-    card = Card.rotateLocal(card, 0, currentTime)
+    card = card.move(pos.x, pos.y, currentTime)
+    card = card.rotateGlobal(0, currentTime)
+    card = card.rotateLocal(0, currentTime)
     card.flipped = true
 
     return new DiscardPile(card)

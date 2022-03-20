@@ -59,9 +59,9 @@ export class Hand {
   }
 
   private zoomInOnCard(card: Card, currentTime: number): Card {
-    card = Card.move(card, card.position.x, HAND_POSITION.y - 230, currentTime)
-    card = Card.scale(card, Card.DEFAULT_SCALE * 2, currentTime)
-    card = Card.rotateGlobal(card, 0, currentTime)
+    card = card.move(card.position.x, HAND_POSITION.y - 230, currentTime)
+    card = card.setScale(Card.DEFAULT_SCALE * 2, currentTime)
+    card = card.rotateGlobal(0, currentTime)
     return card
   }
 
@@ -69,11 +69,11 @@ export class Hand {
     const [x, y] = this.getCardPosition(cardIndex)
     const scale = Card.DEFAULT_SCALE
     const rotation = this.getCardRotation(cardIndex)
-    card = Card.move(card, x, y, currentTime)
-    card = Card.rotateGlobal(card, rotation, currentTime)
+    card = card.move(x, y, currentTime)
+    card = card.rotateGlobal(rotation, currentTime)
     // + 10 to prevent first card going under emissions line card when zooming out
     card.zLevel = cardIndex + 10
-    return Card.scale(card, scale, currentTime)
+    return card.setScale(scale, currentTime)
   }
 
   private handWidth(): number {
@@ -103,7 +103,7 @@ export class Hand {
       return hand.moveCardDefault(card, cardIndex, currentTime)
     })
 
-    hand._cards = hand.cards.map(card => Card.update(card, currentTime))
+    hand._cards = hand.cards.map(card => card.update(currentTime))
 
     return hand
   }

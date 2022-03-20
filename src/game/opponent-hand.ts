@@ -36,15 +36,15 @@ export class OpponentHand {
       const x = OPPONENT_HAND_POSITION.x + HAND_X_RADIUS * Math.sin(angle)
       const y = OPPONENT_HAND_POSITION.y - HAND_Y_RADIUS * Math.cos(angle)
 
-      card = Card.move(card, x, y, currentTime)
-      card = Card.rotateGlobal(card, (angle + Math.PI) * HAND_ANGLE_FACTOR, currentTime)
+      card = card.move(x, y, currentTime)
+      card = card.rotateGlobal((angle + Math.PI) * HAND_ANGLE_FACTOR, currentTime)
 
       i += 1
 
       return card
     })
 
-    hand._cards = hand._cards.map(card => Card.update(card, currentTime))
+    hand._cards = hand._cards.map(card => card.update(currentTime))
 
     return hand
   }

@@ -43,8 +43,8 @@ export default function main() {
       const state = Factory.GameState()
       const [card, card2] = initCards()
 
-      state.opponentHand = state.opponentHand.addCard(Card.fromICard(card))
-      state.opponentHand = state.opponentHand.addCard(Card.fromICard(card2))
+      state.opponentHand = state.opponentHand.addCard(card)
+      state.opponentHand = state.opponentHand.addCard(card2)
 
       return state
         .update(currentTime) // Queue animations

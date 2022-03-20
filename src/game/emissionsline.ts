@@ -66,7 +66,7 @@ export class EmissionsLine {
 
     const x = EMISSIONS_LINE_POSITION.x + startOffset + width * (i+1)
     const y = EMISSIONS_LINE_POSITION.y
-    return Card.move(card, x, y, currentTime)
+    return card.move(x, y, currentTime)
   }
   
   private reformSpaceCards(): Card[] {
@@ -117,10 +117,10 @@ export class EmissionsLine {
       mouseY < upperBoundsY &&
       card.id === this.getClosestCard(mouseX).id
     ) {
-      return Card.scale(card, Card.DEFAULT_SCALE * 2, currentTime)
+      return card.setScale(Card.DEFAULT_SCALE * 2, currentTime)
     }
 
-    return Card.scale(card, Card.DEFAULT_SCALE, currentTime)
+    return card.setScale(Card.DEFAULT_SCALE, currentTime)
   }
 
   private mouse_moved(mouseX: number, mouseY: number, currentTime: number): EmissionsLine {
@@ -138,7 +138,7 @@ export class EmissionsLine {
 
   update(time: number, mouseX: number, mouseY: number): EmissionsLine {
     let self = this.new()
-    self._cards = self._cards.map(c => Card.update(c, time))
+    self._cards = self._cards.map(card => card.update(time))
     self = self.mouse_moved(mouseX, mouseY, time)
     return self
   }
