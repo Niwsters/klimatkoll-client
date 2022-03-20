@@ -35,9 +35,9 @@ export class Card implements ICard {
     position: new Position(0, 0),
     timestamp: 0
   }
-  private rotationGoal: TransposeGoal = new TransposeGoal(0, 0)
-  private addedRotationGoal: TransposeGoal = new TransposeGoal(0, 0)
-  private scaleGoal: TransposeGoal = new TransposeGoal(0, Card.DEFAULT_SCALE)
+  private rotationGoal: TransitionGoal = new TransitionGoal(0, 0)
+  private addedRotationGoal: TransitionGoal = new TransitionGoal(0, 0)
+  private scaleGoal: TransitionGoal = new TransitionGoal(0, Card.DEFAULT_SCALE)
 
   constructor(
     id: number,
@@ -72,34 +72,19 @@ export class Card implements ICard {
 
   rotateGlobal(rotation: number, currentTime: number): Card {
     let card = this.new()
-
-    if (card.rotationGoal.goal === rotation)
-      return card
-
-    card.rotationGoal = new TransposeGoal(currentTime, rotation)
-    
+    card.rotationGoal = card.rotationGoal.update(currentTime, rotation)
     return card
   }
 
   rotateLocal(rotation: number, currentTime: number): Card {
     let card = this.new()
-
-    if (card.addedRotationGoal.goal === rotation)
-      return card
-
-    card.addedRotationGoal = new TransposeGoal(currentTime, rotation)
-
+    card.addedRotationGoal = card.addedRotationGoal.update(currentTime, rotation)
     return card
   }
 
   setScale(scale: number, currentTime: number): Card {
     let card = this.new()
-
-    if (card.scaleGoal.goal === scale)
-      return card
-
-    card.scaleGoal = new TransposeGoal(currentTime, scale)
-
+    card.scaleGoal = card.scaleGoal.update(currentTime, scale)
     return card
   }
 
@@ -134,13 +119,20 @@ export class Card implements ICard {
   }
 }
 
-class TransposeGoal {
-  timestamp: number
-  goal: number
+class TransitionGoal {
+  readonly timestamp: number
+  readonly goal: number
 
   constructor(timestamp: number, goal: number) {
     this.timestamp = timestamp
     this.goal = goal
+  }
+
+  update(timestamp: number, goal: number): TransitionGoal {
+    if (this.goal === goal)
+      return new TransitionGoal(this.timestamp, this.goal)
+
+    return new TransitionGoal(timestamp, goal)
   }
 }
 
