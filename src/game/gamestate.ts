@@ -14,17 +14,16 @@ import { DiscardPile } from './discard-pile'
 export class GameState {
   isMyTurn: boolean = false
   socketID: number = -1
-  hoveredCardIDs = new Set<number>()
-  selectedCardID?: number
   statusMessage: string = ""
   roomID: string = ""
+  lastUpdate: number = 0
+
   config: AppConfig
   emissionsLine: EmissionsLine = new EmissionsLine()
   opponentHand: OpponentHand = new OpponentHand()
   hand: Hand = new Hand()
   deck: Deck = new Deck()
   discardPile: DiscardPile = new DiscardPile()
-  lastUpdate: number = 0
 
   private mouseX: number = 0
   private mouseY: number = 0
@@ -123,9 +122,6 @@ export class GameState {
     state = state.removeHandCard(card)
     state.discardPile = state.discardPile.setTopCard(card, currentTime)
 
-    // Deselect selected card
-    state.selectedCardID = undefined
-
     return [state, []]
   }
 
@@ -173,9 +169,6 @@ export class GameState {
     }
 
     const position = event.payload.position
-
-    // Deselect hand card
-    state.selectedCardID = undefined
 
     // Remove hand card
     state = state.removeHandCard(playedCard)

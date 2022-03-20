@@ -35,12 +35,6 @@ export default function main() {
   test.expect((state: GameState) => state.hand.cards).toEqual([])
 
   test.when((state: GameState) => {
-    state.selectedCardID = card.id
-    state = receiveEvent(state, card)
-    return state
-  }).expect((state: GameState) => state.selectedCardID).toEqual(undefined)
-
-  test.when((state: GameState) => {
     const card = new Card(6, "honk")
     state.opponentHand = state.opponentHand.addCard(card)
     state = receiveEvent(state, card)

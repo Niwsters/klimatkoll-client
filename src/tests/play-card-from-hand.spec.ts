@@ -10,7 +10,6 @@ function playCard(state: GameState, card: Card, position: number, opponentHand: 
   else
     state.hand = state.hand.addCard(card)
 
-  state.selectedCardID = card.id
   const event = new Event(0, 'card_played_from_hand', {
     socketID: state.socketID,
     cardID: card.id,
