@@ -25,15 +25,16 @@ export class Card implements ICard {
   static DEFAULT_HEIGHT = 656
   static DEFAULT_SCALE = 0.275
 
-  id: number
-  name: string
-  container: Container
+  readonly id: number
+  readonly name: string
+  readonly container: Container
+
   position: [number, number] = [0, 0]
   scale: number = Card.DEFAULT_SCALE
   rotation: number = 0
   addedRotation: number = 0
+
   zLevel: number = 0
-  isSpace: boolean = false
   visible: boolean = true
   flipped: boolean = false
 
@@ -61,8 +62,11 @@ export class Card implements ICard {
   ) {
     this.id = id
     this.name = name
-    if (name === "space") this.isSpace = true
     this.container = container
+  }
+
+  get isSpace(): boolean {
+    return this.name === "space"
   }
 
   static fromICard(icard: ICard): Card {
