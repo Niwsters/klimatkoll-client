@@ -72,7 +72,7 @@ function events(result: [GameState, EventToAdd[]]) {
 }
 
 export default function() {
-  const test = spec()
+  spec()
     .when(() => Factory.GameState())
     .when(addEmissionsLineCard)
     .when(addHandCard)
