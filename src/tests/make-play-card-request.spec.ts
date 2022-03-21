@@ -80,5 +80,5 @@ export default function() {
     .when(hoverSpaceCard)
     .when(clickMouse)
     .expect(events)
-//    .toEqual([new PlayCardRequestEvent(handCard.id, 2)])
+    .toEqual([new PlayCardRequestEvent(handCard.id, 2)])
 }
