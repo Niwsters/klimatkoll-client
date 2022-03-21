@@ -1,5 +1,4 @@
 import React from 'react'
-import { TextConfig } from '../models/text-config'
 import { AppConfig } from '../App'
 import { GameState } from '../game/gamestate'
 import { EventToAdd, LeaveGameEvent } from '../event/event'

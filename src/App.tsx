@@ -50,11 +50,19 @@ export class AppState {
   statusMessage: string = ""
   roomID: string = ""
 
-  room_joined(e: Event): AppState {
+  private static changePage(state: AppState, page: string): AppState {
     return {
-      ...this,
-      currentPage: "game"
+      ...state,
+      currentPage: page
     }
+  }
+
+  static room_joined(state: AppState, e: Event): AppState {
+    return AppState.changePage(state, "game")
+  }
+
+  static leave_game(state: AppState, e: Event): AppState {
+    return AppState.changePage(state, "menu")
   }
 }
 
@@ -114,9 +122,9 @@ export class App {
   }
 
   handleEvent(event: Event): void {
-    const func: ((e: Event) => AppState) | undefined = (this.state as any)[event.event_type]
+    const func: ((state: AppState, e: Event) => AppState) | undefined = (AppState as any)[event.event_type]
     if (func)
-      this.state = func(event)
+      this.state = func(this.state, event)
   }
 
   render() {
