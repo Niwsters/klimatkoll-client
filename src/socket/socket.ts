@@ -30,6 +30,10 @@ export class Socket {
     return [event]
   }
 
+  static leave_game(event: Event): Event[] {
+    return [event]
+  }
+
   static play_card_request(event: Event): Event[] {
     return [event]
   }

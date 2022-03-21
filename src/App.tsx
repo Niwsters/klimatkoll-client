@@ -8,7 +8,7 @@ import { EventStream } from './event/event-stream'
 import { Menu } from './ui/Menu'
 import { StatusBar } from './ui/StatusBar'
 import { Canvas } from './canvas/canvas'
-import { Observable, BehaviorSubject } from 'rxjs'
+import { BehaviorSubject } from 'rxjs'
 
 export class AppConfig {
   devMode: boolean
@@ -57,11 +57,11 @@ export class AppState {
     }
   }
 
-  static room_joined(state: AppState, e: Event): AppState {
+  static room_joined(state: AppState, _: Event): AppState {
     return AppState.changePage(state, "game")
   }
 
-  static leave_game(state: AppState, e: Event): AppState {
+  static leave_game(state: AppState, _: Event): AppState {
     return AppState.changePage(state, "menu")
   }
 }

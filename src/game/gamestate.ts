@@ -207,4 +207,10 @@ export class GameState {
 
     return [state, []]
   }
+
+  leave_game(): [GameState, EventToAdd[]] {
+    let state = new GameState(this.config)
+    state.socketID = this.socketID
+    return [state, []]
+  }
 }
