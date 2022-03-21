@@ -107,8 +107,9 @@ export class Hand {
 
   mouseClicked(mouseX: number, mouseY: number): Hand {
     const cards = this.cards.map(card => {
-      if (this.isCardFocused(card, mouseX, mouseY))
+      if (this.isCardFocused(card, mouseX, mouseY)) {
         return card.select()
+      }
 
       return card.deselect()
     })

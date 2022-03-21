@@ -85,8 +85,12 @@ export class EmissionsLine {
     return this.cards.filter(c => !c.isSpace)
   }
 
+  private get spaceCards(): Card[] {
+    return this.cards.filter(c => c.isSpace)
+  }
+
   private getClosestCard(x: number, selectedCard: Card | undefined): Card {
-    const cards = selectedCard ? this.cards : this.nonSpaceCards
+    const cards = selectedCard ? this.spaceCards : this.nonSpaceCards
 
     let closest: Card = cards[0]
     for (const card of cards) {
@@ -120,7 +124,7 @@ export class EmissionsLine {
   private scaleCard(card: Card, mouseX: number, mouseY: number, currentTime: number, selectedCard: Card | undefined): Card {
     if (card.isSpace) return card
 
-    if (this.isCardFocused(card, mouseX, mouseY, selectedCard)) {
+    if (this.isCardFocused(card, mouseX, mouseY, selectedCard) && selectedCard === undefined) {
       return card.setScale(Card.DEFAULT_SCALE * 2, currentTime)
     }
 
