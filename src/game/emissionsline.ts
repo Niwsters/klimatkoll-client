@@ -163,7 +163,10 @@ export class EmissionsLine {
   }
 
   get cards() {
-    return this._cards
+    return this._cards.map((card: Card, i: number) => {
+      card.zLevel = 10 + i
+      return card
+    })
   }
 
   private showSpaceCards(): EmissionsLine {

@@ -11,6 +11,7 @@ import incorrectCardPlacement from './incorrect-card-placement.spec'
 import showNextCard from './show-next-card.spec'
 import selectCard from './select-card.spec'
 import makePlayCardRequest from './make-play-card-request.spec'
+import emissionsLineZIndex from './emissions-line-z-index.spec'
 
 appSpec()
 playCardFromDeck()
@@ -25,3 +26,4 @@ showNextCard()
 hoverHand()
 selectCard()
 makePlayCardRequest()
+emissionsLineZIndex()
