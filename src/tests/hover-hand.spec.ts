@@ -82,6 +82,10 @@ function moveMouseRightOfHand(state: GameState): GameState {
   return moveMouse(state, x, y)
 }
 
+function zLevel(state: GameState): number {
+  return getMainCard(state).zLevel
+}
+
 const currentTime = 1337
 const card = new Card(0, "some-card")
 const card2 = new Card(1, "other-card")
@@ -91,22 +95,13 @@ export default function main() {
   const hovering = handWithCards.when(moveMouseToCard).when(finishAnimation)
 
   // zooms in on card
-  hovering
-    .expect(scale)
-    .toEqual(Card.DEFAULT_SCALE * 2)
-
-  hovering
-    .expect(rotation)
-    .toEqual(0)
-
-  hovering
-    .expect(positionY)
-    .toEqual(HAND_POSITION.y - 230)
+  hovering.expect(scale).toEqual(Card.DEFAULT_SCALE * 2)
+  hovering.expect(rotation).toEqual(0)
+  hovering.expect(positionY).toEqual(HAND_POSITION.y - 230)
+  hovering.expect(zLevel).toEqual(999)
 
   // doesn't zoom in on other card
-  hovering
-    .expect(otherCardScale)
-    .toEqual(Card.DEFAULT_SCALE)
+  hovering.expect(otherCardScale).toEqual(Card.DEFAULT_SCALE)
 
   // doesn't zoom in if mouse too far from y-axis limit
   handWithCards

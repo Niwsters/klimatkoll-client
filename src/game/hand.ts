@@ -47,6 +47,7 @@ export class Hand {
     card = card.move(card.position.x, HAND_POSITION.y - 230, currentTime)
     card = card.setScale(Card.DEFAULT_SCALE * 2, currentTime)
     card = card.rotateGlobal(0, currentTime)
+    card.zLevel = 999
     return card
   }
 
