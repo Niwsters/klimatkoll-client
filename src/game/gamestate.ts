@@ -208,9 +208,17 @@ export class GameState {
     return [state, []]
   }
 
-  leave_game(): [GameState, EventToAdd[]] {
+  private reset(): GameState {
     let state = new GameState(this.config)
     state.socketID = this.socketID
-    return [state, []]
+    return state
+  }
+
+  leave_game(): [GameState, EventToAdd[]] {
+    return [this.reset(), []]
+  }
+
+  game_removed(): [GameState, EventToAdd[]] {
+    return [this.reset(), []]
   }
 }

@@ -64,6 +64,10 @@ export class AppState {
   static leave_game(state: AppState, _: Event): AppState {
     return AppState.changePage(state, "menu")
   }
+
+  static game_removed(state: AppState, _: Event): AppState {
+    return AppState.changePage(state, "menu")
+  }
 }
 
 export class App {
