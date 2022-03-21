@@ -166,22 +166,38 @@ export class EmissionsLine {
     return this._cards
   }
 
-  mouseClicked(selectedCard: Card | undefined): EmissionsLine {
+  private showSpaceCards(): EmissionsLine {
     let el = this.new()
-
     el._cards = el._cards.map(card => {
-      if (card.isSpace) {
-        if (selectedCard) {
-          return card.show()
-        } else {
-          return card.hide()
-        }
-      }
+      if (card.isSpace)
+        return card.show()
 
       return card
     })
-
     return el
+  }
+
+  private hideSpaceCards(): EmissionsLine {
+    let el = this.new()
+    el._cards = el._cards.map(card => {
+      if (card.isSpace)
+        return card.hide()
+
+      return card
+    })
+    return el
+  }
+
+  showHideSpaceCards(selectedCard: Card | undefined) {
+    if (selectedCard)
+      return this.showSpaceCards()
+    else
+      return this.hideSpaceCards()
+  }
+
+  playCard(selectedCard: Card | undefined, mouseX: number, mouseY: number): number {
+    const clickedCardIndex = this.cards.findIndex(card => this.isCardFocused(card, mouseX, mouseY, selectedCard))
+    return clickedCardIndex
   }
 
   addCard(card: Card, position: number, currentTime: number): EmissionsLine {

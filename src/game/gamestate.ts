@@ -1,7 +1,7 @@
 import { Card } from './card'
 import { Hand } from './hand'
 import { OpponentHand } from './opponent-hand'
-import { Event, EventToAdd } from '../event/event'
+import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
 import { AppConfig } from '../App'
 import {
   DECK_POSITION
@@ -83,10 +83,19 @@ export class GameState {
   mouse_clicked(_: Event): [GameState, EventToAdd[]] {
     let state = this.new()
     
-    state.hand = state.hand.mouseClicked(this.mouseX, this.mouseY)
-    state.emissionsLine = state.emissionsLine.mouseClicked(state.hand.selectedCard)
+    const playCardPosition = state.emissionsLine.playCard(state.hand.selectedCard, state.mouseX, state.mouseY)
+    const playedCard = state.hand.selectedCard
 
-    return [state, []]
+    state.hand = state.hand.mouseClicked(state.mouseX, state.mouseY);
+    state.emissionsLine = state.emissionsLine.showHideSpaceCards(state.hand.selectedCard);
+
+    let events: EventToAdd[] = []
+    if (playCardPosition > -1 && playedCard) {
+      if (!playedCard) throw new Error("Can't play card: No card selected")
+      events = [new PlayCardRequestEvent(playedCard.id, playCardPosition)]
+    }
+
+    return [state, events]
   }
 
   next_card(event: Event): [GameState, EventToAdd[]] {
