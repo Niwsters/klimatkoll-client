@@ -85,6 +85,10 @@ function selectHandCard(state: GameState): GameState {
   return clickMouse(hoverHandCard(state))
 }
 
+function cardZIndex(state: GameState): number {
+  return getCardById(state, card.id).zLevel
+}
+
 export default function main() {
   const test = spec()
     .when(() => Factory.GameState())
@@ -95,14 +99,11 @@ export default function main() {
     .when(finishAnimation)
 
   // zooms in on emissions line card
-  hovering
-    .expect(cardScale)
-    .toEqual(Card.DEFAULT_SCALE * 2)
-
+  hovering.expect(cardScale).toEqual(Card.DEFAULT_SCALE * 2)
+  hovering.expect(cardZIndex).toEqual(999)
   // doesn't zoom in on surrounding cards
-  hovering
-    .expect(otherCardScales)
-    .toEqual([Card.DEFAULT_SCALE])
+  hovering.expect(otherCardScales).toEqual([Card.DEFAULT_SCALE])
+
 
   // zooms out if mouse moves outside emissions line Y bounds
   hovering

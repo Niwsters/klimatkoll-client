@@ -93,6 +93,7 @@ export default function main() {
   spec()
     .when(() => Factory.GameState())
     .when(addCard)
+    .when(finishAnimation)
     .expect(emissionsLineZIndexes)
     .toEqual([10, 11, 12])
 }

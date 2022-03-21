@@ -146,6 +146,9 @@ export class EmissionsLine {
   update(time: number, mouseX: number, mouseY: number, selectedCard: Card | undefined): EmissionsLine {
     let el = this.new()
     el = el.mouse_moved(mouseX, mouseY, time, selectedCard)
+
+    el._cards = el._cards.map((card: Card, i: number) => this.setCardZLevels(card, i, mouseX, mouseY, selectedCard))
+
     el._cards = el._cards
       .map(card => card.update(time))
       .map(card => {
@@ -162,11 +165,17 @@ export class EmissionsLine {
     return el
   }
 
-  get cards() {
-    return this._cards.map((card: Card, i: number) => {
-      card.zLevel = 10 + i
-      return card
-    })
+  private setCardZLevels(card: Card, i: number, mouseX: number, mouseY: number, selectedCard: Card | undefined): Card {
+    card.zLevel = 10 + i
+
+    if (this.isCardFocused(card, mouseX, mouseY, selectedCard))
+      card.zLevel = 999
+
+    return card
+  }
+
+  get cards(): Card[] {
+    return this._cards
   }
 
   private showSpaceCards(): EmissionsLine {
