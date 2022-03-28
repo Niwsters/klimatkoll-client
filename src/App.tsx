@@ -78,6 +78,7 @@ export class App {
   canvas: Canvas
   state$: BehaviorSubject<AppState>
   gamestate$: BehaviorSubject<GameState>
+  private width$: BehaviorSubject<number>
 
   get state(): AppState {
     return this.state$.value
@@ -87,9 +88,10 @@ export class App {
     this.state$.next(newState)
   }
 
-  constructor(config: AppConfig, canvasElem: HTMLCanvasElement) {
+  constructor(config: AppConfig, canvasElem: HTMLCanvasElement, width: number) {
     this.config = config
     this.state$ = new BehaviorSubject(new AppState())
+    this.width$ = new BehaviorSubject(width)
     this.eventStream = new EventStream()
     const eventStream = this.eventStream
 
@@ -120,7 +122,6 @@ export class App {
     }, 1000/60)
   }
 
-  private width$: BehaviorSubject<number> = new BehaviorSubject(0)
   resize(width: number, height: number) {
     this.width$.next(width)
     this.canvas.resize(width, height)

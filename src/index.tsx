@@ -40,9 +40,17 @@ function renderUI(
   )
 }
 
+function desiredWidth(): number {
+  return window.innerWidth * window.devicePixelRatio;
+}
+
+function desiredHeight(): number {
+  return desiredWidth() * 0.5625
+}
+
 function createApp(root: Root, text: TextConfig, canvasElem: HTMLCanvasElement) {
   const config = new AppConfig(root.devMode, root.language, text);
-  return new App(config, canvasElem)
+  return new App(config, canvasElem, window.innerWidth * window.devicePixelRatio)
 }
 
 function renderApp(root: Root, text: TextConfig) {
@@ -53,10 +61,7 @@ function renderApp(root: Root, text: TextConfig) {
   const app = createApp(root, text, canvasElem)
 
   window.addEventListener('resize', () => {
-    const ratio = window.devicePixelRatio; // Changes on browser/OS zoom
-    const width = window.innerWidth * ratio;
-    const height = window.innerWidth * 0.5625 * ratio; // 540 / 960 = 0.5625
-    app.resize(width, height)
+    app.resize(desiredWidth(), desiredHeight())
   }, false)
 
   renderUI(uiElem, app)
