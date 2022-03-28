@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
 import { App, AppConfig } from './App';
 import { TextConfig } from './models/text-config'
@@ -14,12 +13,12 @@ const devMode =
 
 const url = devMode ? "http://localhost:3000" : "https://spela.kortspeletklimatkoll.se"
 
-function AppInnerElem() {
-  const appInnerElem = document.createElement('div')
-  appInnerElem.id = "app-inner"
-  appInnerElem.style.display = "block"
-  appInnerElem.style.height = "100%"
-  return appInnerElem
+function UIElem() {
+  const uiElem = document.createElement('div')
+  uiElem.id = "app-inner"
+  uiElem.style.display = "block"
+  uiElem.style.height = "100%"
+  return uiElem
 }
 
 function CanvasElem() {
@@ -28,11 +27,11 @@ function CanvasElem() {
   return canvasElem
 }
 
-function AppElem(appInnerElem: HTMLElement) {
+function AppElem(uiElem: HTMLElement) {
   const appElem = document.createElement('div')
   appElem.id = "app"
 
-  appElem.appendChild(appInnerElem)
+  appElem.appendChild(uiElem)
   appElem.appendChild(CanvasElem())
 
   return appElem
@@ -42,27 +41,32 @@ function initContainer() {
   const root = document.getElementById('climate-call')
   if (!root) throw new Error("Can't find element with ID climate-call")
 
-  const appInnerElem = AppInnerElem()
-  root.appendChild(AppElem(appInnerElem))
-  return appInnerElem
+  const uiElem = UIElem()
+  root.appendChild(AppElem(uiElem))
+  return uiElem
 }
 
 function renderApp(text: TextConfig) {
   const config = new AppConfig(devMode, lang, text);
 
-  const appInnerElem = initContainer()
+  const uiElem = initContainer()
 
   const app = new App(config)
 
   ReactDOM.render(
     app.render(),
-    appInnerElem
+    uiElem
   )
 }
 
-async function start() {
+async function getTextConfig(): Promise<TextConfig> {
   const response: Response = await fetch(`${url}/${lang}/text.json`)
   const textConfig: TextConfig = await response.json()
+  return textConfig
+}
+
+async function start() {
+  const textConfig = await getTextConfig()
   renderApp(textConfig)
 }
 
