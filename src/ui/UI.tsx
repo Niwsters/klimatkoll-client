@@ -65,8 +65,12 @@ export class UIComponent extends React.Component<Props, State> {
         break;
     }
 
+    const style = {
+      "height": "56.25vw"
+    }
+
     return (
-      <div id="app">
+      <div style={style}>
         <div style={{ display: "block", height: "100%" }}>
           { page }
         </div>

@@ -21,15 +21,6 @@ canvas, #user-interface {
   position: absolute;
 }
 
-#app {
-  display: block;
-  margin: auto;
-
-  width: 100%;
-  height: 56.25vw;
-  background: white;
-}
-
 button:hover {
   background: #cef0ea;
 }
@@ -37,28 +28,4 @@ button:hover {
 button:active {
   background: #7c918e;
   color: black;
-}
-
-.notification-container {
-  margin-top: -3.54vw;
-}
-
-.notification {
-  width: 100%;
-  background: #333;
-  color: white;
-  padding: 0.52vw 1.04vw;
-  text-align: center;
-  box-sizing: border-box;
-  position: absolute;
-  top: 0;
-  z-index: 999;
-  margin-top: -36.5vw;
-  width: 100vw;
-  transition: margin-top 0.2s;
-  font-size: 1.67vw;
-}
-
-.notification.show {
-  margin-top: 0;
 }
