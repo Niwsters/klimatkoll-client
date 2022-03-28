@@ -5,21 +5,12 @@ import { EventToAdd, MouseMovedEvent, MouseClickedEvent } from '../event/event'
 import { GameState } from '../game/gamestate'
 import { CardData } from '../cards'
 
-let cardSprites: CardSprite[] = []
-
-function getCanvas(): HTMLCanvasElement {
-  const canvas = document.getElementById('klimatkoll-canvas')
-  if (!canvas)
-    throw new Error("Can't find canvas element with ID klimatkoll-canvas")
-  return canvas as HTMLCanvasElement
-}
-
 export class Canvas {
   gl: WebGLRenderingContext
   events$: Subject<EventToAdd> = new Subject<EventToAdd>()
+  cardSprites: CardSprite[] = []
 
-  constructor(canvasElem: HTMLCanvasElement) {
-    const canvas = getCanvas()
+  constructor(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext("webgl")
     if (!gl) throw new Error("gl is null")
     this.gl = gl
@@ -45,15 +36,9 @@ export class Canvas {
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     }, false)
 
-    if (!gl) {
-      throw new Error("Failed to initialize WebGL")
-    }
-
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-    this.gl = gl
   }
 
   prepare(baseUrl: string): void {
@@ -73,6 +58,7 @@ export class Canvas {
 
   render(state: GameState) {
     const gl = this.gl
+    let cardSprites = this.cardSprites
 
     gl.clearColor(1, 1, 1, 1)
     gl.clear(gl.COLOR_BUFFER_BIT)
@@ -112,5 +98,7 @@ export class Canvas {
       .forEach((sprite: CardSprite) => {
         CardSprite.render(sprite)
       })
+
+    this.cardSprites = cardSprites
   }
 }
