@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { App, AppComponent, AppConfig } from './App';
+import { App, AppConfig } from './App';
 import { TextConfig } from './models/text-config'
 
 const rootElem = document.getElementById('climate-call')
@@ -14,26 +14,56 @@ const devMode =
 
 const url = devMode ? "http://localhost:3000" : "https://spela.kortspeletklimatkoll.se"
 
-fetch(`${url}/${lang}/text.json`)
-  .then(response => response.json())
-  .then((text: TextConfig) => {
-    const config = new AppConfig(devMode, lang, text);
+function AppInnerElem() {
+  const appInnerElem = document.createElement('div')
+  appInnerElem.id = "app-inner"
+  appInnerElem.style.display = "block"
+  appInnerElem.style.height = "100%"
+  return appInnerElem
+}
 
-    ReactDOM.render(
-      <React.StrictMode>
-        <div id="app">
-          <div id="app-inner" style={{ display: "block", height: "100%" }}>
-          </div>
-          <canvas id="klimatkoll-canvas" />
-        </div>
-      </React.StrictMode>,
-      document.getElementById('climate-call')
-    );
+function CanvasElem() {
+  const canvasElem = document.createElement('canvas')
+  canvasElem.id = "klimatkoll-canvas"
+  return canvasElem
+}
 
-    const app = new App(config)
+function AppElem(appInnerElem: HTMLElement) {
+  const appElem = document.createElement('div')
+  appElem.id = "app"
 
-    ReactDOM.render(
-      app.render(),
-      document.getElementById('app-inner')
-    )
-  })
+  appElem.appendChild(appInnerElem)
+  appElem.appendChild(CanvasElem())
+
+  return appElem
+}
+
+function initContainer() {
+  const root = document.getElementById('climate-call')
+  if (!root) throw new Error("Can't find element with ID climate-call")
+
+  const appInnerElem = AppInnerElem()
+  root.appendChild(AppElem(appInnerElem))
+  return appInnerElem
+}
+
+function renderApp(text: TextConfig) {
+  const config = new AppConfig(devMode, lang, text);
+
+  const appInnerElem = initContainer()
+
+  const app = new App(config)
+
+  ReactDOM.render(
+    app.render(),
+    appInnerElem
+  )
+}
+
+async function start() {
+  const response: Response = await fetch(`${url}/${lang}/text.json`)
+  const textConfig: TextConfig = await response.json()
+  renderApp(textConfig)
+}
+
+start()
