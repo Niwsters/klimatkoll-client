@@ -1,6 +1,7 @@
 import { renderUI } from './App';
 import { TextConfig } from './models/text-config'
 import { root, Root } from './root'
+import { Overlay } from './Overlay'
 
 function UIElem() {
   const uiElem = document.createElement('div')
@@ -17,14 +18,7 @@ function CanvasElem() {
 function AppElem(uiElem: HTMLElement, canvasElem: HTMLCanvasElement) {
   const appElem = document.createElement('div')
   appElem.id = "app"
-  appElem.style.position = "relative"
-
-  canvasElem.style.position = "absolute"
-  uiElem.style.position = "absolute"
-
-  appElem.appendChild(canvasElem)
-  appElem.appendChild(uiElem)
-
+  appElem.appendChild(Overlay(canvasElem, uiElem))
   return appElem
 }
 
