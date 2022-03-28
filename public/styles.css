@@ -12,20 +12,3 @@ body {
   background: #e5e5e5;
   font-family: 'Poppins', sans-serif;
 }
-
-#app {
-  position: relative;
-}
-
-canvas, #user-interface {
-  position: absolute;
-}
-
-button:hover {
-  background: #cef0ea;
-}
-
-button:active {
-  background: #7c918e;
-  color: black;
-}

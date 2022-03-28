@@ -17,6 +17,10 @@ function CanvasElem() {
 function AppElem(uiElem: HTMLElement, canvasElem: HTMLCanvasElement) {
   const appElem = document.createElement('div')
   appElem.id = "app"
+  appElem.style.position = "relative"
+
+  canvasElem.style.position = "absolute"
+  uiElem.style.position = "absolute"
 
   appElem.appendChild(canvasElem)
   appElem.appendChild(uiElem)
