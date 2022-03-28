@@ -8,6 +8,8 @@ import { EventStream } from './event/event-stream'
 import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
 import { UIComponent } from './ui/UI'
+import { Root } from './root'
+import ReactDOM from 'react-dom'
 
 export class AppConfig {
   devMode: boolean
@@ -67,6 +69,15 @@ export class AppState {
   static game_removed(state: AppState, _: Event): AppState {
     return AppState.changePage(state, "menu")
   }
+}
+
+export function renderUI(uiElem: HTMLElement, text: TextConfig, root: Root) {
+  const config = new AppConfig(root.devMode, root.language, text);
+  const app = new App(config)
+  ReactDOM.render(
+    app.renderUI(),
+    uiElem
+  )
 }
 
 export class App {
@@ -130,7 +141,7 @@ export class App {
       this.state = func(this.state, event)
   }
 
-  render() {
+  renderUI() {
     return <UIComponent 
       config={this.config}
       state$={this.state$}
