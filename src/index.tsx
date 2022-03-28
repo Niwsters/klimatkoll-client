@@ -4,7 +4,7 @@ import { root, Root } from './root'
 
 function UIElem() {
   const uiElem = document.createElement('div')
-  uiElem.id = "app-inner"
+  uiElem.id = "user-interface"
   return uiElem
 }
 
@@ -18,8 +18,8 @@ function AppElem(uiElem: HTMLElement, canvasElem: HTMLCanvasElement) {
   const appElem = document.createElement('div')
   appElem.id = "app"
 
-  appElem.appendChild(uiElem)
   appElem.appendChild(canvasElem)
+  appElem.appendChild(uiElem)
 
   return appElem
 }

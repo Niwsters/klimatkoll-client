@@ -44,10 +44,6 @@ export class UIComponent extends React.Component<Props, State> {
     const state = this.state.appstate
     const gamestate = this.state.gamestate
 
-    const canvas = document.getElementById('klimatkoll-canvas')
-    if (!canvas)
-      throw new Error("Can't find canvas with ID: klimatkoll-canvas")
-
     if (!state)
       return "";
 
@@ -55,7 +51,6 @@ export class UIComponent extends React.Component<Props, State> {
     let statusBar: any = ""
     switch(state.currentPage) {
       case "menu": {
-        canvas.style.display = 'none'
         page = <Menu
           config={config}
           addEvent={addEvent} />;
@@ -63,7 +58,6 @@ export class UIComponent extends React.Component<Props, State> {
       }
       case "game":
         page = ''
-        canvas.style.display = 'block'
         statusBar = <StatusBar
           gamestate={gamestate}
           config={config}
