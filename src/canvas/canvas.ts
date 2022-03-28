@@ -18,7 +18,7 @@ export class Canvas {
   gl: WebGLRenderingContext
   events$: Subject<EventToAdd> = new Subject<EventToAdd>()
 
-  constructor() {
+  constructor(canvasElem: HTMLCanvasElement) {
     const canvas = getCanvas()
     const gl = canvas.getContext("webgl")
     if (!gl) throw new Error("gl is null")

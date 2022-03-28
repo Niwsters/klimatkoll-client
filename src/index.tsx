@@ -14,24 +14,21 @@ function CanvasElem() {
   return canvasElem
 }
 
-function AppElem(uiElem: HTMLElement) {
+function AppElem(uiElem: HTMLElement, canvasElem: HTMLCanvasElement) {
   const appElem = document.createElement('div')
   appElem.id = "app"
 
   appElem.appendChild(uiElem)
-  appElem.appendChild(CanvasElem())
+  appElem.appendChild(canvasElem)
 
   return appElem
 }
 
-function initContainer(root: Root, uiElem: HTMLElement) {
-  root.element.appendChild(AppElem(uiElem))
-}
-
 function renderApp(root: Root, text: TextConfig) {
   const uiElem = UIElem()
-  initContainer(root, uiElem)
-  renderUI(uiElem, text, root)
+  const canvasElem = CanvasElem()
+  root.element.appendChild(AppElem(uiElem, canvasElem))
+  renderUI(uiElem, text, root.devMode, root.language, canvasElem)
 }
 
 async function getTextConfig(root: Root): Promise<TextConfig> {

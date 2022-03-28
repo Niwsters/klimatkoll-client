@@ -8,7 +8,6 @@ import { EventStream } from './event/event-stream'
 import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
 import { UIComponent } from './ui/UI'
-import { Root } from './root'
 import ReactDOM from 'react-dom'
 
 export class AppConfig {
@@ -71,9 +70,9 @@ export class AppState {
   }
 }
 
-export function renderUI(uiElem: HTMLElement, text: TextConfig, root: Root) {
-  const config = new AppConfig(root.devMode, root.language, text);
-  const app = new App(config)
+export function renderUI(uiElem: HTMLElement, text: TextConfig, devMode: boolean, language: string, canvasElem: HTMLCanvasElement) {
+  const config = new AppConfig(devMode, language, text);
+  const app = new App(config, canvasElem)
   ReactDOM.render(
     app.renderUI(),
     uiElem
@@ -97,7 +96,7 @@ export class App {
     this.state$.next(newState)
   }
 
-  constructor(config: AppConfig) {
+  constructor(config: AppConfig, canvasElem: HTMLCanvasElement) {
     this.config = config
     this.state$ = new BehaviorSubject(new AppState())
     this.eventStream = new EventStream()
@@ -113,7 +112,7 @@ export class App {
     this.game.events$.subscribe((event: EventToAdd) => console.log("From GameState:", event))
     this.gamestate$ = this.game.state$
 
-    this.canvas = new Canvas()
+    this.canvas = new Canvas(canvasElem)
     this.canvas.prepare(`${this.config.httpServerURL}/${this.config.language}`)
     this.canvas.events$.subscribe((event: EventToAdd) => eventStream.next(event))
 
