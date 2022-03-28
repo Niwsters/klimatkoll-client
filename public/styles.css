@@ -35,27 +35,6 @@ canvas, #user-interface {
   background: white;
 }
 
-input, button {
-  display: block;
-  margin: auto;
-  border: none;
-  border-radius: 0;
-  padding: 0.52vw 1.04vw;
-  width: 27.1vw;
-  box-sizing: border-box;
-  margin-top: 1.04vw;
-  font-family: 'Poppins', sans-serif;
-  font-size: 2.1vw;
-}
-
-button.pink {
-  background: #f4ccc5;
-}
-
-button.yellow {
-  background: #fdd76b;
-}
-
 button:hover {
   background: #cef0ea;
 }
@@ -87,19 +66,4 @@ button:active {
 
 .notification.show {
   margin-top: 0;
-}
-
-.menu {
-  background: #181543;
-  width: 100vw;
-  height: 100%;
-  padding-top: 10.4vw;
-  box-sizing: border-box;
-}
-
-.menu .logo {
-  display: block;
-  width: 31.25vw;
-  margin: auto;
-  padding-bottom: 3.125vw;
 }

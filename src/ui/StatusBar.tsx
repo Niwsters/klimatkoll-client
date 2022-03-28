@@ -16,15 +16,15 @@ function RoomID(text: TextConfig, roomID: string) {
 
 function LeaveGameBtn(text: TextConfig, addEvent: (event: EventToAdd) => void) {
   const style: any = {
-    "display": "block",
-    "margin": 0,
-    "font-family": 'Roboto',
-    "color": "#333",
     'width': '100%',
     'height': '4.17vw'
   }
 
-  return <button style={style} className="pink" onClick={() => addEvent(new LeaveGameEvent())}>{ text.btnLeaveGame }</button>
+  function onClick() {
+    addEvent(new LeaveGameEvent())
+  }
+
+  return <button style={style} className="pink" onClick={onClick}>{ text.btnLeaveGame }</button>
 }
 
 function StatusMessage(message: string) {
