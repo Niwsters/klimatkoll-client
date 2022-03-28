@@ -3,11 +3,6 @@
   font-family: 'Poppins';
 }
 
-@font-face {
-  src: url(fonts/Roboto-Bold.ttf);
-  font-family: 'Roboto';
-}
-
 html, body {
   margin: 0;
   padding: 0;

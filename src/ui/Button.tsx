@@ -3,12 +3,11 @@ import React from 'react'
 function Button(label: string, onClick: () => void, backgroundColor: string) {
   const style: any = {
     "background-color": backgroundColor,
+    'width': '100%',
     'display': 'block',
-    'margin': '0 auto',
     'border': 'none',
     'border-radius': 0,
     'padding': '0.52vw 1.04vw',
-    'width': '27.1vw',
     'box-sizing': 'border-box',
     'margin-top': '1.04vw',
     'font-family': "'Poppins', sans-serif",

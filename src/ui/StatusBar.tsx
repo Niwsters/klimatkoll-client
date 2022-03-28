@@ -3,6 +3,7 @@ import { AppConfig } from '../App'
 import { GameState } from '../game/gamestate'
 import { EventToAdd, LeaveGameEvent } from '../event/event'
 import { TextConfig } from '../models/text-config'
+import { PinkButton } from './Button'
 
 function RoomID(text: TextConfig, roomID: string) {
   const style: any = {
@@ -15,16 +16,11 @@ function RoomID(text: TextConfig, roomID: string) {
 }
 
 function LeaveGameBtn(text: TextConfig, addEvent: (event: EventToAdd) => void) {
-  const style: any = {
-    'width': '100%',
-    'height': '4.17vw'
-  }
-
   function onClick() {
     addEvent(new LeaveGameEvent())
   }
 
-  return <button style={style} className="pink" onClick={onClick}>{ text.btnLeaveGame }</button>
+  return PinkButton(text.btnLeaveGame, onClick)
 }
 
 function StatusMessage(message: string) {
@@ -52,7 +48,6 @@ export function StatusBar(props: {
     "display": "flex",
     "justify-content": "space-between",
     "flex-direction": "column",
-    "font-family": "Roboto",
     "box-sizing": "border-box",
     "width": "24vw",
     "height": "56.25vw",

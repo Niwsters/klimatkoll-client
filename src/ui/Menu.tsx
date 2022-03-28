@@ -1,8 +1,11 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { TextConfig } from '../models/text-config'
 import { AppConfig } from '../App'
 import { EventToAdd, CreateGameEvent, JoinGameEvent } from '../event/event'
 import { PinkButton, YellowButton } from './Button'
+import { TextInput } from './TextInput'
+
+type AddEventFunc = (event: EventToAdd) => void
 
 function Logo(serverUrl: string, text: TextConfig) {
   const style: any = {
@@ -16,27 +19,10 @@ function Logo(serverUrl: string, text: TextConfig) {
 }
 
 function RoomIDInput(text: TextConfig, onChange: (roomID: string) => void) {
-  const style: any = {
-    'display': 'block',
-    'margin': '0 auto',
-    'border': 'none',
-    'border-radius': 0,
-    'padding': '0.52vw 1.04vw',
-    'width': '27.1vw',
-    'box-sizing': 'border-box',
-    'margin-top': '1.04vw',
-    'font-family': "'Poppins', sans-serif",
-    'font-size': '2.1vw',
-  }
-
-  function roomIDChanged(event: any) {
-    onChange(event.target.value)
-  }
-
-  return <input type="text" placeholder={text.inputRoomID} onChange={roomIDChanged} style={style} />
+  return TextInput(text.inputRoomID, onChange)
 }
 
-function CreateGameBtn(text: TextConfig, addEvent: (event: EventToAdd) => void, roomID: string) {
+function CreateGameBtn(text: TextConfig, addEvent: AddEventFunc, roomID: string) {
   function onClick() {
     addEvent(new CreateGameEvent(roomID))
   }
@@ -44,7 +30,7 @@ function CreateGameBtn(text: TextConfig, addEvent: (event: EventToAdd) => void, 
   return PinkButton(text.btnCreateGame, onClick)
 }
 
-function JoinGameBtn(text: TextConfig, addEvent: (event: EventToAdd) => void, roomID: string) {
+function JoinGameBtn(text: TextConfig, addEvent: AddEventFunc, roomID: string) {
   function onClick() {
     addEvent(new JoinGameEvent(roomID))
   }
@@ -52,8 +38,22 @@ function JoinGameBtn(text: TextConfig, addEvent: (event: EventToAdd) => void, ro
   return YellowButton(text.btnJoinGame, onClick)
 }
 
+function ButtonLayout(
+  elements: ReactElement[]
+) {
+  const style: any = {
+    'width': '27.1vw',
+    'margin': '0 auto',
+    'font-family': "'Poppins', sans-serif",
+  }
+
+  return <div style={style}>
+    { elements }
+  </div>
+}
+
 interface Props {
-  addEvent: (event: EventToAdd) => void
+  addEvent: AddEventFunc
   config: AppConfig
 }
 
@@ -91,9 +91,13 @@ export class Menu extends React.Component<Props, State> {
     return (
       <div style={style}>
         { Logo(httpServerURL, text) }
-        { RoomIDInput(text, setRoomID) }
-        { CreateGameBtn(text, addEvent, roomID) }
-        { JoinGameBtn(text, addEvent, roomID) }
+        {
+          ButtonLayout([
+            RoomIDInput(text, setRoomID),
+            CreateGameBtn(text, addEvent, roomID),
+            JoinGameBtn(text, addEvent, roomID)
+          ])
+        }
       </div>
     )
   }
