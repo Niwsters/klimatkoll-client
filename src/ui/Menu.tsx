@@ -77,13 +77,11 @@ export class Menu extends React.Component<Props, State> {
     return (
       <div style={style}>
         { Logo(httpServerURL, text, width) }
-        {
-          ButtonLayout([
-            RoomIDInput(text, setRoomID),
-            CreateGameBtn(text, addEvent, roomID),
-            JoinGameBtn(text, addEvent, roomID)
-          ])
-        }
+        <ButtonLayout>
+          { RoomIDInput(text, setRoomID) }
+          { CreateGameBtn(text, addEvent, roomID) }
+          { JoinGameBtn(text, addEvent, roomID) }
+        </ButtonLayout>
       </div>
     )
   }
