@@ -1,18 +1,19 @@
-import React, { ReactElement } from 'react'
+import React from 'react'
 import { TextConfig } from '../models/text-config'
 import { AppConfig } from '../App'
 import { EventToAdd, CreateGameEvent, JoinGameEvent } from '../event/event'
 import { PinkButton, YellowButton } from './Button'
 import { TextInput } from './TextInput'
+import { ButtonLayout } from './ButtonLayout'
 
 type AddEventFunc = (event: EventToAdd) => void
 
-function Logo(serverUrl: string, text: TextConfig) {
+function Logo(serverUrl: string, text: TextConfig, appWidth: number) {
   const style: any = {
     "display": "block",
-    "width": "31.25vw",
+    "width": 0.3125 * appWidth,
     'margin': 'auto',
-    'padding-bottom': '3.125vw',
+    'padding-bottom': 0.03125 * appWidth,
   }
 
   return <img src={serverUrl + "/logo.webp"} alt={text.altClimateCallLogo} style={style} />
@@ -38,23 +39,10 @@ function JoinGameBtn(text: TextConfig, addEvent: AddEventFunc, roomID: string) {
   return YellowButton(text.btnJoinGame, onClick)
 }
 
-function ButtonLayout(
-  elements: ReactElement[]
-) {
-  const style: any = {
-    'width': '27.1vw',
-    'margin': '0 auto',
-    'font-family': "'Poppins', sans-serif",
-  }
-
-  return <div style={style}>
-    { elements }
-  </div>
-}
-
 interface Props {
   addEvent: AddEventFunc
   config: AppConfig
+  width: number
 }
 
 interface State {
@@ -72,9 +60,7 @@ export class Menu extends React.Component<Props, State> {
   }
 
   render() {
-    const props = this.props
-    const config = props.config
-    const addEvent = props.addEvent
+    const { config, addEvent, width } = this.props
     const text = config.text
     const httpServerURL = config.httpServerURL
     const roomID = this.state.roomID
@@ -82,15 +68,15 @@ export class Menu extends React.Component<Props, State> {
 
     const style = {
       'background': '#181543',
-      'width': '100vw',
+      'width': width + 'px',
       'height': '100%',
-      'padding-top': '10.4vw',
+      'padding-top': 0.104 * width + 'px',
       'box-sizing': 'border-box',
     }
 
     return (
       <div style={style}>
-        { Logo(httpServerURL, text) }
+        { Logo(httpServerURL, text, width) }
         {
           ButtonLayout([
             RoomIDInput(text, setRoomID),

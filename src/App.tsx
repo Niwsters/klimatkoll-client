@@ -70,15 +70,6 @@ export class AppState {
   }
 }
 
-export function renderUI(uiElem: HTMLElement, text: TextConfig, devMode: boolean, language: string, canvasElem: HTMLCanvasElement) {
-  const config = new AppConfig(devMode, language, text);
-  const app = new App(config, canvasElem)
-  ReactDOM.render(
-    app.renderUI(),
-    uiElem
-  )
-}
-
 export class App {
   socket: Socket
   game: Game
@@ -127,7 +118,12 @@ export class App {
       this.canvas.render(gamestate)
       this.gamestate$.next(gamestate.update(Date.now()))
     }, 1000/60)
+  }
 
+  private width$: BehaviorSubject<number> = new BehaviorSubject(0)
+  resize(width: number, height: number) {
+    this.width$.next(width)
+    this.canvas.resize(width, height)
   }
 
   addEvent(e: EventToAdd) {
@@ -145,6 +141,7 @@ export class App {
       config={this.config}
       state$={this.state$}
       gamestate$={this.gamestate$}
+      appWidth$={this.width$}
       addEvent={this.addEvent.bind(this)}
       />;
   }

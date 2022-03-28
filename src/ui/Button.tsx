@@ -22,22 +22,23 @@ class Button extends React.Component<Props, State> {
     this.setState({ hover })
   }
 
-  private get style() {
+  private get color(): string {
     const { backgroundColor } = this.props
     const hoverColor = "#cef0ea"
-    const color = this.state.hover ? hoverColor : backgroundColor
+    return this.state.hover ? hoverColor : backgroundColor
+  }
 
+  private get style() {
     return {
-      "background-color": color,
+      "background-color": this.color,
       'width': '100%',
       'display': 'block',
       'border': 'none',
       'border-radius': 0,
-      'padding': '0.52vw 1.04vw',
+      'padding': '0.52% 1.04%',
       'box-sizing': 'border-box',
-      'margin-top': '1.04vw',
       'font-family': "'Poppins', sans-serif",
-      'font-size': '2.1vw',
+      'font-size': '1em',
     }
   }
 

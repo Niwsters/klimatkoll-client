@@ -1,6 +1,6 @@
 import React from 'react'
 import { BehaviorSubject } from "rxjs"
-import { AppConfig, AppState } from '../App̈́'
+import { AppConfig, AppState } from '../App'
 import { GameState } from '../game/gamestate'
 import { EventToAdd } from '../event/event'
 import { Menu } from './Menu'
@@ -10,12 +10,14 @@ interface Props {
   config: AppConfig
   state$: BehaviorSubject<AppState>
   gamestate$: BehaviorSubject<GameState>
+  appWidth$: BehaviorSubject<number>
   addEvent: (e: EventToAdd) => void
 }
 
 interface State {
   appstate: AppState,
-  gamestate: GameState
+  gamestate: GameState,
+  width: number
 }
 
 export class UIComponent extends React.Component<Props, State> {
@@ -23,7 +25,8 @@ export class UIComponent extends React.Component<Props, State> {
     super(props)
     this.state = {
       appstate: props.state$.value,
-      gamestate: props.gamestate$.value
+      gamestate: props.gamestate$.value,
+      width: 0
     }
   }
 
@@ -35,6 +38,8 @@ export class UIComponent extends React.Component<Props, State> {
     this.props.gamestate$.subscribe(gamestate => {
       this.setState({ gamestate: gamestate })
     })
+
+    this.props.appWidth$.subscribe(width => this.setState({ width }))
   }
 
   render() {
@@ -43,6 +48,7 @@ export class UIComponent extends React.Component<Props, State> {
     const addEvent = props.addEvent
     const state = this.state.appstate
     const gamestate = this.state.gamestate
+    const width = this.state.width
 
     if (!state)
       return "";
@@ -53,7 +59,9 @@ export class UIComponent extends React.Component<Props, State> {
       case "menu": {
         page = <Menu
           config={config}
-          addEvent={addEvent} />;
+          addEvent={addEvent}
+          width={width}
+          />;
         break;
       }
       case "game":

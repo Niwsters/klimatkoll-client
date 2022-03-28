@@ -9,11 +9,11 @@ export class Canvas {
   gl: WebGLRenderingContext
   events$: Subject<EventToAdd> = new Subject<EventToAdd>()
   cardSprites: CardSprite[] = []
+  canvas: HTMLCanvasElement
 
   constructor(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext("webgl")
     if (!gl) throw new Error("gl is null")
-    this.gl = gl
 
     const ratio = window.devicePixelRatio; // Changes on browser/OS zoom
     canvas.width = window.innerWidth * ratio;
@@ -29,16 +29,21 @@ export class Canvas {
       this.events$.next(new MouseClickedEvent())
     }, false)
 
-    window.addEventListener('resize', () => {
-      const ratio = window.devicePixelRatio; // Changes on browser/OS zoom
-      canvas.width = window.innerWidth * ratio;
-      canvas.height = window.innerWidth * 0.5625 * ratio; // 540 / 960 = 0.5625
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-    }, false)
-
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    
+    this.gl = gl
+    this.canvas = canvas
+  }
+
+  resize(width: number, height: number) {
+    const gl = this.gl
+    const canvas = this.canvas
+
+    canvas.width = width
+    canvas.height = height
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
   }
 
   prepare(baseUrl: string): void {
