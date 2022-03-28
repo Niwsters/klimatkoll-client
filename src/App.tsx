@@ -211,7 +211,6 @@ export class AppComponent extends Component<Props, State> {
         <div style={{ display: "block", height: "100%" }}>
           { page }
         </div>
-        <link rel="stylesheet" href={config.httpServerURL + "/styles.css"} />
         { statusBar }
       </div>
     );

@@ -25,7 +25,6 @@ fetch(`${url}/${lang}/text.json`)
           <div id="app-inner" style={{ display: "block", height: "100%" }}>
           </div>
           <canvas id="klimatkoll-canvas" />
-          <link rel="stylesheet" href={config.httpServerURL + "/styles.css"} />
         </div>
       </React.StrictMode>,
       document.getElementById('climate-call')
