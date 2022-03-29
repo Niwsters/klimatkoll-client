@@ -1,4 +1,4 @@
-class BaseFontSize {
+export class BaseFontSize {
   readonly element: HTMLStyleElement
   constructor() {
     const element = document.createElement('style')

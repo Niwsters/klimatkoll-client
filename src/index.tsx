@@ -3,6 +3,7 @@ import { TextConfig } from './models/text-config'
 import { root, Root } from './root'
 import { Overlay } from './Overlay'
 import ReactDOM from 'react-dom';
+import { BaseFontSize } from './BaseFontSize';
 
 function UIElem() {
   const uiElem = document.createElement('div')
@@ -23,19 +24,6 @@ function AppElem(uiElem: HTMLElement, canvasElem: HTMLCanvasElement) {
   appElem.appendChild(Overlay(canvasElem, uiElem))
  
   return appElem
-}
-
-class BaseFontSize {
-  readonly element: HTMLStyleElement
-  constructor() {
-    const element = document.createElement('style')
-    element.innerText = "#app { font-size: 2.1vw; }"
-    this.element = element
-  }
-
-  resize(appWidth: number) {
-    this.element.innerText = `#app { font-size: ${0.021 * appWidth}px }`
-  }
 }
 
 function renderUI(
