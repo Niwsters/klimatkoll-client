@@ -21,6 +21,8 @@ function CanvasElem() {
 function AppElem(uiElem: HTMLElement, canvasElem: HTMLCanvasElement) {
   const appElem = document.createElement('div')
   appElem.id = "app"
+  appElem.style.width = "100%"
+  appElem.style.height = "100%"
   appElem.appendChild(Overlay(canvasElem, uiElem))
  
   return appElem
@@ -40,22 +42,22 @@ function scalePixelRatio(pixels: number) {
   return pixels * window.devicePixelRatio
 }
 
-function desiredWidth(): number {
-  const viewportWidth = document.documentElement.clientWidth
-  const viewportHeight = document.documentElement.clientHeight
+function desiredWidth(root: Root): number {
+  const viewportWidth = root.element.clientWidth
+  const viewportHeight = root.element.clientHeight
   if (viewportHeight / viewportWidth < 0.5625)
     return scalePixelRatio(viewportHeight) / 0.5625;
 
   return scalePixelRatio(viewportWidth);
 }
 
-function desiredHeight(): number {
-  return desiredWidth() * 0.5625
+function desiredHeight(root: Root): number {
+  return desiredWidth(root) * 0.5625
 }
 
 function createApp(root: Root, text: TextConfig, canvasElem: HTMLCanvasElement) {
   const config = new AppConfig(root.devMode, root.language, text);
-  return new App(config, canvasElem, desiredWidth())
+  return new App(config, canvasElem, desiredWidth(root))
 }
 
 function renderApp(root: Root, text: TextConfig) {
@@ -68,8 +70,8 @@ function renderApp(root: Root, text: TextConfig) {
   const app = createApp(root, text, canvasElem)
 
   window.addEventListener('resize', () => {
-    app.resize(desiredWidth(), desiredHeight())
-    baseFontSize.resize(desiredWidth())
+    app.resize(desiredWidth(root), desiredHeight(root))
+    baseFontSize.resize(desiredWidth(root))
   }, false)
 
   renderUI(uiElem, app)
