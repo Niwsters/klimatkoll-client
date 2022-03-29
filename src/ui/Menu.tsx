@@ -19,10 +19,6 @@ function Logo(serverUrl: string, text: TextConfig, appWidth: number) {
   return <img src={serverUrl + "/logo.webp"} alt={text.altClimateCallLogo} style={style} />
 }
 
-function RoomIDInput(text: TextConfig, onChange: (roomID: string) => void) {
-  return TextInput(text.inputRoomID, onChange)
-}
-
 function CreateGameBtn(text: TextConfig, addEvent: AddEventFunc, roomID: string) {
   function onClick() {
     addEvent(new CreateGameEvent(roomID))
@@ -77,8 +73,8 @@ export class Menu extends React.Component<Props, State> {
     return (
       <div style={style}>
         { Logo(httpServerURL, text, width) }
-        <ButtonLayout>
-          { RoomIDInput(text, setRoomID) }
+        <ButtonLayout appWidth={width}>
+          { TextInput(text.inputRoomID, setRoomID, width) }
           { CreateGameBtn(text, addEvent, roomID) }
           { JoinGameBtn(text, addEvent, roomID) }
         </ButtonLayout>

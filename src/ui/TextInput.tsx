@@ -1,6 +1,6 @@
 import React from 'react'
 
-export function TextInput(placeholder: string, onChangeInput: (e: string) => void) {
+export function TextInput(placeholder: string, onChangeInput: (e: string) => void, appWidth: number) {
   function onChange(event: any) {
     onChangeInput(event.target.value)
   }
@@ -9,12 +9,11 @@ export function TextInput(placeholder: string, onChangeInput: (e: string) => voi
     'display': 'block',
     'border': 'none',
     'border-radius': 0,
-    'padding': '0.52vw 1.04vw',
-    'width': '27.1vw',
+    'padding': `${0.0052*appWidth}px ${0.0104*appWidth}px`,
+    'width': '100%',
     'box-sizing': 'border-box',
-    'margin-top': '1.04vw',
     'font-family': "'Poppins', sans-serif",
-    'font-size': '2.1vw',
+    'font-size': "1em",
   }
 
   return <input type="text" placeholder={placeholder} onChange={onChange} style={style} />

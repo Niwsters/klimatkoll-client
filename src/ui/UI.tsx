@@ -76,7 +76,7 @@ export class UIComponent extends React.Component<Props, State> {
     }
 
     const style = {
-      "height": "56.25vw"
+      "height": 0.5625 * width
     }
 
     return (
