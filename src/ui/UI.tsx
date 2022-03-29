@@ -69,7 +69,9 @@ export class UIComponent extends React.Component<Props, State> {
         statusBar = <StatusBar
           gamestate={gamestate}
           config={config}
-          addEvent={addEvent} />
+          addEvent={addEvent}
+          appWidth={width}
+          />
         break;
     }
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { AppConfig } from '../App'
 import { GameState } from '../game/gamestate'
 import { EventToAdd, LeaveGameEvent } from '../event/event'
@@ -7,9 +7,7 @@ import { PinkButton } from './Button'
 
 function RoomID(text: TextConfig, roomID: string) {
   const style: any = {
-    "padding-left": "4.17vw",
-    "padding-top": "2.1vw",
-    "font-size": "2.1vw"
+    "font-size": "1em"
   }
 
   return <div className="room-id" style={style}>{ text.labelRoom } { roomID }</div>
@@ -23,44 +21,67 @@ function LeaveGameBtn(text: TextConfig, addEvent: (event: EventToAdd) => void) {
   return PinkButton(text.btnLeaveGame, onClick)
 }
 
-function StatusMessage(message: string) {
+function StatusMessage(message: string, appWidth: number) {
   const style: any = {
-    "font-size": "3.33vw",
-    'padding-left': '4.17vw',
-    'padding-right': '2.4vw'
+    "font-size": "1.5873em",
+    'padding-right': 0.024 * appWidth
   }
 
   return <div style={style}>{ message }</div>
 }
 
-export function StatusBar(props: {
-  config: AppConfig,
-  gamestate: GameState,
-  addEvent: (e: EventToAdd) => void
-}) {
-  const state = props.gamestate
-  const statusMessage: string = state.statusMessage
-  const roomID = state.roomID
-  const text = props.config.text
-  const addEvent = props.addEvent
+function StatusElement(props: { children: ReactElement, appWidth: number }) {
+  const style: any = {
+    'padding-left': 0.0417 * props.appWidth
+  }
 
-  const style = {
+  return <div style={style}>{props.children}</div>
+}
+
+function Layout(props: { children: ReactElement[], bottomButton: ReactElement, appWidth: number }) {
+  let { children, bottomButton, appWidth} = props
+  children = children.map(elem => <StatusElement appWidth={appWidth}>{elem}</StatusElement>)
+
+  const style: any = {
     "display": "flex",
     "justify-content": "space-between",
     "flex-direction": "column",
+    "height": "100%"
+  }
+
+  return <div style={style}>
+    {children}
+    {bottomButton}
+  </div>
+}
+
+export function StatusBar(props: {
+  config: AppConfig,
+  gamestate: GameState,
+  addEvent: (e: EventToAdd) => void,
+  appWidth: number
+}) {
+  const { gamestate, config, addEvent, appWidth } = props
+  const statusMessage: string = gamestate.statusMessage
+  const roomID = gamestate.roomID
+  const text = config.text
+
+  const style = {
     "box-sizing": "border-box",
-    "width": "24vw",
-    "height": "56.25vw",
+    "width": 0.24 * appWidth,
+    "height": 0.5625 * appWidth,
     "background": "#F3EFEC",
-    "margin-top": "-56.25vw",
+    "margin-top": -0.5625 * appWidth,
+    "padding-top": 0.021 * appWidth,
     "color": "#444"
   }
 
   return (
     <div id="status-bar" style={style}>
-      { RoomID(text, roomID) }
-      { StatusMessage(statusMessage) }
-      { LeaveGameBtn(text, addEvent) }
+      <Layout bottomButton={LeaveGameBtn(text, addEvent)} appWidth={appWidth}>
+        { RoomID(text, roomID) }
+        { StatusMessage(statusMessage, appWidth) }
+      </Layout>
     </div>
   )
 }
