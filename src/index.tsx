@@ -24,10 +24,17 @@ function AppElem(uiElem: HTMLElement, canvasElem: HTMLCanvasElement) {
   return appElem
 }
 
-function BaseFontSize() {
-  const baseFontSize = document.createElement('style')
-  baseFontSize.innerText = "#app { font-size: 2.1vw; }"
-  return baseFontSize
+class BaseFontSize {
+  readonly element: HTMLStyleElement
+  constructor() {
+    const element = document.createElement('style')
+    element.innerText = "#app { font-size: 2.1vw; }"
+    this.element = element
+  }
+
+  resize(appWidth: number) {
+    this.element.innerText = `#app { font-size: ${0.021 * appWidth}px }`
+  }
 }
 
 function renderUI(
@@ -41,6 +48,9 @@ function renderUI(
 }
 
 function desiredWidth(): number {
+  if (window.innerHeight / window.innerWidth < 0.5625)
+    return window.innerHeight * window.devicePixelRatio / 0.5625;
+
   return window.innerWidth * window.devicePixelRatio;
 }
 
@@ -57,11 +67,14 @@ function renderApp(root: Root, text: TextConfig) {
   const uiElem = UIElem()
   const canvasElem = CanvasElem()
   root.element.appendChild(AppElem(uiElem, canvasElem))
-  root.element.appendChild(BaseFontSize())
+
+  const baseFontSize = new BaseFontSize()
+  root.element.appendChild(baseFontSize.element)
   const app = createApp(root, text, canvasElem)
 
   window.addEventListener('resize', () => {
     app.resize(desiredWidth(), desiredHeight())
+    baseFontSize.resize(desiredWidth())
   }, false)
 
   renderUI(uiElem, app)
