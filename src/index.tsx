@@ -57,7 +57,9 @@ function desiredHeight(root: Root): number {
 
 function createApp(root: Root, text: TextConfig, canvasElem: HTMLCanvasElement) {
   const config = new AppConfig(root.devMode, root.language, text);
-  return new App(config, canvasElem, desiredWidth(root))
+  const app = new App(config, canvasElem, desiredWidth(root))
+  app.resize(desiredWidth(root), desiredHeight(root))
+  return app
 }
 
 function renderApp(root: Root, text: TextConfig) {
