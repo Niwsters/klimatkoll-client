@@ -13,6 +13,7 @@ function UIElem() {
 function CanvasElem() {
   const canvasElem = document.createElement('canvas')
   canvasElem.id = "klimatkoll-canvas"
+  canvasElem.style.display = "block" // Fixes bottom margin issue with HTML Canvas element
   return canvasElem
 }
 
@@ -47,11 +48,17 @@ function renderUI(
   )
 }
 
-function desiredWidth(): number {
-  if (window.innerHeight / window.innerWidth < 0.5625)
-    return window.innerHeight * window.devicePixelRatio / 0.5625;
+function scalePixelRatio(pixels: number) {
+  return pixels * window.devicePixelRatio
+}
 
-  return window.innerWidth * window.devicePixelRatio;
+function desiredWidth(): number {
+  const viewportWidth = document.documentElement.clientWidth
+  const viewportHeight = document.documentElement.clientHeight
+  if (viewportHeight / viewportWidth < 0.5625)
+    return scalePixelRatio(viewportHeight) / 0.5625;
+
+  return scalePixelRatio(viewportWidth);
 }
 
 function desiredHeight(): number {
