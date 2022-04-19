@@ -1,6 +1,7 @@
 import React from 'react'
 import { BehaviorSubject } from "rxjs"
-import { AppConfig, AppState } from '../../App'
+import { AppState } from '../../app'
+import { AppConfig } from '../../app-config'
 import { GameState } from '../../game/gamestate'
 import { EventToAdd } from '../../event/event'
 import { Menu } from './Menu'

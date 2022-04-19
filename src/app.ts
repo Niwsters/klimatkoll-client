@@ -1,4 +1,3 @@
-import { TextConfig } from './models/text-config'
 import { Socket } from './socket/socket'
 import { GameState } from './game/gamestate'
 import { Game } from './game/game'
@@ -7,41 +6,7 @@ import { EventStream } from './event/event-stream'
 import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
 import { UI } from './ui/UI'
-
-export class AppConfig {
-  devMode: boolean
-  language: string
-  text: TextConfig
-
-  get baseURL(): string {
-    if (this.devMode === true)
-      return "localhost:3000"
-
-    return "spela.kortspeletklimatkoll.se"
-  }
-
-  get httpServerURL(): string {
-    if (this.devMode === true) {
-      return `http://${this.baseURL}`
-    }
-
-    return `https://${this.baseURL}`
-  }
-
-  get wsServerURL(): string {
-    if (this.devMode === true) {
-      return `ws://${this.baseURL}`
-    }
-
-    return `wss://${this.baseURL}`
-  }
-
-  constructor(devMode: boolean, language: string, text: TextConfig) {
-    this.devMode = devMode
-    this.language = language
-    this.text = text
-  }
-}
+import { AppConfig } from './app-config'
 
 export class AppState {
   currentPage: string = "menu"
@@ -94,7 +59,7 @@ export class App {
     this.eventStream = new EventStream()
     const eventStream = this.eventStream
 
-    this.socket = new Socket(config)
+    this.socket = new Socket(config.wsServerURL, config.language)
 
     this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
     this.socket.events$.subscribe((event: EventToAdd) => console.log("From server:", event))

@@ -1,4 +1,5 @@
-import { AppConfig, AppState } from "../App"
+import { AppState } from "../app"
+import { AppConfig } from '../app-config'
 import { GameState } from "../game/gamestate"
 
 export const Factory = {

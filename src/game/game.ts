@@ -1,21 +1,16 @@
 import { Subject, BehaviorSubject } from 'rxjs'
 import { Event, EventToAdd } from '../event/event'
 import { GameState } from './gamestate'
-import { AppConfig } from '../App'
+import { AppConfig } from '../app-config'
 
 export class Game {
   events$: Subject<EventToAdd> = new Subject()
   state$: BehaviorSubject<GameState>
 
-  private config: AppConfig
   constructor(config: AppConfig) {
-    this.config = config
     this.state$ = new BehaviorSubject(new GameState(config))
   }
 
-  private leave_game() {
-    this.state$.next(new GameState(this.config))
-  }
 
   handleEvent(event: Event): void {
     let state = this.state$.value as any

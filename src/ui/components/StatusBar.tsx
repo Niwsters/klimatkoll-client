@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppConfig } from '../../App'
+import { AppConfig } from '../../app-config'
 import { GameState } from '../../game/gamestate'
 import { EventToAdd, LeaveGameEvent } from '../../event/event'
 import { TextConfig } from '../../models/text-config'

@@ -1,7 +1,7 @@
 import { Factory } from './test-factory'
 import { Event } from '../event/event'
 import { spec } from './spec'
-import { AppState } from '../App'
+import { AppState } from '../app'
 
 export default function main() {
   const test = spec()

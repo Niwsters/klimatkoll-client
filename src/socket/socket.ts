@@ -1,13 +1,12 @@
 import { Subject } from 'rxjs'
 import { Event } from '../event/event'
-import { AppConfig } from '../App'
 
 export class Socket {
   events$: Subject<Event> = new Subject();
   websocket: WebSocket
 
-  constructor(config: AppConfig) {
-    this.websocket = new WebSocket(config.wsServerURL, config.language)
+  constructor(websocketURL: string, language: string) {
+    this.websocket = new WebSocket(websocketURL, language)
 
     this.websocket.onmessage = (e: MessageEvent) => {
       const event: any = JSON.parse(e.data)

@@ -2,7 +2,7 @@ import { Card } from './card'
 import { Hand } from './hand'
 import { OpponentHand } from './opponent-hand'
 import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
-import { AppConfig } from '../App'
+import { AppConfig } from '../app-config'
 import {
   DECK_POSITION
 } from './constants'

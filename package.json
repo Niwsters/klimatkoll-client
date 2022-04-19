@@ -14,7 +14,7 @@
     "test": "node ./testrunner/run-tests.js",
     "coverage": "npm test -- --coverage --watchAll=false",
     "dependencies": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > deps.svg",
-    "tsc": "tsc"
+    "typecheck": "tsc"
   },
   "browserslist": {
     "production": [

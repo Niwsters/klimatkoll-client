@@ -1,9 +1,10 @@
-import { App, AppConfig } from './App';
+import { App } from './app';
+import { AppConfig } from './app-config'
 import { TextConfig } from './models/text-config'
 import { root, Root } from './root'
-import { Overlay } from './Overlay'
+import { Overlay } from './overlay'
 import ReactDOM from 'react-dom';
-import { BaseFontSize } from './BaseFontSize';
+import { BaseFontSize } from './base-font-size';
 
 function UIElem() {
   const uiElem = document.createElement('div')
