@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react'
-import { AppConfig } from '../App'
-import { GameState } from '../game/gamestate'
-import { EventToAdd, LeaveGameEvent } from '../event/event'
-import { TextConfig } from '../models/text-config'
+import React from 'react'
+import { AppConfig } from '../../App'
+import { GameState } from '../../game/gamestate'
+import { EventToAdd, LeaveGameEvent } from '../../event/event'
+import { TextConfig } from '../../models/text-config'
 import { PinkButton } from './Button'
 
 function RoomID(text: TextConfig, roomID: string) {
@@ -30,7 +30,7 @@ function StatusMessage(message: string, appWidth: number) {
   return <div style={style}>{ message }</div>
 }
 
-function StatusElement(props: { children: ReactElement, appWidth: number }) {
+function StatusElement(props: { children: React.ReactElement, appWidth: number }) {
   const style: any = {
     'padding-left': 0.0417 * props.appWidth
   }
@@ -38,7 +38,7 @@ function StatusElement(props: { children: ReactElement, appWidth: number }) {
   return <div style={style}>{props.children}</div>
 }
 
-function Layout(props: { children: ReactElement[], bottomButton: ReactElement, appWidth: number }) {
+function Layout(props: { children: React.ReactElement[], bottomButton: React.ReactElement, appWidth: number }) {
   let { children, bottomButton, appWidth} = props
   children = children.map(elem => <StatusElement appWidth={appWidth}>{elem}</StatusElement>)
 

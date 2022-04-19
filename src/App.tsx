@@ -1,4 +1,3 @@
-import React from 'react'
 import { TextConfig } from './models/text-config'
 import { Socket } from './socket/socket'
 import { GameState } from './game/gamestate'
@@ -7,8 +6,7 @@ import { Event, EventToAdd } from './event/event'
 import { EventStream } from './event/event-stream'
 import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
-import { UIComponent } from './ui/UI'
-import ReactDOM from 'react-dom'
+import { UI } from './ui/UI'
 
 export class AppConfig {
   devMode: boolean
@@ -74,6 +72,7 @@ export class App {
   socket: Socket
   game: Game
   eventStream: EventStream
+  ui: UI
   config: AppConfig
   canvas: Canvas
   state$: BehaviorSubject<AppState>
@@ -115,6 +114,14 @@ export class App {
       this.handleEvent(e)
     })
 
+    this.ui = new UI(
+      this.config,
+      this.state$,
+      this.gamestate$,
+      this.width$,
+      this.addEvent.bind(this)
+    )
+
     setInterval(() => {
       const gamestate = this.gamestate$.value
       this.canvas.render(gamestate)
@@ -138,12 +145,6 @@ export class App {
   }
 
   renderUI() {
-    return <UIComponent 
-      config={this.config}
-      state$={this.state$}
-      gamestate$={this.gamestate$}
-      appWidth$={this.width$}
-      addEvent={this.addEvent.bind(this)}
-      />;
+    return this.ui.render()
   }
 }
