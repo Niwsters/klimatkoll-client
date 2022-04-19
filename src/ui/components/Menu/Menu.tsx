@@ -1,8 +1,8 @@
 import React from 'react'
-import { TextConfig } from '../../models/text-config'
-import { AppConfig } from '../../app-config'
-import { EventToAdd, CreateGameEvent, JoinGameEvent } from '../../event/event'
-import { PinkButton, YellowButton } from './Button'
+import { TextConfig } from '../../../models/text-config'
+import { AppConfig } from '../../../app-config'
+import { EventToAdd, CreateGameEvent, JoinGameEvent } from '../../../event/event'
+import { PinkButton, YellowButton } from '../Button'
 import { TextInput } from './TextInput'
 import { ButtonLayout } from './ButtonLayout'
 

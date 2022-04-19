@@ -4,7 +4,7 @@ import { AppState } from '../../app'
 import { AppConfig } from '../../app-config'
 import { GameState } from '../../game/gamestate'
 import { EventToAdd } from '../../event/event'
-import { Menu } from './Menu'
+import { Menu } from './Menu/Menu'
 import { StatusBar } from './StatusBar'
 
 interface Props {
