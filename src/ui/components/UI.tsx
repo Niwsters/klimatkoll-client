@@ -66,8 +66,7 @@ export class UIComponent extends React.Component<Props, State> {
         break;
       }
       case "game":
-        page = ''
-        statusBar = <StatusBar
+        page = <StatusBar
           gamestate={gamestate}
           config={config}
           addEvent={addEvent}
@@ -83,7 +82,6 @@ export class UIComponent extends React.Component<Props, State> {
     return (
       <div style={style}>
         { page }
-        { statusBar }
       </div>
     );
   }
