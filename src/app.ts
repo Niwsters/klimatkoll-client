@@ -1,3 +1,4 @@
+import React from 'react'
 import { Socket } from './socket/socket'
 import { GameState } from './game/gamestate'
 import { Game } from './game/game'
@@ -9,15 +10,14 @@ import { UI } from './ui/UI'
 import { AppConfig } from './app-config'
 
 export class AppState {
-  currentPage: string = "menu"
-  statusMessage: string = ""
-  roomID: string = ""
+  readonly currentPage: string
 
-  private static changePage(state: AppState, page: string): AppState {
-    return {
-      ...state,
-      currentPage: page
-    }
+  constructor(currentPage: string = "menu") {
+    this.currentPage = currentPage
+  }
+
+  private static changePage(_: AppState, page: string): AppState {
+    return new AppState(page)
   }
 
   static room_joined(state: AppState, _: Event): AppState {
@@ -34,22 +34,36 @@ export class AppState {
 }
 
 export class App {
-  socket: Socket
-  game: Game
-  eventStream: EventStream
-  ui: UI
-  config: AppConfig
-  canvas: Canvas
-  state$: BehaviorSubject<AppState>
-  gamestate$: BehaviorSubject<GameState>
+  private socket: Socket
+  private game: Game
+  private eventStream: EventStream
+  private ui: UI
+  private config: AppConfig
+  private canvas: Canvas
+  private state$: BehaviorSubject<AppState>
+  private gamestate$: BehaviorSubject<GameState>
   private width$: BehaviorSubject<number>
 
-  get state(): AppState {
+  private get state(): AppState {
     return this.state$.value
   }
 
-  set state(newState: AppState) {
+  private set state(newState: AppState) {
     this.state$.next(newState)
+  }
+
+  private addEvent(e: EventToAdd) {
+    this.eventStream.next(e)
+  }
+
+  private getEventHandler(event: Event): any {
+    return (AppState as any)[event.event_type]
+  }
+
+  private handleEvent(event: Event): void {
+    const func = this.getEventHandler(event)
+    if (func)
+      this.state = func(this.state, event)
   }
 
   constructor(config: AppConfig, canvasElem: HTMLCanvasElement, width: number) {
@@ -60,13 +74,10 @@ export class App {
     const eventStream = this.eventStream
 
     this.socket = new Socket(config.wsServerURL, config.language)
-
     this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
-    this.socket.events$.subscribe((event: EventToAdd) => console.log("From server:", event))
 
     this.game = new Game(config)
     this.game.events$.subscribe((event: EventToAdd) => eventStream.next(event))
-    this.game.events$.subscribe((event: EventToAdd) => console.log("From GameState:", event))
     this.gamestate$ = this.game.state$
 
     this.canvas = new Canvas(canvasElem)
@@ -99,17 +110,7 @@ export class App {
     this.canvas.resize(width, height)
   }
 
-  addEvent(e: EventToAdd) {
-    this.eventStream.next(e)
-  }
-
-  handleEvent(event: Event): void {
-    const func: ((state: AppState, e: Event) => AppState) | undefined = (AppState as any)[event.event_type]
-    if (func)
-      this.state = func(this.state, event)
-  }
-
-  renderUI() {
+  renderUI(): React.ReactElement {
     return this.ui.render()
   }
 }

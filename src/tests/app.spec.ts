@@ -5,7 +5,7 @@ import { AppState } from '../app'
 
 export default function main() {
   const test = spec()
-    .when(() => Factory.AppState())
+    .when(() => Factory.GameState())
 
   // Sets default page to menu
   test
