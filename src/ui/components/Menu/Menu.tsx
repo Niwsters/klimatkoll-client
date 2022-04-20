@@ -1,39 +1,13 @@
 import React from 'react'
-import { TextConfig } from '../../../models/text-config'
 import { AppConfig } from '../../../app-config'
-import { EventToAdd, CreateGameEvent, JoinGameEvent } from '../../../event/event'
-import { PinkButton, YellowButton } from '../Button'
+import { EventToAdd } from '../../../event/event'
 import { TextInput } from './TextInput'
 import { ButtonLayout } from './ButtonLayout'
+import { Logo } from './Logo'
+import { CreateGameBtn } from './CreateGameBtn'
+import { JoinGameBtn } from './JoinGameBtn'
 
 type AddEventFunc = (event: EventToAdd) => void
-
-function Logo(serverUrl: string, text: TextConfig, appWidth: number) {
-  const style: any = {
-    "display": "block",
-    "width": 0.3125 * appWidth,
-    'margin': 'auto',
-    'padding-bottom': 0.03125 * appWidth,
-  }
-
-  return <img src={serverUrl + "/logo.webp"} alt={text.altClimateCallLogo} style={style} />
-}
-
-function CreateGameBtn(text: TextConfig, addEvent: AddEventFunc, roomID: string) {
-  function onClick() {
-    addEvent(new CreateGameEvent(roomID))
-  }
-
-  return PinkButton(text.btnCreateGame, onClick)
-}
-
-function JoinGameBtn(text: TextConfig, addEvent: AddEventFunc, roomID: string) {
-  function onClick() {
-    addEvent(new JoinGameEvent(roomID))
-  }
-
-  return YellowButton(text.btnJoinGame, onClick)
-}
 
 interface Props {
   addEvent: AddEventFunc
