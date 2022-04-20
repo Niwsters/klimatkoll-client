@@ -82,9 +82,7 @@ export class UIComponent extends React.Component<Props, State> {
 
     return (
       <div style={style}>
-        <div style={{ display: "block", height: "100%" }}>
-          { page }
-        </div>
+        { page }
         { statusBar }
       </div>
     );

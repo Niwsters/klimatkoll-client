@@ -23,7 +23,6 @@ export function StatusBar(props: {
     "width": 0.24 * appWidth,
     "height": 0.5625 * appWidth,
     "background": "#F3EFEC",
-    "margin-top": -0.5625 * appWidth,
     "padding-top": 0.021 * appWidth,
     "color": "#444"
   }
