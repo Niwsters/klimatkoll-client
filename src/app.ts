@@ -7,8 +7,7 @@ import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
 import { UI } from './ui/UI'
 import { AppConfig } from './app-config'
-import { desiredWidth, desiredHeight } from './desired-resolution'
-import { root } from './root'
+import { Resolution, RootElement } from './root'
 
 export class AppState {
   readonly currentPage: string
@@ -67,20 +66,20 @@ export class App {
       this.state = func(this.state, event)
   }
 
-  private resize(width: number, height: number) {
-    this.width$.next(width)
-    this.canvas.resize(width, height)
+  private resize(resolution: Resolution) {
+    this.width$.next(resolution.width)
+    this.canvas.resize(resolution.width, resolution.height)
   }
 
   constructor(
     config: AppConfig,
     canvasElem: HTMLCanvasElement,
     uiElem: HTMLElement,
-    width: number
+    root: RootElement
   ) {
     this.config = config
     this.state$ = new BehaviorSubject(new AppState())
-    this.width$ = new BehaviorSubject(width)
+    this.width$ = new BehaviorSubject(root.getDesiredWidth())
     this.eventStream = new EventStream()
     const eventStream = this.eventStream
 
@@ -110,10 +109,7 @@ export class App {
       this.addEvent.bind(this)
     )
 
-    this.resize(desiredWidth(root()), desiredHeight(root()))
-    window.addEventListener('resize', () => {
-      this.resize(desiredWidth(root()), desiredHeight(root()))
-    }, false)
+    root.resolution$.subscribe(resolution => this.resize(resolution))
 
     setInterval(() => {
       const gamestate = this.gamestate$.value
