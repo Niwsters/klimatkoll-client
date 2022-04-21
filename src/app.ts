@@ -1,4 +1,3 @@
-import React from 'react'
 import { Socket } from './socket/socket'
 import { GameState } from './game/gamestate'
 import { Game } from './game/game'
@@ -8,6 +7,8 @@ import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
 import { UI } from './ui/UI'
 import { AppConfig } from './app-config'
+import { desiredWidth, desiredHeight } from './desired-resolution'
+import { root } from './root'
 
 export class AppState {
   readonly currentPage: string
@@ -66,7 +67,17 @@ export class App {
       this.state = func(this.state, event)
   }
 
-  constructor(config: AppConfig, canvasElem: HTMLCanvasElement, width: number) {
+  private resize(width: number, height: number) {
+    this.width$.next(width)
+    this.canvas.resize(width, height)
+  }
+
+  constructor(
+    config: AppConfig,
+    canvasElem: HTMLCanvasElement,
+    uiElem: HTMLElement,
+    width: number
+  ) {
     this.config = config
     this.state$ = new BehaviorSubject(new AppState())
     this.width$ = new BehaviorSubject(width)
@@ -91,6 +102,7 @@ export class App {
     })
 
     this.ui = new UI(
+      uiElem,
       this.config,
       this.state$,
       this.gamestate$,
@@ -98,19 +110,15 @@ export class App {
       this.addEvent.bind(this)
     )
 
+    this.resize(desiredWidth(root()), desiredHeight(root()))
+    window.addEventListener('resize', () => {
+      this.resize(desiredWidth(root()), desiredHeight(root()))
+    }, false)
+
     setInterval(() => {
       const gamestate = this.gamestate$.value
       this.canvas.render(gamestate)
       this.gamestate$.next(gamestate.update(Date.now()))
     }, 1000/60)
-  }
-
-  resize(width: number, height: number) {
-    this.width$.next(width)
-    this.canvas.resize(width, height)
-  }
-
-  renderUI(): React.ReactElement {
-    return this.ui.render()
   }
 }

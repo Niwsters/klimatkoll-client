@@ -1,4 +1,4 @@
-function getRootElem() {
+function getRootElem(): HTMLElement {
   const rootElem = document.getElementById('climate-call')
   if (!rootElem) throw new Error("Can't find element with id 'climate-call'")
   return rootElem
@@ -10,7 +10,7 @@ function isDevMode(): boolean {
          devModeAttr !== null ? true : false
 }
 
-function getLanguage() {
+function getLanguage(): string {
   return getRootElem().getAttribute('lang') || 'sv'
 }
 
@@ -19,10 +19,10 @@ function getServerUrl(): string {
 }
 
 export type Root = {
-  language: string,
-  devMode: boolean,
-  serverUrl: string,
-  element: HTMLElement
+  readonly language: string,
+  readonly devMode: boolean,
+  readonly serverUrl: string,
+  readonly element: HTMLElement
 }
 
 export function root(): Root {

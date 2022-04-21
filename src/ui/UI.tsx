@@ -5,6 +5,7 @@ import { AppConfig } from '../app-config'
 import { GameState } from '../game/gamestate'
 import { EventToAdd } from '../event/event'
 import { UIComponent } from './components/UI'
+import ReactDOM from 'react-dom'
 
 export class UI {
   readonly config: AppConfig
@@ -14,6 +15,7 @@ export class UI {
   readonly addEvent: (e: EventToAdd) => void
 
   constructor(
+    uiElem: HTMLElement,
     config: AppConfig,
     state$: BehaviorSubject<AppState>,
     gamestate$: BehaviorSubject<GameState>,
@@ -25,15 +27,19 @@ export class UI {
     this.gamestate$ = gamestate$
     this.appWidth$ = appWidth$
     this.addEvent = addEvent
+    this.render(uiElem)
   }
 
-  render(): React.ReactElement {
-    return <UIComponent 
-      config={this.config}
-      state$={this.state$}
-      gamestate$={this.gamestate$}
-      appWidth$={this.appWidth$}
-      addEvent={this.addEvent}
-      />;
+  private render(uiElem: HTMLElement): void {
+    ReactDOM.render(
+      <UIComponent 
+        config={this.config}
+        state$={this.state$}
+        gamestate$={this.gamestate$}
+        appWidth$={this.appWidth$}
+        addEvent={this.addEvent}
+        />,
+      uiElem
+    )
   }
 }
