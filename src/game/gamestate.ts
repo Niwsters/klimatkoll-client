@@ -2,7 +2,6 @@ import { Card } from './card'
 import { Hand } from './hand'
 import { OpponentHand } from './opponent-hand'
 import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
-import { AppConfig } from '../app-config'
 import {
   DECK_POSITION
 } from './constants'
@@ -10,6 +9,7 @@ import {
 import { EmissionsLine } from './emissionsline'
 import { Deck } from './deck'
 import { DiscardPile } from './discard-pile'
+import { TextConfig } from '../models/text-config'
 
 export class GameState {
   isMyTurn: boolean = false
@@ -18,7 +18,7 @@ export class GameState {
   roomID: string = ""
   lastUpdate: number = 0
 
-  config: AppConfig
+  private text: TextConfig
   emissionsLine: EmissionsLine = new EmissionsLine()
   opponentHand: OpponentHand = new OpponentHand()
   hand: Hand = new Hand()
@@ -29,7 +29,7 @@ export class GameState {
   private mouseY: number = 0
 
   new(): GameState {
-    return Object.assign(new GameState(this.config), this)
+    return Object.assign(new GameState(this.text), this)
   }
 
   private removeHandCard(card: Card): GameState {
@@ -41,8 +41,8 @@ export class GameState {
     return state
   }
 
-  constructor(config: AppConfig) {
-    this.config = config
+  constructor(text: TextConfig) {
+    this.text = text
   }
 
   get cards(): Card[] {
@@ -69,7 +69,7 @@ export class GameState {
 
   game_won(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
-    const text = this.config.text
+    const text = this.text
 
     if (state.socketID === event.payload.socketID) {
       state.statusMessage = text.youWon
@@ -195,7 +195,7 @@ export class GameState {
 
   player_turn(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
-    const text = this.config.text
+    const text = this.text
 
     if (state.socketID === event.payload.socketID) {
       state.isMyTurn = true
@@ -209,7 +209,7 @@ export class GameState {
   }
 
   private reset(): GameState {
-    let state = new GameState(this.config)
+    let state = new GameState(this.text)
     state.socketID = this.socketID
     return state
   }

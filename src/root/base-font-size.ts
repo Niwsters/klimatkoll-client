@@ -1,5 +1,5 @@
 import { Stream } from "../stream"
-import { Resolution } from "./desired-resolution"
+import { Resolution } from "./resolution"
 
 export class BaseFontSize {
   readonly element: HTMLStyleElement

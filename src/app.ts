@@ -6,7 +6,7 @@ import { EventStream } from './event/event-stream'
 import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
 import { UI } from './ui/UI'
-import { AppConfig } from './app-config'
+import { AppConfig } from './root/app-config'
 import { Resolution, Root } from './root'
 
 export class AppState {
@@ -80,15 +80,15 @@ export class App {
     this.eventStream = new EventStream()
     const eventStream = this.eventStream
 
-    this.socket = new Socket(config.wsServerURL, config.language)
+    this.socket = new Socket(config.wsServerURL, root.environment.language)
     this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
 
-    this.game = new Game(config)
+    this.game = new Game(root.text)
     this.game.events$.subscribe((event: EventToAdd) => eventStream.next(event))
     this.gamestate$ = this.game.state$
 
     this.canvas = new Canvas(root.frame.canvasElem)
-    this.canvas.prepare(`${this.config.httpServerURL}/${this.config.language}`)
+    this.canvas.prepare(`${this.config.httpServerURL}/${root.environment.language}`)
     this.canvas.events$.subscribe((event: EventToAdd) => eventStream.next(event))
 
     eventStream.subscribe((e: Event) => {
@@ -100,6 +100,7 @@ export class App {
     new UI(
       root.frame.uiElem,
       this.config,
+      root.text,
       this.state$,
       this.gamestate$,
       this.width$,

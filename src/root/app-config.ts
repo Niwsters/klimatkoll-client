@@ -1,11 +1,10 @@
-import { TextConfig } from './models/text-config'
+import { Environment } from './environment'
 
 export class AppConfig {
-  devMode: boolean
-  language: string
-  text: TextConfig
+  private readonly devMode: boolean
+  private readonly language: string
 
-  get baseURL(): string {
+  private get baseURL(): string {
     if (this.devMode === true)
       return "localhost:3000"
 
@@ -28,9 +27,8 @@ export class AppConfig {
     return `wss://${this.baseURL}`
   }
 
-  constructor(devMode: boolean, language: string, text: TextConfig) {
-    this.devMode = devMode
-    this.language = language
-    this.text = text
+  constructor(environment: Environment) {
+    this.devMode = environment.devMode
+    this.language = environment.language
   }
 }

@@ -1,22 +1,21 @@
 import React from 'react'
-import { AppConfig } from '../../../app-config'
 import { GameState } from '../../../game/gamestate'
 import { EventToAdd } from '../../../event/event'
 import { RoomID } from './RoomID'
 import { LeaveGameBtn } from './LeaveGameBtn'
 import { StatusMessage } from './StatusMessage'
 import { Layout } from './Layout'
+import { TextConfig } from '../../../models/text-config'
 
 export function StatusBar(props: {
-  config: AppConfig,
+  text: TextConfig,
   gamestate: GameState,
   addEvent: (e: EventToAdd) => void,
   appWidth: number
 }): React.ReactElement {
-  const { gamestate, config, addEvent, appWidth } = props
+  const { gamestate, addEvent, appWidth, text } = props
   const statusMessage: string = gamestate.statusMessage
   const roomID = gamestate.roomID
-  const text = config.text
 
   const style = {
     "box-sizing": "border-box",

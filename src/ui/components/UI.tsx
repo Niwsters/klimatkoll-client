@@ -1,14 +1,16 @@
 import React from 'react'
 import { BehaviorSubject } from "rxjs"
 import { AppState } from '../../app'
-import { AppConfig } from '../../app-config'
+import { AppConfig } from '../../root/app-config'
 import { GameState } from '../../game/gamestate'
 import { EventToAdd } from '../../event/event'
 import { Menu } from './Menu/Menu'
 import { StatusBar } from './StatusBar'
+import { TextConfig } from '../../models/text-config'
 
 interface Props {
   config: AppConfig
+  text: TextConfig
   state$: BehaviorSubject<AppState>
   gamestate$: BehaviorSubject<GameState>
   appWidth$: BehaviorSubject<number>
@@ -24,6 +26,7 @@ interface State {
 function UIPage(
   currentPage: string,
   config: AppConfig,
+  text: TextConfig,
   addEvent: (e: EventToAdd) => void,
   gamestate: GameState,
   width: number
@@ -32,6 +35,7 @@ function UIPage(
     case "menu": {
       return <Menu
         config={config}
+        text={text}
         addEvent={addEvent}
         width={width}
         />;
@@ -39,7 +43,7 @@ function UIPage(
     case "game":
       return <StatusBar
         gamestate={gamestate}
-        config={config}
+        text={text}
         addEvent={addEvent}
         appWidth={width}
         />;
@@ -71,13 +75,13 @@ export class UIComponent extends React.Component<Props, State> {
   }
 
   render() {
-    const { config, addEvent } = this.props
+    const { config, addEvent, text } = this.props
     const { appstate, gamestate, width } = this.state
 
     if (!appstate)
       return "";
 
-    const page = UIPage(appstate.currentPage, config, addEvent, gamestate, width)
+    const page = UIPage(appstate.currentPage, config, text, addEvent, gamestate, width)
 
     const style = {
       "height": 0.5625 * width

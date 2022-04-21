@@ -13,9 +13,9 @@ function getServerUrl(rootElement: HTMLElement): string {
 }
 
 export type Environment = {
-  language: string
-  devMode: boolean,
-  serverUrl: string
+  readonly language: string
+  readonly devMode: boolean,
+  readonly serverUrl: string
 }
 
 export function getEnvironment(rootElement: HTMLElement): Environment {
@@ -23,5 +23,5 @@ export function getEnvironment(rootElement: HTMLElement): Environment {
     language: getLanguage(rootElement),
     devMode: isDevMode(rootElement),
     serverUrl: getServerUrl(rootElement)
-  }
+  } as const
 }

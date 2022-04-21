@@ -1,16 +1,16 @@
 import { AppState } from "../app"
-import { AppConfig } from '../app-config'
+import { AppConfig } from '../root/app-config'
 import { GameState } from "../game/gamestate"
 
 export const Factory = {
   GameState: function() {
-    return new GameState(this.AppConfig())
+    return new GameState(this.TextConfig())
   },
   AppState: function () {
     return new AppState()
   },
-  AppConfig: function () {
-    const text = {
+  TextConfig: function () {
+    return {
       connectedToServer: "string",
       roomFull: "string",
       roomExists: "string",
@@ -30,7 +30,9 @@ export const Factory = {
       labelRoom: "string",
       btnLeaveGame: "string"
     }
-    return new AppConfig(true, "blargh", text)
+  },
+  AppConfig: function () {
+    return new AppConfig({} as any)
   }
 }
 
