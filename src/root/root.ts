@@ -3,7 +3,6 @@ import { Frame, FrameElement } from "./frame"
 import { Environment, getEnvironment } from './environment'
 import { Stream, StreamSource } from '../stream'
 import { Resolution, getResolution } from './resolution'
-import { AppConfig } from "./app-config"
 import { getTextConfig } from "../text-config"
 import { TextConfig } from "../models/text-config"
 
@@ -18,7 +17,6 @@ export type Root = {
   readonly frame: FrameElement
   readonly resolution$: Stream<Resolution>
   readonly text: TextConfig
-  readonly config: AppConfig
 }
 
 export async function mountRoot(): Promise<Root> {
@@ -35,13 +33,11 @@ export async function mountRoot(): Promise<Root> {
 
   const environment = getEnvironment(element)
   const text = await getTextConfig(environment)
-  const config = new AppConfig(environment)
 
   return {
     environment,
     resolution$,
     frame,
-    text,
-    config
+    text
   } as const
 }

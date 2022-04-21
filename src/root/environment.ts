@@ -9,19 +9,40 @@ function getLanguage(rootElement: HTMLElement): string {
 }
 
 function getServerUrl(rootElement: HTMLElement): string {
-  return isDevMode(rootElement) ? "http://localhost:3000" : "https://spela.kortspeletklimatkoll.se"
+  return getHttpServerURL(isDevMode(rootElement))
+}
+
+function getHost(devMode: boolean) {
+  if (devMode === true)
+    return "localhost:3000"
+
+  return "spela.kortspeletklimatkoll.se"
+}
+
+function getHttpServerURL(devMode: boolean) {
+  const scheme = devMode === true ? 'http' : 'https'
+
+  return `${scheme}://${getHost(devMode)}`
+}
+
+function getWSServerURL(devMode: boolean) {
+  const scheme = devMode === true ? 'ws' : 'wss'
+
+  return `${scheme}://${getHost(devMode)}`
 }
 
 export type Environment = {
   readonly language: string
-  readonly devMode: boolean,
-  readonly serverUrl: string
+  readonly devMode: boolean
+  readonly httpServerURL: string
+  readonly wsServerURL: string
 }
 
 export function getEnvironment(rootElement: HTMLElement): Environment {
   return {
     language: getLanguage(rootElement),
     devMode: isDevMode(rootElement),
-    serverUrl: getServerUrl(rootElement)
+    httpServerURL: getServerUrl(rootElement),
+    wsServerURL: getWSServerURL(isDevMode(rootElement))
   } as const
 }

@@ -1,5 +1,4 @@
 import React from 'react'
-import { AppConfig } from '../../../root/app-config'
 import { EventToAdd } from '../../../event/event'
 import { TextInput } from './TextInput'
 import { ButtonLayout } from './ButtonLayout'
@@ -12,7 +11,7 @@ type AddEventFunc = (event: EventToAdd) => void
 
 interface Props {
   addEvent: AddEventFunc
-  config: AppConfig
+  httpServerURL: string
   text: TextConfig
   width: number
 }
@@ -32,8 +31,7 @@ export class Menu extends React.Component<Props, State> {
   }
 
   render() {
-    const { config, addEvent, width, text } = this.props
-    const httpServerURL = config.httpServerURL
+    const { addEvent, width, text, httpServerURL } = this.props
     const roomID = this.state.roomID
     const setRoomID = this.setRoomID.bind(this)
 

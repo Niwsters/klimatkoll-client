@@ -1,19 +1,20 @@
 import React from 'react'
 import { BehaviorSubject } from "rxjs"
 import { AppState } from '../../app'
-import { AppConfig } from '../../root/app-config'
 import { GameState } from '../../game/gamestate'
 import { EventToAdd } from '../../event/event'
-import { Menu } from './Menu/Menu'
-import { StatusBar } from './StatusBar'
 import { TextConfig } from '../../models/text-config'
+import { Stream } from '../../stream'
+import { Resolution } from '../../root'
+import { UIPage } from './UIPage'
+import { Environment } from '../../root/environment'
 
 interface Props {
-  config: AppConfig
+  environment: Environment
   text: TextConfig
   state$: BehaviorSubject<AppState>
   gamestate$: BehaviorSubject<GameState>
-  appWidth$: BehaviorSubject<number>
+  resolution$: Stream<Resolution>
   addEvent: (e: EventToAdd) => void
 }
 
@@ -21,35 +22,6 @@ interface State {
   appstate: AppState,
   gamestate: GameState,
   width: number
-}
-
-function UIPage(
-  currentPage: string,
-  config: AppConfig,
-  text: TextConfig,
-  addEvent: (e: EventToAdd) => void,
-  gamestate: GameState,
-  width: number
-): React.ReactElement {
-  switch(currentPage) {
-    case "menu": {
-      return <Menu
-        config={config}
-        text={text}
-        addEvent={addEvent}
-        width={width}
-        />;
-    }
-    case "game":
-      return <StatusBar
-        gamestate={gamestate}
-        text={text}
-        addEvent={addEvent}
-        appWidth={width}
-        />;
-    default:
-      return <div></div>;
-  }
 }
 
 export class UIComponent extends React.Component<Props, State> {
@@ -71,17 +43,26 @@ export class UIComponent extends React.Component<Props, State> {
       this.setState({ gamestate: gamestate })
     })
 
-    this.props.appWidth$.subscribe(width => this.setState({ width }))
+    this.props.resolution$.subscribe(
+      resolution => this.setState({ width: resolution.width })
+    )
   }
 
   render() {
-    const { config, addEvent, text } = this.props
+    const { addEvent, text, environment } = this.props
     const { appstate, gamestate, width } = this.state
 
     if (!appstate)
       return "";
 
-    const page = UIPage(appstate.currentPage, config, text, addEvent, gamestate, width)
+    const page = UIPage(
+      appstate.currentPage,
+      environment.httpServerURL,
+      text,
+      addEvent,
+      gamestate,
+      width
+    )
 
     const style = {
       "height": 0.5625 * width
