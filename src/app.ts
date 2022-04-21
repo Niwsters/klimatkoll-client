@@ -7,7 +7,7 @@ import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
 import { UI } from './ui/UI'
 import { AppConfig } from './app-config'
-import { Resolution, RootElement } from './root'
+import { Resolution, Root } from './root'
 
 export class AppState {
   readonly currentPage: string
@@ -37,7 +37,6 @@ export class App {
   private socket: Socket
   private game: Game
   private eventStream: EventStream
-  private ui: UI
   private config: AppConfig
   private canvas: Canvas
   private state$: BehaviorSubject<AppState>
@@ -72,14 +71,12 @@ export class App {
   }
 
   constructor(
-    config: AppConfig,
-    canvasElem: HTMLCanvasElement,
-    uiElem: HTMLElement,
-    root: RootElement
+    root: Root
   ) {
+    const config = root.config
     this.config = config
     this.state$ = new BehaviorSubject(new AppState())
-    this.width$ = new BehaviorSubject(root.getDesiredWidth())
+    this.width$ = new BehaviorSubject(0)
     this.eventStream = new EventStream()
     const eventStream = this.eventStream
 
@@ -90,7 +87,7 @@ export class App {
     this.game.events$.subscribe((event: EventToAdd) => eventStream.next(event))
     this.gamestate$ = this.game.state$
 
-    this.canvas = new Canvas(canvasElem)
+    this.canvas = new Canvas(root.frame.canvasElem)
     this.canvas.prepare(`${this.config.httpServerURL}/${this.config.language}`)
     this.canvas.events$.subscribe((event: EventToAdd) => eventStream.next(event))
 
@@ -100,8 +97,8 @@ export class App {
       this.handleEvent(e)
     })
 
-    this.ui = new UI(
-      uiElem,
+    new UI(
+      root.frame.uiElem,
       this.config,
       this.state$,
       this.gamestate$,

@@ -1,7 +1,10 @@
 import { BaseFontSize } from "./base-font-size"
-import { desiredHeight, desiredWidth } from "./desired-resolution"
 import { Frame, FrameElement } from "./frame"
 import { Environment, getEnvironment } from './environment'
+import { Stream, StreamSource } from '../stream'
+import { Resolution, getResolution } from './resolution'
+import { AppConfig } from "../app-config"
+import { getTextConfig } from "../text-config"
 
 function getRootElem(): HTMLElement {
   const rootElem = document.getElementById('climate-call')
@@ -9,52 +12,14 @@ function getRootElem(): HTMLElement {
   return rootElem
 }
 
-type Listener<T> = (value: T) => void
-
-interface Stream<T> {
-  subscribe(listener: Listener<T>): void
-}
-
-class StreamSource<T> implements Stream<T> {
-  private value: T 
-  private listeners: Listener<T>[] = []
-
-  constructor(initialValue: T) {
-    this.value = initialValue
-  }
-
-  subscribe(listener: Listener<T>): void {
-    this.listeners.push(listener)
-    listener(this.value)
-  }
-
-  next(value: T) {
-    this.value = value
-    for (const listener of this.listeners) {
-      listener(this.value)
-    }
-  }
-}
-
-export type Resolution = {
-  width: number,
-  height: number
-}
-
-function getResolution(rootElement: HTMLElement): Resolution {
-  return { width: desiredWidth(rootElement), height: desiredHeight(rootElement) }
-}
-
-export type RootElement = {
+export type Root = {
   readonly environment: Environment
-  readonly element: HTMLElement,
-  readonly frame: FrameElement,
-  readonly getDesiredWidth: () => number,
-  readonly getDesiredHeight: () => number
+  readonly frame: FrameElement
   readonly resolution$: Stream<Resolution>
+  readonly config: AppConfig
 }
 
-export function root(): RootElement {
+export async function mountRoot(): Promise<Root> {
   const element = getRootElem()
 
   const frame = Frame()
@@ -63,23 +28,17 @@ export function root(): RootElement {
   const resolution$ = new StreamSource<Resolution>(getResolution(element))
   new ResizeObserver(() => resolution$.next(getResolution(element))).observe(element)
 
-  const getDesiredWidth = () => {
-    return desiredWidth(element);
-  }
-
-  const getDesiredHeight = () => {
-    return desiredHeight(element);
-  }
-
-  const baseFontSize = new BaseFontSize(getDesiredWidth)
+  const baseFontSize = new BaseFontSize(resolution$)
   element.appendChild(baseFontSize.element)
 
+  const environment = getEnvironment(element)
+  const text = await getTextConfig(environment)
+  const config = new AppConfig(environment.devMode, environment.language, text)
+
   return {
-    environment: getEnvironment(element),
-    element,
-    getDesiredWidth,
-    getDesiredHeight,
+    environment,
     resolution$,
-    frame
+    frame,
+    config
   } as const
 }

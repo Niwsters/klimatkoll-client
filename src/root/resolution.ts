@@ -2,7 +2,7 @@ function scalePixelRatio(pixels: number) {
   return pixels * window.devicePixelRatio
 }
 
-export function desiredWidth(element: HTMLElement): number {
+function desiredWidth(element: HTMLElement): number {
   const viewportWidth = element.clientWidth
   const viewportHeight = element.clientHeight
   if (viewportHeight / viewportWidth < 0.5625)
@@ -11,6 +11,15 @@ export function desiredWidth(element: HTMLElement): number {
   return scalePixelRatio(viewportWidth);
 }
 
-export function desiredHeight(element: HTMLElement): number {
+function desiredHeight(element: HTMLElement): number {
   return desiredWidth(element) * 0.5625
+}
+
+export type Resolution = {
+  width: number,
+  height: number
+}
+
+export function getResolution(rootElement: HTMLElement): Resolution {
+  return { width: desiredWidth(rootElement), height: desiredHeight(rootElement) }
 }

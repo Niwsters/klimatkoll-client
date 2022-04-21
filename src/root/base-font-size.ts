@@ -1,14 +1,15 @@
+import { Stream } from "../stream"
+import { Resolution } from "./desired-resolution"
+
 export class BaseFontSize {
   readonly element: HTMLStyleElement
 
-  constructor(getDesiredWidth: () => number) {
+  constructor(resolution$: Stream<Resolution>) {
     const element = document.createElement('style')
     element.innerText = "#app { font-size: 2.1vw; }"
     this.element = element
 
-    window.addEventListener('resize', () => {
-      this.resize(getDesiredWidth())
-    }, false)
+    resolution$.subscribe(resolution => this.resize(resolution.width))
   }
 
   resize(appWidth: number) {
