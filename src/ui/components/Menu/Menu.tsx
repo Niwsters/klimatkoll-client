@@ -6,6 +6,8 @@ import { Logo } from './Logo'
 import { CreateGameBtn } from './CreateGameBtn'
 import { JoinGameBtn } from './JoinGameBtn'
 import { TextConfig } from '../../../models/text-config'
+import { Stream } from '../../../stream'
+import { Resolution } from '../../../root'
 
 type AddEventFunc = (event: EventToAdd) => void
 
@@ -13,17 +15,22 @@ interface Props {
   addEvent: AddEventFunc
   httpServerURL: string
   text: TextConfig
-  width: number
+  resolution$: Stream<Resolution>
 }
 
 interface State {
   roomID: string
+  resolution: Resolution
 }
 
 export class Menu extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
-    this.state = { roomID: "" }
+    this.state = { roomID: "", resolution: { width: 0, height: 0 } }
+  }
+
+  componentDidMount() {
+    this.props.resolution$.subscribe(resolution => this.setState({ resolution }))
   }
 
   private setRoomID(roomID: string) {
@@ -31,14 +38,15 @@ export class Menu extends React.Component<Props, State> {
   }
 
   render() {
-    const { addEvent, width, text, httpServerURL } = this.props
-    const roomID = this.state.roomID
+    const { addEvent, text, httpServerURL } = this.props
+    const { roomID, resolution } = this.state
+    const { width, height } = resolution
     const setRoomID = this.setRoomID.bind(this)
 
     const style = {
       'background': '#181543',
       'width': width + 'px',
-      'height': '100%',
+      'height': height + 'px',
       'padding-top': 0.104 * width + 'px',
       'box-sizing': 'border-box',
     }

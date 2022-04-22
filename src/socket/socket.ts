@@ -4,6 +4,7 @@ import { Event } from '../event/event'
 export class Socket {
   events$: Subject<Event> = new Subject();
   websocket: WebSocket
+  socketID: number = -1
 
   constructor(websocketURL: string, language: string) {
     this.websocket = new WebSocket(websocketURL, language)
@@ -16,11 +17,15 @@ export class Socket {
   }
 
   handleEvent(event: Event): void {
+    if (event.event_type === "socket_id") {
+      this.socketID = event.payload.socketID
+    }
+
     const func: ((e: Event) => Event[]) | undefined = (Socket as any)[event.event_type]
     if (func)
       func(event).forEach((e: Event) => this.websocket.send(JSON.stringify(e)));
   }
-
+ 
   static create_game(event: Event): Event[] {
     return [event]
   }

@@ -1,6 +1,4 @@
 import { Socket } from './socket/socket'
-import { GameState } from './game/gamestate'
-import { Game } from './game/game'
 import { Event, EventToAdd } from './event/event'
 import { EventStream } from './event/event-stream'
 import { Canvas } from './canvas/canvas'
@@ -8,6 +6,19 @@ import { BehaviorSubject } from 'rxjs'
 import { UI } from './ui/UI'
 import { Resolution, Root } from './root'
 import { Router } from './router'
+import { Environment } from './root/environment'
+import { TextConfig } from './models/text-config'
+import { Stream } from './stream'
+
+export type Services = {
+  environment: Environment,
+  addEvent: (e: EventToAdd) => void,
+  text: TextConfig,
+  resolution$: Stream<Resolution>,
+  eventStream: EventStream,
+  canvas: Canvas,
+  socket: Socket
+}
 
 export class AppState {
   readonly currentPage: string
@@ -35,11 +46,9 @@ export class AppState {
 
 export class App {
   private socket: Socket
-  private game: Game
   private eventStream: EventStream
   private canvas: Canvas
   private state$: BehaviorSubject<AppState>
-  private gamestate$: BehaviorSubject<GameState>
 
   private get state(): AppState {
     return this.state$.value
@@ -63,10 +72,6 @@ export class App {
       this.state = func(this.state, event)
   }
 
-  private resize(resolution: Resolution) {
-    this.canvas.resize(resolution.width, resolution.height)
-  }
-
   constructor(
     root: Root
   ) {
@@ -74,44 +79,36 @@ export class App {
     this.eventStream = new EventStream()
     const eventStream = this.eventStream
 
-    this.socket = new Socket(root.environment.wsServerURL, root.environment.language)
-    this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
-
-    this.game = new Game(root.text)
-    this.game.events$.subscribe((event: EventToAdd) => eventStream.next(event))
-    this.gamestate$ = this.game.state$
-
     this.canvas = new Canvas(root.frame.canvasElem)
     this.canvas.prepare(`${root.environment.httpServerURL}/${root.environment.language}`)
     this.canvas.events$.subscribe((event: EventToAdd) => eventStream.next(event))
-
-    eventStream.subscribe((e: Event) => {
-      this.socket.handleEvent(e)
-      this.game.handleEvent(e)
-      this.handleEvent(e)
-    })
+    eventStream.subscribe(e => this.handleEvent(e))
 
     const addEvent = this.addEvent.bind(this)
 
-    const router = new Router(addEvent, root.environment.httpServerURL, root.text, 0)
+    this.socket = new Socket(root.environment.wsServerURL, root.environment.language)
+    this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
+    eventStream.subscribe(e => this.socket.handleEvent(e))
+
+    const services: Services = {
+      addEvent,
+      environment: root.environment,
+      text: root.text,
+      resolution$: root.resolution$,
+      eventStream,
+      canvas: this.canvas,
+      socket: this.socket
+    }
+
+    const router = new Router(services)
 
     new UI(
       root.frame.uiElem,
-      root.environment,
-      root.text,
-      this.state$,
-      this.gamestate$,
-      root.resolution$,
-      addEvent,
       router.page$
     )
 
-    root.resolution$.subscribe(resolution => this.resize(resolution))
+    root.resolution$.subscribe(resolution => this.canvas.resize(resolution.width, resolution.height))
 
-    setInterval(() => {
-      const gamestate = this.gamestate$.value
-      this.canvas.render(gamestate.cards)
-      this.gamestate$.next(gamestate.update(Date.now()))
-    }, 1000/60)
+    eventStream.subscribe(console.log)
   }
 }

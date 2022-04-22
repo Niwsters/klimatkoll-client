@@ -13,7 +13,7 @@ import { TextConfig } from '../models/text-config'
 
 export class GameState {
   isMyTurn: boolean = false
-  socketID: number = -1
+  socketID: number
   statusMessage: string = ""
   roomID: string = ""
   lastUpdate: number = 0
@@ -29,7 +29,7 @@ export class GameState {
   private mouseY: number = 0
 
   new(): GameState {
-    return Object.assign(new GameState(this.text), this)
+    return Object.assign(new GameState(this.text, this.socketID), this)
   }
 
   private removeHandCard(card: Card): GameState {
@@ -41,8 +41,9 @@ export class GameState {
     return state
   }
 
-  constructor(text: TextConfig) {
+  constructor(text: TextConfig, socketID: number) {
     this.text = text
+    this.socketID = socketID
   }
 
   get cards(): Card[] {
@@ -209,7 +210,7 @@ export class GameState {
   }
 
   private reset(): GameState {
-    let state = new GameState(this.text)
+    let state = new GameState(this.text, this.socketID)
     state.socketID = this.socketID
     return state
   }

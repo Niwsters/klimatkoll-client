@@ -7,8 +7,8 @@ export class Game {
   events$: Subject<EventToAdd> = new Subject()
   state$: BehaviorSubject<GameState>
 
-  constructor(text: TextConfig) {
-    this.state$ = new BehaviorSubject(new GameState(text))
+  constructor(text: TextConfig, socketID: number) {
+    this.state$ = new BehaviorSubject(new GameState(text, socketID))
   }
 
 

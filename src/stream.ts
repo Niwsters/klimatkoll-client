@@ -5,22 +5,26 @@ export interface Stream<T> {
 }
 
 export class StreamSource<T> implements Stream<T> {
-  private value: T 
+  private _value: T 
   private listeners: Listener<T>[] = []
 
   constructor(initialValue: T) {
-    this.value = initialValue
+    this._value = initialValue
   }
 
   subscribe(listener: Listener<T>): void {
     this.listeners.push(listener)
-    listener(this.value)
+    listener(this._value)
   }
 
   next(value: T) {
-    this.value = value
+    this._value = value
     for (const listener of this.listeners) {
-      listener(this.value)
+      listener(this._value)
     }
+  }
+
+  get value(): T {
+    return this._value
   }
 }
