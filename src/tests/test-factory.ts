@@ -1,5 +1,4 @@
 import { AppState } from "../app"
-import { AppConfig } from '../root/app-config'
 import { GameState } from "../game/gamestate"
 
 export const Factory = {
@@ -30,9 +29,6 @@ export const Factory = {
       labelRoom: "string",
       btnLeaveGame: "string"
     }
-  },
-  AppConfig: function () {
-    return new AppConfig({} as any)
   }
 }
 

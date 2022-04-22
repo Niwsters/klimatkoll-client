@@ -2,7 +2,6 @@ import { Subject } from 'rxjs'
 import { Card } from '../game/card'
 import { CardSprite } from './card-sprite'
 import { EventToAdd, MouseMovedEvent, MouseClickedEvent } from '../event/event'
-import { GameState } from '../game/gamestate'
 import { CardData } from '../cards'
 
 export class Canvas {
@@ -61,7 +60,7 @@ export class Canvas {
       })
   }
 
-  render(state: GameState) {
+  render(cards: Card[]) {
     const gl = this.gl
     let cardSprites = this.cardSprites
 
@@ -69,7 +68,7 @@ export class Canvas {
     gl.clear(gl.COLOR_BUFFER_BIT)
 
     // Map new cards to card sprites
-    state.cards
+    cards
       .forEach((card: Card) => {
         let sprite = cardSprites.find((s: CardSprite) => s.card.id === card.id)
 
@@ -87,12 +86,12 @@ export class Canvas {
 
     // Remove card sprites that don't exist in gamestate
     cardSprites
-      .filter(s => state.cards.find(c => c.id === s.card.id) === undefined)
+      .filter(s => cards.find(c => c.id === s.card.id) === undefined)
       .forEach((s: CardSprite) => {
         CardSprite.delete(s, gl)        
       })
     cardSprites = cardSprites
-      .filter(s => state.cards.find(c => c.id === s.card.id))
+      .filter(s => cards.find(c => c.id === s.card.id))
 
     cardSprites
       .sort((a,b) => {

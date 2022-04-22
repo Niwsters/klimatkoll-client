@@ -110,7 +110,7 @@ export class App {
 
     setInterval(() => {
       const gamestate = this.gamestate$.value
-      this.canvas.render(gamestate)
+      this.canvas.render(gamestate.cards)
       this.gamestate$.next(gamestate.update(Date.now()))
     }, 1000/60)
   }
