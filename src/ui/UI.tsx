@@ -2,7 +2,7 @@ import React from 'react'
 import { UIComponent } from './components/UI'
 import ReactDOM from 'react-dom'
 import { Stream } from '../stream'
-import { Page } from '../router'
+import { Page } from '../pages/page'
 
 export class UI {
   constructor(

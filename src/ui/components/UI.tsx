@@ -1,5 +1,5 @@
 import React from 'react'
-import { Page } from '../../router'
+import { Page } from '../../pages/page'
 import { Stream } from '../../stream'
 
 interface Props {
