@@ -18,7 +18,8 @@ export class UI {
     state$: BehaviorSubject<AppState>,
     gamestate$: BehaviorSubject<GameState>,
     resolution$: Stream<Resolution>,
-    addEvent: (e: EventToAdd) => void
+    addEvent: (e: EventToAdd) => void,
+    router$: Stream<React.ReactElement>
   ) {
     ReactDOM.render(
       <UIComponent 
@@ -28,6 +29,7 @@ export class UI {
         gamestate$={gamestate$}
         resolution$={resolution$}
         addEvent={addEvent}
+        router$={router$}
         />,
       uiElem
     )

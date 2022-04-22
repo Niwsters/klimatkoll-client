@@ -7,6 +7,7 @@ import { Canvas } from './canvas/canvas'
 import { BehaviorSubject } from 'rxjs'
 import { UI } from './ui/UI'
 import { Resolution, Root } from './root'
+import { Router } from './router'
 
 export class AppState {
   readonly currentPage: string
@@ -15,20 +16,20 @@ export class AppState {
     this.currentPage = currentPage
   }
 
-  private static changePage(_: AppState, page: string): AppState {
-    return new AppState(page)
+  private static changeRouter(_: AppState, router: string): AppState {
+    return new AppState(router)
   }
 
   static room_joined(state: AppState, _: Event): AppState {
-    return AppState.changePage(state, "game")
+    return AppState.changeRouter(state, "game")
   }
 
   static leave_game(state: AppState, _: Event): AppState {
-    return AppState.changePage(state, "menu")
+    return AppState.changeRouter(state, "menu")
   }
 
   static game_removed(state: AppState, _: Event): AppState {
-    return AppState.changePage(state, "menu")
+    return AppState.changeRouter(state, "menu")
   }
 }
 
@@ -90,6 +91,10 @@ export class App {
       this.handleEvent(e)
     })
 
+    const addEvent = this.addEvent.bind(this)
+
+    const router = new Router(addEvent, root.environment.httpServerURL, root.text, 0)
+
     new UI(
       root.frame.uiElem,
       root.environment,
@@ -97,7 +102,8 @@ export class App {
       this.state$,
       this.gamestate$,
       root.resolution$,
-      this.addEvent.bind(this),
+      addEvent,
+      router.page$
     )
 
     root.resolution$.subscribe(resolution => this.resize(resolution))
