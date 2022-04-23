@@ -1,11 +1,11 @@
-import { Socket } from './socket/socket'
-import { EventToAdd } from './event/event'
-import { EventStream } from './event/event-stream'
-import { Canvas } from './canvas/canvas'
-import { UI } from './ui/UI'
-import { Root } from './root'
-import { Router } from './router'
-import { Services } from './services'
+import { Socket } from '../socket/socket'
+import { EventToAdd } from '../event/event'
+import { EventStream } from '../event/event-stream'
+import { Canvas } from '../canvas/canvas'
+import { UI } from './UI'
+import { Root } from '../root'
+import { Router } from '../router'
+import { Services } from '../services'
 
 export class App {
   private socket: Socket
