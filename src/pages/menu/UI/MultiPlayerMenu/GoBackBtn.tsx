@@ -1,6 +1,6 @@
 import React from 'react'
 import { TextConfig } from '@shared/models'
-import { SetRoute } from './set-route'
+import { SetRoute } from '../set-route'
 import { Button } from '@shared/components'
 
 type Props = {
