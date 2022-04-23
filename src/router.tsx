@@ -6,6 +6,17 @@ import { Page } from './pages/page'
 import { MenuPage } from './pages/menu'
 import { GamePage } from './pages/game'
 
+type PageConstructor = (services: Services) => Page
+
+const handlers: { [event_type: string]: PageConstructor } = {
+  "room_joined": (services: Services) => new GamePage(services),
+  "game_removed": (services: Services) => new MenuPage(services)
+}
+
+function handleEvent(event: Event): PageConstructor | undefined {
+  return handlers[event.event_type]
+}
+
 export class Router {
   private readonly _page$: StreamSource<Page>;
 
@@ -15,15 +26,9 @@ export class Router {
     const page = new MenuPage(services)
 
     services.events$.subscribe((event: Event) => {
-      let page: Page | undefined = undefined
-      switch (event.event_type) {
-        case "room_joined": {
-          page = new GamePage(services)
-          break;
-        }
-      }
-      if (page !== undefined)
-        this._page$.next(page)
+      const nextPage = handleEvent(event)
+      if (nextPage !== undefined)
+        this._page$.next(nextPage(services))
     })
 
     this._page$ = new StreamSource(page)
