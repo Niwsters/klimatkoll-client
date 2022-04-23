@@ -1,5 +1,5 @@
 import React from 'react'
-import { Services } from '../app';
+import { Services } from '../services';
 import { Card } from '../game/card';
 import { Menu } from '../ui/components/Menu'
 import { Page } from '../pages/page'

@@ -1,26 +1,7 @@
-import deepEqual from 'fast-deep-equal'
-
-function assertEquals(expected: any, result: any) {
-  if (!deepEqual(expected, result)) {
-    throw new Error(`Expected ${JSON.stringify(result, null, 4)} to equal ${JSON.stringify(expected, null, 4)}`)
-  } else {
-    process.stdout.write('.')
-  }
-}
+import { Expect } from './expect'
 
 type getStateFunc = (previousState?: any) => any
 type getResultFunc = (state: any) => any
-
-class Expect {
-  private result: any
-  constructor(result: any) {
-    this.result = result
-  }
-
-  toEqual(expected: any) {
-    assertEquals(expected, this.result)
-  }
-}
 
 class When {
   private getState: getStateFunc

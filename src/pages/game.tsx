@@ -1,5 +1,5 @@
 import React from 'react'
-import { Services } from '../app';
+import { Services } from '../services';
 import { Card } from '../game/card';
 import { Game } from '../game/game';
 import { StatusBar } from '../ui/components/StatusBar';

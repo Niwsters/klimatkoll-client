@@ -1,4 +1,4 @@
-import { Services } from './app';
+import { Services } from './services';
 import { Event } from './event/event';
 import { Card } from './game/card';
 import { Stream, StreamSource } from './stream'

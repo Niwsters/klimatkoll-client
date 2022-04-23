@@ -1,4 +1,3 @@
-import appSpec from './app.spec'
 import playCardFromDeck from './card-played-from-deck.spec'
 import playCardFromHand from './card-played-from-hand.spec'
 import cardAnimation from './card-animation.spec'
@@ -12,8 +11,9 @@ import showNextCard from './show-next-card.spec'
 import selectCard from './select-card.spec'
 import makePlayCardRequest from './make-play-card-request.spec'
 import emissionsLineZIndex from './emissions-line-z-index.spec'
+import testStreamSource from './stream-source.spec'
+import testStreamChannel from './stream-channel.spec'
 
-appSpec()
 playCardFromDeck()
 playCardFromHand()
 cardAnimation()
@@ -27,3 +27,5 @@ hoverHand()
 selectCard()
 makePlayCardRequest()
 emissionsLineZIndex()
+testStreamSource()
+testStreamChannel()

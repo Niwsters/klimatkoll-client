@@ -1,12 +1,8 @@
-import { AppState } from "../app"
 import { GameState } from "../game/gamestate"
 
 export const Factory = {
   GameState: function() {
     return new GameState(this.TextConfig(), 1)
-  },
-  AppState: function () {
-    return new AppState()
   },
   TextConfig: function () {
     return {

@@ -4,24 +4,36 @@ export interface Stream<T> {
   subscribe(listener: Listener<T>): void
 }
 
-export class StreamSource<T> implements Stream<T> {
+export class StreamChannel<T> implements Stream<T> {
+  protected listeners: Listener<T>[] = []
+
+  subscribe(listener: Listener<T>) {
+    this.listeners.push(listener)
+  }
+
+  next(value: T) {
+    for (const listener of this.listeners) {
+      listener(value)
+    }
+  }
+}
+
+export class StreamSource<T> extends StreamChannel<T> {
   private _value: T 
-  private listeners: Listener<T>[] = []
 
   constructor(initialValue: T) {
+    super()
     this._value = initialValue
   }
 
   subscribe(listener: Listener<T>): void {
-    this.listeners.push(listener)
+    super.subscribe(listener)
     listener(this._value)
   }
 
   next(value: T) {
     this._value = value
-    for (const listener of this.listeners) {
-      listener(this._value)
-    }
+    super.next(value)
   }
 
   get value(): T {
