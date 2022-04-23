@@ -1,6 +1,6 @@
 import React from 'react'
 import { TextConfig } from '@shared/models'
-import { EventToAdd, JoinGameEvent } from '../../../event/event'
+import { EventToAdd, JoinGameEvent } from '@shared/events'
 import { YellowButton } from '@shared/components'
 
 type AddEventFunc = (event: EventToAdd) => void

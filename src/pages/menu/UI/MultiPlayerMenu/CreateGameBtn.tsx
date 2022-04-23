@@ -1,6 +1,6 @@
 import React from 'react'
 import { TextConfig } from '@shared/models'
-import { EventToAdd, CreateGameEvent } from '../../../event/event'
+import { EventToAdd, CreateGameEvent } from '@shared/events'
 import { PinkButton } from '@shared/components'
 
 type AddEventFunc = (event: EventToAdd) => void

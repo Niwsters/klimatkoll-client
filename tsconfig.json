@@ -22,7 +22,8 @@
     "baseUrl": "./src",
     "paths": {
         "@shared/components": ["shared/components"],
-        "@shared/models": ["shared/models"]
+        "@shared/models": ["shared/models"],
+        "@shared/events": ["event/event"]
     }
   },
   "include": [

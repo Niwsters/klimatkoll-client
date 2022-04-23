@@ -1,7 +1,7 @@
 import { Button } from '@shared/components'
 import React from 'react'
-import { ButtonLayout } from './ButtonLayout'
-import { SetRoute } from './set-route'
+import { ButtonLayout } from '../ButtonLayout'
+import { SetRoute } from '../set-route'
 
 type Props = {
   setRoute: SetRoute
