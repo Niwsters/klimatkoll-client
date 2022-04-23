@@ -1,12 +1,12 @@
-import { Subject } from 'rxjs'
 import { Card } from '../game/card'
 import { CardSprite } from './card-sprite'
 import { EventToAdd, MouseMovedEvent, MouseClickedEvent } from '../event/event'
 import { CardData } from '../cards'
+import { StreamChannel } from '../stream'
 
 export class Canvas {
   gl: WebGLRenderingContext
-  events$: Subject<EventToAdd> = new Subject<EventToAdd>()
+  events$: StreamChannel<EventToAdd> = new StreamChannel()
   cardSprites: CardSprite[] = []
   canvas: HTMLCanvasElement
 

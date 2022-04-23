@@ -1,8 +1,8 @@
-import { Subject } from 'rxjs'
 import { Event } from '../event/event'
+import { StreamChannel } from '../stream';
 
 export class Socket {
-  events$: Subject<Event> = new Subject();
+  events$: StreamChannel<Event> = new StreamChannel();
   websocket: WebSocket
   socketID: number = -1
 

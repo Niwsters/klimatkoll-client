@@ -1,14 +1,14 @@
-import { Subject, BehaviorSubject, Observable } from 'rxjs'
 import { Event, EventToAdd } from '../event/event'
 import { GameState } from './gamestate'
 import { TextConfig } from '../models/text-config'
+import { Stream, StreamChannel, StreamSource } from '../stream'
 
 export class Game {
-  events$: Subject<EventToAdd> = new Subject()
-  _state$: BehaviorSubject<GameState>
+  events$: StreamChannel<EventToAdd> = new StreamChannel()
+  _state$: StreamSource<GameState>
 
   constructor(text: TextConfig, socketID: number) {
-    this._state$ = new BehaviorSubject(new GameState(text, socketID))
+    this._state$ = new StreamSource(new GameState(text, socketID))
   }
 
   handleEvent(event: Event): void {
@@ -30,7 +30,7 @@ export class Game {
     this._state$.next(this._state$.value.update(currentTime))
   }
 
-  get state$(): Observable<GameState> {
+  get state$(): Stream<GameState> {
     return this._state$
   }
 

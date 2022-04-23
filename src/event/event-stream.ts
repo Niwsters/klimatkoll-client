@@ -1,8 +1,8 @@
-import { Subject } from 'rxjs'
+import { StreamChannel } from '../stream';
 import { Event, EventToAdd } from './event'
 
 export class EventStream {
-  private stream$: Subject<Event> = new Subject<Event>();
+  private stream$: StreamChannel<Event> = new StreamChannel<Event>();
   private lastEventID = 0
 
   public next(event: EventToAdd): void {
