@@ -5,7 +5,7 @@ import { RoomID } from './RoomID'
 import { LeaveGameBtn } from './LeaveGameBtn'
 import { StatusMessage } from './StatusMessage'
 import { Layout } from './Layout'
-import { TextConfig } from '../../../models/text-config'
+import { TextConfig } from '@shared/models'
 import { Resolution } from '../../../root'
 import { Stream } from '../../../stream'
 

@@ -4,7 +4,7 @@ import { Environment, getEnvironment } from './environment'
 import { Stream, StreamSource } from '../stream'
 import { Resolution, getResolution } from './resolution'
 import { getTextConfig } from "../text-config"
-import { TextConfig } from "../models/text-config"
+import { TextConfig } from "@shared/models"
 
 function getRootElem(): HTMLElement {
   const rootElem = document.getElementById('climate-call')

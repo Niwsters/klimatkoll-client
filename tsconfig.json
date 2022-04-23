@@ -22,7 +22,7 @@
     "baseUrl": "./src",
     "paths": {
         "@shared/components": ["shared/components"],
-        "@shared/models": ["models"]
+        "@shared/models": ["shared/models"]
     }
   },
   "include": [

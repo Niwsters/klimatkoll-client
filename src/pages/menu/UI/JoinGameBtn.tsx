@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextConfig } from '../../../models/text-config'
+import { TextConfig } from '@shared/models'
 import { EventToAdd, JoinGameEvent } from '../../../event/event'
 import { YellowButton } from '@shared/components'
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextConfig } from '../../../models/text-config'
+import { TextConfig } from '@shared/models'
 
 export function RoomID(text: TextConfig, roomID: string): React.ReactElement {
   const style: any = {

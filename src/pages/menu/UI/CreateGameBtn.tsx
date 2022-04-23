@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextConfig } from '../../../models/text-config'
+import { TextConfig } from '@shared/models'
 import { EventToAdd, CreateGameEvent } from '../../../event/event'
 import { PinkButton } from '@shared/components'
 

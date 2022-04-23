@@ -1,4 +1,4 @@
-import { TextConfig } from './models/text-config'
+import { TextConfig } from '@shared/models'
 import { Environment } from './root/environment'
 
 export async function getTextConfig(environment: Environment): Promise<TextConfig> {

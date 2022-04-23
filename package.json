@@ -12,7 +12,7 @@
     "build": "node ./build.js",
     "test": "node ./testrunner/run-tests.js",
     "coverage": "npm test -- --coverage --watchAll=false",
-    "dependencies": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > deps.svg",
+    "deps": "depcruise --include-only \"^src\" --output-type dot src --metrics | dot -T svg > deps.svg",
     "typecheck": "tsc"
   },
   "browserslist": {

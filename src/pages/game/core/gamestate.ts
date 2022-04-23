@@ -9,7 +9,7 @@ import {
 import { EmissionsLine } from './emissionsline'
 import { Deck } from './deck'
 import { DiscardPile } from './discard-pile'
-import { TextConfig } from '../../../models/text-config'
+import { TextConfig } from '@shared/models'
 
 export class GameState {
   isMyTurn: boolean = false

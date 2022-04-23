@@ -5,7 +5,7 @@ import { ButtonLayout } from './ButtonLayout'
 import { Logo } from './Logo'
 import { CreateGameBtn } from './CreateGameBtn'
 import { JoinGameBtn } from './JoinGameBtn'
-import { TextConfig } from '../../../models/text-config'
+import { TextConfig } from '@shared/models'
 import { Stream } from '../../../stream'
 import { Resolution } from '../../../root'
 

@@ -4,7 +4,7 @@ import { EventStream } from './event/event-stream'
 import { Canvas } from './canvas/canvas'
 import { Resolution } from './root'
 import { Environment } from './root/environment'
-import { TextConfig } from './models/text-config'
+import { TextConfig } from '@shared/models'
 import { Stream } from './stream'
 
 export type Services = {
