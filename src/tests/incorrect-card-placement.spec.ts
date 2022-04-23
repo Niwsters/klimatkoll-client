@@ -1,7 +1,7 @@
-import { Card } from '../game/card'
+import { Card } from '../pages/game/core/card'
 import { Factory } from './test-factory'
-import { GameState } from '../game/gamestate'
-import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from '../game/constants'
+import { GameState } from '../pages/game/core/gamestate'
+import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from '../pages/game/core/constants'
 import { Event } from '../event/event'
 import { spec } from './spec'
 

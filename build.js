@@ -6,7 +6,8 @@ esbuild.build({
   watch: true,
   outfile: './dist/bundle.js',
   minify: true,
-}).catch(reason => {
+})
+.catch(reason => {
   console.log(reason)
   process.exit()
 })

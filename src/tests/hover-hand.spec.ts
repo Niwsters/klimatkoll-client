@@ -1,10 +1,10 @@
 import { MouseMovedEvent } from "../event/event"
-import { Card } from "../game/card"
-import { ANIMATION_DURATION_MS, HAND_POSITION } from "../game/constants"
-import { GameState } from "../game/gamestate"
+import { Card } from "../pages/game/core/card"
+import { ANIMATION_DURATION_MS, HAND_POSITION } from "../pages/game/core/constants"
+import { GameState } from "../pages/game/core/gamestate"
 import { Factory } from './test-factory'
 import { spec } from './spec'
-import { Position } from "../game/position"
+import { Position } from "../pages/game/core/position"
 
 function moveMouse(state: GameState, x: number, y: number): GameState {
   const event = {...new MouseMovedEvent(x, y), event_id: 0}

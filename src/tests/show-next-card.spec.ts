@@ -1,7 +1,7 @@
 import { Event } from '../event/event'
-import { Card } from '../game/card'
-import { DECK_POSITION } from '../game/constants'
-import { GameState } from '../game/gamestate'
+import { Card } from '../pages/game/core/card'
+import { DECK_POSITION } from '../pages/game/core/constants'
+import { GameState } from '../pages/game/core/gamestate'
 import { Factory } from './test-factory'
 import { spec } from './spec'
 

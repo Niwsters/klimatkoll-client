@@ -1,15 +1,16 @@
-import { Card, ICard } from '../game/card'
+import { Card } from '../pages/game/core/card'
+import { ICard } from '@shared/models'
 import {
   HAND_POSITION,
   HAND_X_RADIUS,
   HAND_Y_RADIUS,
   HAND_CARD_ANGLE,
   ANIMATION_DURATION_MS,
-} from '../game/constants'
+} from '../pages/game/core/constants'
 import { Factory } from './test-factory'
 import { spec } from './spec'
 import { MouseMovedEvent } from '../event/event'
-import { Position } from '../game/position'
+import { Position } from '../pages/game/core/position'
 
 const currentTime = 1337
 

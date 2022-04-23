@@ -1,8 +1,32 @@
 import React from 'react'
-import { UIComponent } from './components/UI'
 import ReactDOM from 'react-dom'
 import { Stream } from '../stream'
 import { Page } from '../pages/page'
+
+interface Props {
+  page$: Stream<Page>
+}
+
+interface State {
+  page: React.ReactElement
+}
+
+class UIComponent extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      page: <div></div>
+    }
+  }
+
+  componentDidMount() {
+    this.props.page$.subscribe(page => this.setState({ page: page.component }))
+  }
+
+  render() {
+    return this.state.page
+  }
+}
 
 export class UI {
   constructor(

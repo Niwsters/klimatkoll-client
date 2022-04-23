@@ -1,9 +1,9 @@
-import { Card } from '../game/card'
-import { ANIMATION_DURATION_MS, HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from '../game/constants'
+import { Card } from '../pages/game/core/card'
+import { ANIMATION_DURATION_MS, HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from '../pages/game/core/constants'
 import { Factory } from './test-factory'
 import { spec } from './spec'
-import { GameState } from '../game/gamestate'
-import { Position } from '../game/position'
+import { GameState } from '../pages/game/core/gamestate'
+import { Position } from '../pages/game/core/position'
 
 function getOpponentHandCardPosition(i: number, cardCount: number): Position {
   const n = cardCount - 1

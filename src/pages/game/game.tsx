@@ -1,9 +1,9 @@
 import React from 'react'
-import { Services } from '../services';
-import { Card } from '../game/card';
-import { Game } from '../game/game';
-import { StatusBar } from '../ui/components/StatusBar';
-import { Page } from '../pages/page'
+import { Services } from '../../services';
+import { Card } from './core/card';
+import { Game } from './core/game';
+import { StatusBar } from './UI';
+import { Page } from '../../pages/page'
 
 export class GamePage implements Page {
   readonly component: React.ReactElement 

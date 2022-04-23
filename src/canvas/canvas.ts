@@ -1,4 +1,4 @@
-import { Card } from '../game/card'
+import { ICard } from '@shared/models'
 import { CardSprite } from './card-sprite'
 import { EventToAdd, MouseMovedEvent, MouseClickedEvent } from '../event/event'
 import { CardData } from '../cards'
@@ -60,7 +60,7 @@ export class Canvas {
       })
   }
 
-  render(cards: Card[]) {
+  render(cards: ICard[]) {
     const gl = this.gl
     let cardSprites = this.cardSprites
 
@@ -69,7 +69,7 @@ export class Canvas {
 
     // Map new cards to card sprites
     cards
-      .forEach((card: Card) => {
+      .forEach((card: ICard) => {
         let sprite = cardSprites.find((s: CardSprite) => s.card.id === card.id)
 
         if (!sprite) {

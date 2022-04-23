@@ -1,6 +1,6 @@
 import { Services } from './services';
 import { Event } from './event/event';
-import { Card } from './game/card';
+import { ICard } from '@shared/models';
 import { Stream, StreamSource } from './stream'
 import { Page } from './pages/page'
 import { MenuPage } from './pages/menu'
@@ -38,7 +38,7 @@ export class Router {
     return this._page$
   }
 
-  get cards(): Card[] {
+  get cards(): ICard[] {
     return this._page$.value.cards
   }
 }

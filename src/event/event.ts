@@ -1,4 +1,4 @@
-import { Card } from '../game/card'
+import { ICard } from '@shared/models'
 
 export class EventToAdd {
   public event_type: string
@@ -74,7 +74,7 @@ export class CardUnhoveredEvent extends EventToAdd {
 }
 
 export class EmissionsLineCardAddedEvent extends EventToAdd {
-  constructor(card: Card, position: number) {
+  constructor(card: ICard, position: number) {
     super("emissions_line_card_added", { card, position })
   }
 }

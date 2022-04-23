@@ -1,7 +1,7 @@
 import { EventToAdd, MouseClickedEvent, MouseMovedEvent, PlayCardRequestEvent } from '../event/event'
-import { Card } from '../game/card'
-import { ANIMATION_DURATION_MS, EMISSIONS_LINE_POSITION } from '../game/constants'
-import { GameState } from '../game/gamestate'
+import { Card } from '../pages/game/core/card'
+import { ANIMATION_DURATION_MS, EMISSIONS_LINE_POSITION } from '../pages/game/core/constants'
+import { GameState } from '../pages/game/core/gamestate'
 import { spec } from './spec'
 import { Factory } from './test-factory'
 

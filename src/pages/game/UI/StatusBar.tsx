@@ -1,5 +1,5 @@
 import React from 'react'
-import { GameState } from '../../../game/gamestate'
+import { GameState } from '../core/gamestate'
 import { EventToAdd } from '../../../event/event'
 import { RoomID } from './RoomID'
 import { LeaveGameBtn } from './LeaveGameBtn'

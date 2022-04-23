@@ -1,19 +1,6 @@
 import { Position } from './position'
 import { TransitionGoal } from './transition-goal'
-
-export type ICard = {
-  id: number
-  name: string
-  position: Position
-  scale: number
-  rotation: number
-  addedRotation: number
-  zLevel: number
-  isSpace: boolean
-  visible: boolean
-  flipped: boolean
-  selected: boolean
-}
+import { ICard } from '@shared/models'
 
 export class Card implements ICard {
   static DEFAULT_WIDTH = 445

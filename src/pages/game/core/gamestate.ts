@@ -1,7 +1,7 @@
 import { Card } from './card'
 import { Hand } from './hand'
 import { OpponentHand } from './opponent-hand'
-import { Event, EventToAdd, PlayCardRequestEvent } from '../event/event'
+import { Event, EventToAdd, PlayCardRequestEvent } from '../../../event/event'
 import {
   DECK_POSITION
 } from './constants'
@@ -9,7 +9,7 @@ import {
 import { EmissionsLine } from './emissionsline'
 import { Deck } from './deck'
 import { DiscardPile } from './discard-pile'
-import { TextConfig } from '../models/text-config'
+import { TextConfig } from '../../../models/text-config'
 
 export class GameState {
   isMyTurn: boolean = false

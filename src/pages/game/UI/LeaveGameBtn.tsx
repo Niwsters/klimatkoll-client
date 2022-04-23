@@ -1,7 +1,7 @@
 import React from 'react'
 import { EventToAdd, LeaveGameEvent } from '../../../event/event'
 import { TextConfig } from '../../../models/text-config'
-import { PinkButton } from '../Button'
+import { PinkButton } from '@shared/components'
 
 export function LeaveGameBtn(
   text: TextConfig,

@@ -1,7 +1,7 @@
 import vsSource from './shader.vert'
 import fsSource from './shader.frag'
 import { CardData } from '../cards'
-import { Card } from '../game/card'
+import { ICard } from '@shared/models'
 
 const IMAGE_WIDTH = 906/2
 const IMAGE_HEIGHT = 1328/2
@@ -13,7 +13,7 @@ const CARD_WIDTH = IMAGE_WIDTH - IMAGE_MARGIN
 const CARD_HEIGHT = IMAGE_HEIGHT - IMAGE_MARGIN
 
 export class CardSprite {
-  card: Card
+  card: ICard
   gl: WebGLRenderingContext
   translationLocation: WebGLUniformLocation | null
   scaleLocation: WebGLUniformLocation | null
@@ -29,7 +29,7 @@ export class CardSprite {
   texture: WebGLTexture
   static textures = new Map<string, WebGLTexture>()
 
-  constructor(gl: WebGLRenderingContext, card: Card) {
+  constructor(gl: WebGLRenderingContext, card: ICard) {
     this.card = card
     this.gl = gl
 

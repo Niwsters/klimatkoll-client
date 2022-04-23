@@ -1,6 +1,6 @@
-import { Card } from '../game/card'
+import { Card } from '../pages/game/core/card'
 import { Event } from '../event/event'
-import { GameState } from '../game/gamestate'
+import { GameState } from '../pages/game/core/gamestate'
 import { Factory } from './test-factory'
 import { spec } from './spec'
 
