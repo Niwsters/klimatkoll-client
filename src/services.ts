@@ -12,7 +12,7 @@ export type Services = {
   addEvent: (e: EventToAdd) => void,
   text: TextConfig,
   resolution$: Stream<Resolution>,
-  eventStream: EventStream,
+  events$: EventStream,
   canvas: Canvas,
   socket: Socket
 }

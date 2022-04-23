@@ -9,35 +9,35 @@ import { Services } from './services'
 
 export class App {
   private socket: Socket
-  private eventStream: EventStream
+  private events$: EventStream
   private canvas: Canvas
 
   private addEvent(e: EventToAdd) {
-    this.eventStream.next(e)
+    this.events$.next(e)
   }
 
   constructor(
     root: Root
   ) {
-    this.eventStream = new EventStream()
-    const eventStream = this.eventStream
+    this.events$ = new EventStream()
+    const events$ = this.events$
 
     this.canvas = new Canvas(root.frame.canvasElem)
     this.canvas.prepare(`${root.environment.httpServerURL}/${root.environment.language}`)
-    this.canvas.events$.subscribe((event: EventToAdd) => eventStream.next(event))
+    this.canvas.events$.subscribe((event: EventToAdd) => events$.next(event))
 
     const addEvent = this.addEvent.bind(this)
 
     this.socket = new Socket(root.environment.wsServerURL, root.environment.language)
-    this.socket.events$.subscribe((event: EventToAdd) => eventStream.next(event))
-    eventStream.subscribe(e => this.socket.handleEvent(e))
+    this.socket.events$.subscribe((event: EventToAdd) => events$.next(event))
+    events$.subscribe(e => this.socket.handleEvent(e))
 
     const services: Services = {
       addEvent,
       environment: root.environment,
       text: root.text,
       resolution$: root.resolution$,
-      eventStream,
+      events$,
       canvas: this.canvas,
       socket: this.socket
     }
@@ -51,6 +51,6 @@ export class App {
 
     root.resolution$.subscribe(resolution => this.canvas.resize(resolution.width, resolution.height))
 
-    eventStream.subscribe(console.log)
+    events$.subscribe(console.log)
   }
 }

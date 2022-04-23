@@ -14,7 +14,7 @@ export class Router {
   ) {
     const page = new MenuPage(services)
 
-    services.eventStream.subscribe((event: Event) => {
+    services.events$.subscribe((event: Event) => {
       let page: Page | undefined = undefined
       switch (event.event_type) {
         case "room_joined": {

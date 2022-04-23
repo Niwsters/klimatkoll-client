@@ -15,7 +15,7 @@ export class GamePage implements Page {
     this.game = new Game(text, services.socket.socketID)
     this.game.events$.subscribe(addEvent)
 
-    services.eventStream.subscribe(event => {
+    services.events$.subscribe(event => {
       this.game.handleEvent(event)
     })
 
