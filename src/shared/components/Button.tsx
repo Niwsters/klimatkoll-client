@@ -1,18 +1,29 @@
 import React from 'react'
 
-type OnClick = () => void
+type OnClick = () => void;
+type ButtonColor = "pink" | "yellow" | "hover"
+function getColorHex(color: ButtonColor): string {
+  switch (color) {
+    case "pink":
+      return "#f4ccc5"
+    case "yellow":
+      return "#fdd76b"
+    case "hover":
+      return "#cef0ea"
+  }
+}
 
 type Props = {
   label: string,
   onClick: OnClick,
-  backgroundColor: string
+  color: ButtonColor 
 }
 
 type State = {
   hover: boolean
 }
 
-class Button extends React.Component<Props, State> {
+export class Button extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = { hover: false }
@@ -22,15 +33,13 @@ class Button extends React.Component<Props, State> {
     this.setState({ hover })
   }
 
-  private get color(): string {
-    const { backgroundColor } = this.props
-    const hoverColor = "#cef0ea"
-    return this.state.hover ? hoverColor : backgroundColor
+  private get colorHex(): string {
+    return this.state.hover ? getColorHex("hover") : getColorHex(this.props.color)
   }
 
   private get style() {
     return {
-      "background-color": this.color,
+      "background-color": this.colorHex,
       'width': '100%',
       'display': 'block',
       'border': 'none',
@@ -53,9 +62,9 @@ class Button extends React.Component<Props, State> {
 }
 
 export function PinkButton(label: string, onClick: () => void) {
-  return <Button label={label} onClick={onClick} backgroundColor="#f4ccc5" />
+  return <Button label={label} onClick={onClick} color="pink" />
 }
 
 export function YellowButton(label: string, onClick: () => void) {
-  return <Button label={label} onClick={onClick} backgroundColor="#fdd76b" />
+  return <Button label={label} onClick={onClick} color="yellow" />
 }
