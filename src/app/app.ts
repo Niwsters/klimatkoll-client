@@ -1,24 +1,28 @@
-import { Socket } from '../socket/socket'
-import { EventToAdd } from '../event/event'
+import { Socket, createSocket } from '../socket/socket'
+import { EventToAdd, Event } from '../event/event'
 import { EventStream } from '../event/event-stream'
 import { Canvas } from '../canvas/canvas'
 import { UI } from './UI'
 import { Root } from '../root'
 import { Router } from '../router'
-import { Services } from '../services'
+import { PageFactory, Services } from '../pages'
 
 export class App {
-  private socket: Socket
-  private events$: EventStream
-  private canvas: Canvas
+  private readonly socket: Socket
+  private readonly events$: EventStream
+  private readonly canvas: Canvas
+  private readonly router: Router
 
   private addEvent(e: EventToAdd) {
     this.events$.next(e)
   }
 
-  constructor(
-    root: Root
-  ) {
+  private handleEvent(e: Event) {
+    this.router.handleEvent(e)
+  }
+
+  constructor(root: Root, socket: Socket) {
+    this.socket = socket
     this.events$ = new EventStream()
     const events$ = this.events$
 
@@ -28,7 +32,6 @@ export class App {
 
     const addEvent = this.addEvent.bind(this)
 
-    this.socket = new Socket(root.environment.wsServerURL, root.environment.language)
     this.socket.events$.subscribe((event: EventToAdd) => events$.next(event))
     events$.subscribe(e => this.socket.handleEvent(e))
 
@@ -39,18 +42,24 @@ export class App {
       resolution$: root.resolution$,
       events$,
       canvas: this.canvas,
-      socket: this.socket
+      socketID: this.socket.socketID
     }
+    this.router = new Router(new PageFactory(services))
 
-    const router = new Router(services)
+    events$.subscribe(e => this.handleEvent(e))
 
     new UI(
       root.frame.uiElem,
-      router.page$
+      this.router.page$
     )
 
     root.resolution$.subscribe(resolution => this.canvas.resize(resolution.width, resolution.height))
 
     events$.subscribe(console.log)
   }
+}
+
+export async function createApp(root: Root) {
+  const socket = await createSocket(root.environment.wsServerURL, root.environment.language)
+  return new App(root, socket)
 }

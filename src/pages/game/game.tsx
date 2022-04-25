@@ -1,27 +1,53 @@
 import React from 'react'
-import { Services } from '../../services';
 import { Card } from './core/card';
 import { Game } from './core/game';
 import { StatusBar } from './UI';
 import { Page } from '../../pages/page'
+import { TextConfig } from '@shared/models';
+import { AddEventFunc } from 'pages/menu/UI/add-event';
+import { Resolution } from 'root';
+import { Stream } from '../../stream'
+import { Event } from '@shared/events';
+import { Canvas } from 'canvas/canvas';
+
+class GameLoop {
+  canvas: Canvas
+  game: Game
+
+  constructor(canvas: Canvas, game: Game) {
+    this.canvas = canvas
+    this.game = game
+  }
+
+  loop(cards: Card[]) {
+    this.canvas.render(cards)
+    this.game.update(Date.now())
+  }
+}
 
 export class GamePage implements Page {
   readonly component: React.ReactElement 
 
   private readonly game: Game
 
-  constructor(services: Services) {
-    const { text, addEvent, resolution$ } = services
-    this.game = new Game(text, services.socket.socketID)
+  constructor(
+    text: TextConfig,
+    addEvent: AddEventFunc,
+    resolution$: Stream<Resolution>,
+    socketID: number,
+    events$: Stream<Event>,
+    canvas: Canvas
+  ) {
+    this.game = new Game(text, socketID)
     this.game.events$.subscribe(addEvent)
 
-    services.events$.subscribe(event => {
+    events$.subscribe(event => {
       this.game.handleEvent(event)
     })
 
+    const gameLoop = new GameLoop(canvas, this.game)
     setInterval(() => {
-      services.canvas.render(this.cards)
-      this.game.update(Date.now())
+      gameLoop.loop(this.cards)
     }, 1000/60)
 
     this.component = <StatusBar

@@ -7,8 +7,13 @@ export interface Stream<T> {
 export class StreamChannel<T> implements Stream<T> {
   protected listeners: Listener<T>[] = []
 
-  subscribe(listener: Listener<T>) {
+  subscribe(listener: Listener<T>): Listener<T> {
     this.listeners.push(listener)
+    return listener
+  }
+
+  unsubscribe(listener: Listener<T>) {
+    this.listeners = this.listeners.filter(l => l != listener)
   }
 
   next(value: T) {
@@ -26,9 +31,9 @@ export class StreamSource<T> extends StreamChannel<T> {
     this._value = initialValue
   }
 
-  subscribe(listener: Listener<T>): void {
-    super.subscribe(listener)
+  subscribe(listener: Listener<T>): Listener<T> {
     listener(this._value)
+    return super.subscribe(listener)
   }
 
   next(value: T) {

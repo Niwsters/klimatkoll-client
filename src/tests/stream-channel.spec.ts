@@ -12,6 +12,16 @@ async function subscribes() {
   })
 }
 
+function unsubscribes() {
+  const stream = new StreamChannel<string>()
+  let result = ":D"
+  const subscription = stream.subscribe(value => result = value)
+  stream.unsubscribe(subscription)
+  stream.next("oh hi")
+  expect(result).toEqual(":D")
+}
+
 export default async function() {
   await subscribes()
+  unsubscribes()
 }

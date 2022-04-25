@@ -1,9 +1,9 @@
-import { App } from './app';
+import { createApp } from './app';
 import { mountRoot } from './root'
 
 async function start() {
   const root = await mountRoot()
-  new App(root)
+  await createApp(root)
 }
 
 start()

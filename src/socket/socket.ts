@@ -8,19 +8,28 @@ export class Socket {
 
   constructor(websocketURL: string, language: string) {
     this.websocket = new WebSocket(websocketURL, language)
+    this.websocket.onmessage = (e: MessageEvent) => this.onMessage(e)
+  }
 
-    this.websocket.onmessage = (e: MessageEvent) => {
-      const event: any = JSON.parse(e.data)
-      event.event_type = event.type
-      this.events$.next(event)
-    }
+  private onMessage(e: MessageEvent) {
+    const event: any = JSON.parse(e.data)
+    event.event_type = event.type
+    this.events$.next(event)
+  }
+
+  async awaitSocketID() {
+    return new Promise(resolve => {
+      const sub = this.events$.subscribe(event => {
+        if (event.event_type === "socket_id") {
+          this.socketID = event.payload.socketID
+          resolve(null)
+          this.events$.unsubscribe(sub)
+        }
+      })
+    })
   }
 
   handleEvent(event: Event): void {
-    if (event.event_type === "socket_id") {
-      this.socketID = event.payload.socketID
-    }
-
     const func: ((e: Event) => Event[]) | undefined = (Socket as any)[event.event_type]
     if (func)
       func(event).forEach((e: Event) => this.websocket.send(JSON.stringify(e)));
@@ -41,4 +50,10 @@ export class Socket {
   static play_card_request(event: Event): Event[] {
     return [event]
   }
+}
+
+export async function createSocket(webSocketURL: string, language: string): Promise<Socket> {
+  const socket = new Socket(webSocketURL, language)
+  await socket.awaitSocketID()
+  return socket
 }
