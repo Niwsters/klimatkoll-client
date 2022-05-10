@@ -31,18 +31,16 @@ export class Card implements ICard {
   constructor(
     id: number,
     name: string,
+    position: Position = new Position(0, 0)
   ) {
     this.id = id
     this.name = name
+    this.x = position.x
+    this.y = position.y
   }
 
   get position(): Position {
     return new Position(this.x, this.y)
-  }
-
-  set position(position: Position) {
-    this.x = position.x
-    this.y = position.y
   }
 
   private new(): Card {

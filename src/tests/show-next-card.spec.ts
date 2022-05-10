@@ -11,10 +11,8 @@ function nextCard(state: GameState, card: Card): GameState {
 }
 
 export default function main() {
-  const card = new Card(13, "blargh")
-  card.position = DECK_POSITION
-  const card2 = new Card(1, "honk")
-  card2.position = DECK_POSITION
+  const card = new Card(13, "blargh", DECK_POSITION)
+  const card2 = new Card(1, "honk", DECK_POSITION)
 
   const test = spec()
     .when(() => nextCard(Factory.GameState(), card))

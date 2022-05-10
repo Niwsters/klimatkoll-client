@@ -103,8 +103,7 @@ export class GameState {
     let state = this.new()
 
     const serverCard = event.payload.card
-    const card = new Card(serverCard.id, serverCard.name)
-    card.position = DECK_POSITION
+    const card = new Card(serverCard.id, serverCard.name, DECK_POSITION)
 
     state.deck = state.deck.setTopCard(card)
 
@@ -142,13 +141,10 @@ export class GameState {
     let state = this.new()
     const server_card = event.payload.card
 
+    const card = new Card(server_card.id, server_card.name, DECK_POSITION)
     if (event.payload.socketID === state.socketID) {
-      const card = new Card(server_card.id, server_card.name)
-      card.position = DECK_POSITION
       state.hand = state.hand.addCard(card)
     } else {
-      const card = new Card(server_card.id, server_card.name)
-      card.position = DECK_POSITION
       state.opponentHand = state.opponentHand.addCard(card)
     }
 
@@ -187,8 +183,7 @@ export class GameState {
     state = state.removeHandCard(playedCard)
 
     // Add EL card
-    const movedCard = new Card(playedCard.id, playedCard.name)
-    movedCard.position = playedCard.position
+    const movedCard = new Card(playedCard.id, playedCard.name, playedCard.position)
     state.emissionsLine = state.emissionsLine.addCard(movedCard, position, timePassed)
 
     return [state, []]

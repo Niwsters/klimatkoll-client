@@ -51,7 +51,7 @@ function addCard(state: GameState): GameState {
 
 function hoverCard(state: GameState): GameState {
   const [x, y] = [EMISSIONS_LINE_POSITION.x, EMISSIONS_LINE_POSITION.y]
-  return moveMouse(state, x, y) 
+  return moveMouse(state, x, y)
 }
 
 function otherCardScales(state: GameState): number[] {
@@ -116,10 +116,10 @@ export default function main() {
   const twoCards = test
     .when((state: GameState) => {
       state = state.new()
-      card2.position = EMISSIONS_LINE_POSITION
-      state.emissionsLine = state.emissionsLine.addCard(card2, 2, currentTime)
+      const card = new Card(card2.id, card2.name, EMISSIONS_LINE_POSITION)
+      state.emissionsLine = state.emissionsLine.addCard(card, 2, currentTime)
 
-      const [x, y] = [card2.position.x, EMISSIONS_LINE_POSITION.y]
+      const [x, y] = [card.position.x, EMISSIONS_LINE_POSITION.y]
       return moveMouse(state, x, y)
     })
     .when(finishAnimation)

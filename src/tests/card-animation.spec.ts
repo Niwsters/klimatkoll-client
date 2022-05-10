@@ -8,7 +8,7 @@ function finishAnimation(card: Card): Card {
 }
 
 export default function main() {
-  const test = spec().when(() => new Card(3, "blargh"))
+  const test = spec().when(() => new Card(3, "blargh", new Position(0, 0)))
 
   test
     .when((card: Card) => card.move(1337, 1337, 0))
