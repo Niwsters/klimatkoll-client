@@ -1,5 +1,5 @@
 import { Position } from '../position'
-import { TransitionGoal } from '../transition-goal'
+import { TransitionGoal } from './transition-goal'
 
 export class Entity {
   private time: number = 0
@@ -51,35 +51,35 @@ export class Entity {
   }
 
   move(x: number, y: number, currentTime: number): Entity {
-    let card = this.new()
+    let entity = this.new()
 
-    card.xGoal = card.xGoal.update(currentTime, this.x, x)
-    card.yGoal = card.yGoal.update(currentTime, this.y, y)
+    entity.xGoal = entity.xGoal.update(currentTime, this.x, x)
+    entity.yGoal = entity.yGoal.update(currentTime, this.y, y)
 
-    return card
+    return entity
   }
 
   rotateGlobal(rotation: number, currentTime: number): Entity {
-    let card = this.new()
-    card.rotationGoal = card.rotationGoal.update(currentTime, this.rotation, rotation)
-    return card
+    let entity = this.new()
+    entity.rotationGoal = entity.rotationGoal.update(currentTime, this.rotation, rotation)
+    return entity
   }
 
   rotateLocal(rotation: number, currentTime: number): Entity {
-    let card = this.new()
-    card.addedRotationGoal = card.addedRotationGoal.update(currentTime, this.addedRotation, rotation)
-    return card
+    let entity = this.new()
+    entity.addedRotationGoal = entity.addedRotationGoal.update(currentTime, this.addedRotation, rotation)
+    return entity
   }
 
   setScale(scale: number, currentTime: number): Entity {
-    let card = this.new()
-    card.scaleGoal = card.scaleGoal.update(currentTime, this.scale, scale)
-    return card
+    let entity = this.new()
+    entity.scaleGoal = entity.scaleGoal.update(currentTime, this.scale, scale)
+    return entity
   }
 
   update(time: number): Entity {
-    let card = this.new()
-    card.time = time
-    return card
+    let entity = this.new()
+    entity.time = time
+    return entity
   }
 }

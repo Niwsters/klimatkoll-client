@@ -1,4 +1,4 @@
-import { ANIMATION_DURATION_MS } from './constants'
+import { ANIMATION_DURATION_MS } from '../constants'
 
 export function transpose(from: number, to: number, timePassed: number) {
   if (timePassed > ANIMATION_DURATION_MS) return to
