@@ -2,7 +2,7 @@ import { Position } from './position'
 
 export const WIDTH = 960
 export const HEIGHT = 540
-export const ANIMATION_DURATION_MS = 800
+export const ANIMATION_DURATION_MS = 300
 export const HAND_POSITION: Position = new Position(482, HEIGHT+50)
 export const OPPONENT_HAND_POSITION: Position = new Position(482, -50)
 export const HAND_CARD_ANGLE = Math.PI/5

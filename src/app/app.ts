@@ -54,8 +54,6 @@ export class App {
     )
 
     root.resolution$.subscribe(resolution => this.canvas.resize(resolution.width, resolution.height))
-
-    events$.subscribe(console.log)
   }
 }
 

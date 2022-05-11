@@ -4,6 +4,7 @@ import { GameState } from '../pages/game/core/gamestate'
 import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from '../pages/game/core/constants'
 import { Event } from '../event/event'
 import { spec } from './spec'
+import { Position } from 'pages/game/core/position'
 
 function receiveEvent(state: GameState, card: Card): GameState {
   const event = new Event(0, "incorrect_card_placement", { cardID: card.id })
@@ -11,12 +12,9 @@ function receiveEvent(state: GameState, card: Card): GameState {
 }
 
 const currentTime: number = 0
-const card = new Card(7, "blargh")
+const card = new Card(7, "blargh", new Position(0, 0), 30, 15)
 
 export default function main() {
-  card.rotation = 30
-  card.addedRotation = 15
-
   const test = spec()
     .when(() => {
       let state = Factory.GameState()
