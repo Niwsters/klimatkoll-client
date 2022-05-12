@@ -1,5 +1,10 @@
 import { ICard } from '@shared/models'
 
+export type IEventToAdd = {
+  event_type: string
+  payload: any
+}
+
 export class EventToAdd {
   public event_type: string
   public payload: any

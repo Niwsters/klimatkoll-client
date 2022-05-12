@@ -154,10 +154,10 @@ export class EmissionsLine {
       .map(card => {
         if (card.isSpace) {
           if (el.isCardFocused(card, mouseX, mouseY, selectedCard) && selectedCard) {
-            card.name = selectedCard.name
-          } else {
-            card.name = "space"
+            return card.setName(selectedCard.name)
           }
+
+          return card.setName("space")
         }
 
         return card

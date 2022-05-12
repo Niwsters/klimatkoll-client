@@ -56,4 +56,28 @@ export class Card extends Entity implements ICard {
     card.visible = true
     return card
   }
+
+  setName(name: string): Card {
+    return Object.assign(this, { name })
+  }
+
+  move(x: number, y: number, currentTime: number): Card {
+    return super.move(x, y, currentTime) as Card
+  }
+
+  rotateGlobal(rotation: number, currentTime: number): Card {
+    return super.rotateGlobal(rotation, currentTime) as Card
+  }
+
+  rotateLocal(rotation: number, currentTime: number): Card {
+    return super.rotateLocal(rotation, currentTime) as Card
+  }
+
+  setScale(scale: number, currentTime: number): Card {
+    return super.setScale(scale, currentTime) as Card
+  }
+
+  update(time: number): Card {
+    return super.update(time) as Card
+  }
 }
