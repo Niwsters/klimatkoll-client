@@ -1,5 +1,5 @@
 import React from 'react'
-import { EventToAdd, LeaveGameEvent } from '../../../event/event'
+import { EventToAdd, leaveGameEvent } from '../../../event/event'
 import { TextConfig } from '@shared/models'
 import { PinkButton } from '@shared/components'
 
@@ -8,7 +8,7 @@ export function LeaveGameBtn(
   addEvent: (event: EventToAdd) => void
 ): React.ReactElement {
   function onClick() {
-    addEvent(new LeaveGameEvent())
+    addEvent(leaveGameEvent())
   }
 
   return PinkButton(text.btnLeaveGame, onClick)

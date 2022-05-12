@@ -1,11 +1,11 @@
 import { Card } from '../pages/game/core/card'
-import { Event, EventToAdd } from '../event/event'
+import { EventToAdd, createEvent } from '../event/event'
 import { GameState } from '../pages/game/core/gamestate'
 import { Factory } from './test-factory'
 import { spec } from './spec'
 
 function playCard(state: GameState, card: Card, position: number): [GameState, EventToAdd[]] {
-  const event = new Event(0, 'card_played_from_deck', {
+  const event = createEvent(0, 'card_played_from_deck', {
     card: card,
     position: position
   })

@@ -3,15 +3,15 @@ import { Factory } from './test-factory'
 import { GameState } from '../pages/game/core/gamestate'
 import { DECK_POSITION } from '../pages/game/core/constants'
 import { spec } from './spec'
-import { Event } from '../event/event'
+import { Event, createEvent } from '../event/event'
 
 
-function createEvent(socketID: number): Event {
-  return new Event(0, "draw_card", { card: card, socketID })
+function drawCardEvent(socketID: number): Event {
+  return createEvent(0, "draw_card", { card: card, socketID })
 }
 
 function drawCard(state: GameState, socketID: number): GameState {
-  return state.draw_card(createEvent(socketID))[0]
+  return state.draw_card(drawCardEvent(socketID))[0]
 }
 
 const card = new Card(0, "some-card")

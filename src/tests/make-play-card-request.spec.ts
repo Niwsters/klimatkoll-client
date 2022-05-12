@@ -1,4 +1,4 @@
-import { EventToAdd, MouseClickedEvent, MouseMovedEvent, PlayCardRequestEvent } from '../event/event'
+import { EventToAdd, mouseClickedEvent, mouseMovedEvent, playCardRequestEvent } from '../event/event'
 import { Card } from '../pages/game/core/card'
 import { ANIMATION_DURATION_MS, EMISSIONS_LINE_POSITION } from '../pages/game/core/constants'
 import { GameState } from '../pages/game/core/gamestate'
@@ -10,7 +10,7 @@ const emissionsLineCard = new Card(0, "some-card")
 const handCard = new Card(2, "third-card")
 
 function moveMouse(state: GameState, x: number, y: number): GameState {
-  const event = {...new MouseMovedEvent(x, y), event_id: 0}
+  const event = {...mouseMovedEvent(x, y), event_id: 0}
   state = state.mouse_moved(event)[0]
   state = state.update(currentTime + ANIMATION_DURATION_MS)
   return state
@@ -55,7 +55,7 @@ function hoverHandCard(state: GameState): GameState {
 }
 
 function clickMouse(state: GameState): [GameState, EventToAdd[]] {
-  return state.mouse_clicked({ event_id: 1, ...new MouseClickedEvent() })
+  return state.mouse_clicked({ event_id: 1, ...mouseClickedEvent() })
 }
 
 function selectHandCard(state: GameState): GameState {
@@ -80,5 +80,5 @@ export default function() {
     .when(hoverSpaceCard)
     .when(clickMouse)
     .expect(events)
-    .toEqual([new PlayCardRequestEvent(handCard.id, 2)])
+    .toEqual([playCardRequestEvent(handCard.id, 2)])
 }

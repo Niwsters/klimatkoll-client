@@ -1,85 +1,41 @@
-import { ICard } from '@shared/models'
-
-export type IEventToAdd = {
+export type EventToAdd = {
   event_type: string
   payload: any
 }
 
-export class EventToAdd {
-  public event_type: string
-  public payload: any
-
-  constructor(event_type: string, payload: any = {}) {
-    this.event_type = event_type
-    this.payload = payload
-  }
+export type Event = EventToAdd & {
+  event_id: number
 }
 
-export class Event extends EventToAdd {
-  public event_id: number
 
-  constructor(event_id: number, event_type: string, payload: any = {}) {
-    super(event_type, payload)
-    this.event_id = event_id
-  }
+function eventToAdd(event_type: string, payload: any): EventToAdd {
+  return { event_type, payload } as const
 }
 
-export class CanvasResizedEvent extends EventToAdd {
-  constructor(ratio: number) {
-    super("canvas_resized", { ratio })
-  }
+export function createEvent(event_id: number, event_type: string, payload: any): Event {
+  return { ...eventToAdd(event_type, payload), event_id } as const
 }
 
-export class CreateGameEvent extends EventToAdd {
-  constructor(roomID: string) {
-    super("create_game", { roomID })
-  }
+export function createGameEvent(roomID: string): EventToAdd {
+  return eventToAdd("create_game", { roomID })
 }
 
-export class JoinGameEvent extends EventToAdd {
-  constructor(roomID: string) {
-    super("join_game", { roomID })
-  }
+export function joinGameEvent(roomID: string): EventToAdd {
+  return eventToAdd("join_game", { roomID })
 }
 
-export class LeaveGameEvent extends EventToAdd {
-  constructor() {
-    super("leave_game")
-  }
+export function leaveGameEvent(): EventToAdd {
+  return eventToAdd("leave_game", {})
 }
 
-export class MouseClickedEvent extends EventToAdd {
-  constructor() {
-    super("mouse_clicked")
-  }
+export function mouseClickedEvent(): EventToAdd {
+  return eventToAdd("mouse_clicked", {})
 }
 
-export class MouseMovedEvent extends EventToAdd {
-  constructor(mouseX: number, mouseY: number) {
-    super("mouse_moved", { mouseX, mouseY })
-  }
+export function mouseMovedEvent(mouseX: number, mouseY: number): EventToAdd {
+  return eventToAdd("mouse_moved", { mouseX, mouseY })
 }
 
-export class PlayCardRequestEvent extends EventToAdd {
-  constructor(cardID: number, position: number) {
-    super("play_card_request", { cardID, position })
-  }
-}
-
-export class CardHoveredEvent extends EventToAdd {
-  constructor(cardID: number) {
-    super("card_hovered", { cardID })
-  }
-}
-
-export class CardUnhoveredEvent extends EventToAdd {
-  constructor(cardID: number) {
-    super("card_unhovered", { cardID })
-  }
-}
-
-export class EmissionsLineCardAddedEvent extends EventToAdd {
-  constructor(card: ICard, position: number) {
-    super("emissions_line_card_added", { card, position })
-  }
+export function playCardRequestEvent(cardID: number, position: number): EventToAdd {
+  return eventToAdd("play_card_request", { cardID, position })
 }

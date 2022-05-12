@@ -1,7 +1,7 @@
 import { Card } from './card'
 import { Hand } from './hand'
 import { OpponentHand } from './opponent-hand'
-import { Event, EventToAdd, PlayCardRequestEvent } from '../../../event/event'
+import { Event, EventToAdd, playCardRequestEvent } from '../../../event/event'
 import {
   DECK_POSITION
 } from './constants'
@@ -93,7 +93,7 @@ export class GameState {
     let events: EventToAdd[] = []
     if (playCardPosition > -1 && playedCard) {
       if (!playedCard) throw new Error("Can't play card: No card selected")
-      events = [new PlayCardRequestEvent(playedCard.id, playCardPosition)]
+      events = [playCardRequestEvent(playedCard.id, playCardPosition)]
     }
 
     return [state, events]

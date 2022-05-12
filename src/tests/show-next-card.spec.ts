@@ -1,4 +1,4 @@
-import { Event } from '../event/event'
+import { createEvent } from '../event/event'
 import { Card } from '../pages/game/core/card'
 import { DECK_POSITION } from '../pages/game/core/constants'
 import { GameState } from '../pages/game/core/gamestate'
@@ -6,7 +6,7 @@ import { Factory } from './test-factory'
 import { spec } from './spec'
 
 function nextCard(state: GameState, card: Card): GameState {
-  const event = new Event(0, "next_card", {card})
+  const event = createEvent(0, "next_card", {card})
   return state.next_card(event)[0]
 }
 

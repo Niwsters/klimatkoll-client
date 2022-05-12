@@ -1,6 +1,6 @@
 import React from 'react'
 import { TextConfig } from '@shared/models'
-import { EventToAdd, JoinGameEvent } from '@shared/events'
+import { EventToAdd, joinGameEvent } from '@shared/events'
 import { YellowButton } from '@shared/components'
 
 type AddEventFunc = (event: EventToAdd) => void
@@ -11,7 +11,7 @@ export function JoinGameBtn(
   roomID: string
 ): React.ReactElement {
   function onClick() {
-    addEvent(new JoinGameEvent(roomID))
+    addEvent(joinGameEvent(roomID))
   }
 
   return YellowButton(text.btnJoinGame, onClick)

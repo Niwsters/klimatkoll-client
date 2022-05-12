@@ -2,12 +2,12 @@ import { Card } from '../pages/game/core/card'
 import { Factory } from './test-factory'
 import { GameState } from '../pages/game/core/gamestate'
 import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from '../pages/game/core/constants'
-import { Event } from '../event/event'
+import { createEvent } from '../event/event'
 import { spec } from './spec'
 import { Position } from 'pages/game/core/position'
 
 function receiveEvent(state: GameState, card: Card): GameState {
-  const event = new Event(0, "incorrect_card_placement", { cardID: card.id })
+  const event = createEvent(0, "incorrect_card_placement", { cardID: card.id })
   return state.incorrect_card_placement(event, currentTime)[0]
 }
 

@@ -1,4 +1,4 @@
-import { MouseClickedEvent, MouseMovedEvent } from "../event/event"
+import { mouseClickedEvent, mouseMovedEvent } from "../event/event"
 import { Card } from "../pages/game/core/card"
 import { ANIMATION_DURATION_MS, EMISSIONS_LINE_POSITION } from "../pages/game/core/constants"
 import { GameState } from "../pages/game/core/gamestate"
@@ -11,7 +11,7 @@ const card2 = new Card(1, "other-card")
 const card3 = new Card(2, "third-card")
 
 function moveMouse(state: GameState, x: number, y: number): GameState {
-  const event = {...new MouseMovedEvent(x, y), event_id: 0}
+  const event = {...mouseMovedEvent(x, y), event_id: 0}
   state = state.mouse_moved(event)[0]
   state = state.update(currentTime + ANIMATION_DURATION_MS)
   return state
@@ -78,7 +78,7 @@ function hoverHandCard(state: GameState): GameState {
 }
 
 function clickMouse(state: GameState): GameState {
-  return state.mouse_clicked({ event_id: 1, ...new MouseClickedEvent() })[0]
+  return state.mouse_clicked({ event_id: 1, ...mouseClickedEvent() })[0]
 }
 
 function selectHandCard(state: GameState): GameState {

@@ -1,4 +1,4 @@
-import { MouseMovedEvent } from "../event/event"
+import { mouseMovedEvent } from "../event/event"
 import { Card } from "../pages/game/core/card"
 import { ANIMATION_DURATION_MS, HAND_POSITION } from "../pages/game/core/constants"
 import { GameState } from "../pages/game/core/gamestate"
@@ -7,7 +7,7 @@ import { spec } from './spec'
 import { Position } from "../pages/game/core/position"
 
 function moveMouse(state: GameState, x: number, y: number): GameState {
-  const event = {...new MouseMovedEvent(x, y), event_id: 0}
+  const event = {...mouseMovedEvent(x, y), event_id: 0}
   state = state.mouse_moved(event)[0]
   state = state.update(currentTime + ANIMATION_DURATION_MS)
   return state
