@@ -22,3 +22,7 @@ export class Expect {
 export function expect(result: any) {
   return new Expect(result)
 }
+
+export function fail(message: string) {
+  throw new Error(`Test failed: ${message}`)
+}

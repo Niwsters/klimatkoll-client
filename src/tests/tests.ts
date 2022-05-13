@@ -13,6 +13,7 @@ import makePlayCardRequest from './make-play-card-request.spec'
 import emissionsLineZIndex from './emissions-line-z-index.spec'
 import testStreamSource from './stream-source.spec'
 import testStreamChannel from './stream-channel.spec'
+import testInbox from './inbox.spec'
 
 playCardFromDeck()
 playCardFromHand()
@@ -29,3 +30,4 @@ makePlayCardRequest()
 emissionsLineZIndex()
 testStreamSource()
 testStreamChannel()
+testInbox()
