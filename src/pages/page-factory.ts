@@ -9,6 +9,7 @@ import { Canvas } from '../canvas/canvas'
 import { Resolution } from '../root'
 import { Environment } from '../root/environment'
 import { Stream } from '../stream'
+import { Inbox } from 'inbox'
 
 export type PageType = "game" | "menu";
 
@@ -19,7 +20,8 @@ export type Services = {
   resolution$: Stream<Resolution>,
   events$: EventStream,
   canvas: Canvas,
-  socketID: number
+  socketID: number,
+  mpServer: Inbox<EventToAdd>
 }
 
 export class PageFactory {
@@ -30,8 +32,8 @@ export class PageFactory {
   }
 
   private menuPage() {
-    const { text, environment, resolution$, addEvent } = this.services;
-    return new MenuPage(text, environment, resolution$, addEvent)
+    const { text, environment, resolution$, addEvent, mpServer } = this.services;
+    return new MenuPage(text, environment, resolution$, addEvent, mpServer)
   }
 
   private gamePage() {

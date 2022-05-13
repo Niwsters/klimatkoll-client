@@ -6,6 +6,7 @@ import { UI } from './UI'
 import { Root } from '../root'
 import { Router } from '../router'
 import { PageFactory, Services } from '../pages'
+import { MultiPlayerServer } from 'socket/multiplayer-server'
 
 export class App {
   private readonly socket: Socket
@@ -35,6 +36,8 @@ export class App {
     this.socket.events$.subscribe((event: EventToAdd) => events$.next(event))
     events$.subscribe(e => this.socket.handleEvent(e))
 
+    const mpServer = new MultiPlayerServer(socket)
+
     const services: Services = {
       addEvent,
       environment: root.environment,
@@ -42,7 +45,8 @@ export class App {
       resolution$: root.resolution$,
       events$,
       canvas: this.canvas,
-      socketID: this.socket.socketID
+      socketID: this.socket.socketID,
+      mpServer: mpServer.inbox
     }
     this.router = new Router(new PageFactory(services))
 

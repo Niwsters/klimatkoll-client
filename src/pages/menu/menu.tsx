@@ -6,6 +6,8 @@ import { AddEventFunc } from './UI/add-event';
 import { Environment } from 'root/environment';
 import { Resolution } from 'root';
 import { Stream } from '../../stream'
+import { Inbox } from 'inbox';
+import { EventToAdd } from '@shared/events';
 
 export class MenuPage implements Page {
   readonly component: React.ReactElement 
@@ -15,7 +17,8 @@ export class MenuPage implements Page {
     text: TextConfig,
     environment: Environment,
     resolution$: Stream<Resolution>,
-    addEvent: AddEventFunc
+    addEvent: AddEventFunc,
+    mpServer: Inbox<EventToAdd>
   ) {
     this.cards = []
 
@@ -23,6 +26,7 @@ export class MenuPage implements Page {
       text={text}
       httpServerURL={environment.httpServerURL}
       resolution$={resolution$}
+      mpServer={mpServer}
       addEvent={addEvent}>
     </Menu>
   }

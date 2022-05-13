@@ -23,6 +23,7 @@ function getRouteComponent(route: string, services: MenuServices, setRoute: SetR
         addEvent={services.addEvent}
         httpServerURL={services.httpServerURL}
         text={services.text}
+        mpServer={services.mpServer}
         setRoute={setRoute}
         />)
     case "/singleplayer":
