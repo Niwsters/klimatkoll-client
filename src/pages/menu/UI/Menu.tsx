@@ -3,14 +3,12 @@ import { TextConfig } from '@shared/models'
 import { Stream } from '../../../stream'
 import { Resolution } from '../../../root'
 import { Logo } from './Logo'
-import { AddEventFunc } from './add-event'
 import { Router } from './Router'
 import { MenuServices } from './menu-services'
 import { EventToAdd } from '@shared/events'
 import { Inbox } from 'inbox'
 
 interface Props {
-  addEvent: AddEventFunc
   httpServerURL: string
   text: TextConfig
   resolution$: Stream<Resolution>
@@ -34,13 +32,12 @@ export class Menu extends React.Component<Props, State> {
   }
 
   render() {
-    const { addEvent, text, httpServerURL, mpServer } = this.props
+    const { text, httpServerURL, mpServer } = this.props
     const { resolution } = this.state
     const { width, height } = resolution
 
     const services: MenuServices = {
       appWidth: width,
-      addEvent,
       httpServerURL,
       text,
       mpServer

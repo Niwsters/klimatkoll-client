@@ -32,8 +32,8 @@ export class PageFactory {
   }
 
   private menuPage() {
-    const { text, environment, resolution$, addEvent, mpServer } = this.services;
-    return new MenuPage(text, environment, resolution$, addEvent, mpServer)
+    const { text, environment, resolution$, mpServer } = this.services;
+    return new MenuPage(text, environment, resolution$, mpServer)
   }
 
   private gamePage() {
