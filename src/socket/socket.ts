@@ -1,4 +1,4 @@
-import { Event } from '../event/event'
+import { Event, EventToAdd } from '../event/event'
 import { StreamChannel } from '../stream';
 
 export class Socket {
@@ -29,7 +29,7 @@ export class Socket {
     })
   }
 
-  private send(event: Event) {
+  send(event: EventToAdd) {
     this.websocket.send(JSON.stringify(event))
   }
 

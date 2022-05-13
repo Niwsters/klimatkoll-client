@@ -1,25 +1,28 @@
-export type Inbox<T> = {
-  messages: T[]
-}
+import { sleep } from './sleep'
 
-export function send(inbox: Inbox<any>, message: any): void {
-  inbox.messages.push(message)
-}
+export type InboxClosed = 1
+export const INBOX_CLOSED: InboxClosed = 1
 
-export function receive<T>(inbox: Inbox<T>): Promise<T> {
-  return new Promise(resolve => {
-    const interval = setInterval(() => {
-      const message = inbox.messages.shift()
-      if (message) {
-        resolve(message)
-        clearInterval(interval)
-      }
-    }, 10)
-  })
-}
+export class Inbox<T> {
+  private messages: T[] = []
+  private closed: boolean = false
 
-export function inbox<T>(): Inbox<T> {
-  return {
-    messages: []
+  send(message: T) {
+    this.messages.push(message)
+  }
+
+  async receive(): Promise<T | InboxClosed> {
+    while (!this.closed) {
+      const message = this.messages.shift()
+      if (message)
+        return message
+      await sleep(10)
+    }
+
+    return INBOX_CLOSED
+  }
+
+  close() {
+    this.closed = true
   }
 }

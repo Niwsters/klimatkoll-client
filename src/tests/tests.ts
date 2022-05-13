@@ -14,6 +14,7 @@ import emissionsLineZIndex from './emissions-line-z-index.spec'
 import testStreamSource from './stream-source.spec'
 import testStreamChannel from './stream-channel.spec'
 import testInbox from './inbox.spec'
+import testMPServer from './mpserver.spec'
 
 playCardFromDeck()
 playCardFromHand()
@@ -31,3 +32,4 @@ emissionsLineZIndex()
 testStreamSource()
 testStreamChannel()
 testInbox()
+testMPServer()
