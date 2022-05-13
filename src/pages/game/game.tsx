@@ -4,7 +4,7 @@ import { Game } from './core/game';
 import { StatusBar } from './UI';
 import { Page } from '../../pages/page'
 import { TextConfig } from '@shared/models';
-import { AddEventFunc } from 'pages/menu/UI/add-event';
+import { AddEventFunc } from '@shared/models';
 import { Resolution } from 'root';
 import { Stream } from '../../stream'
 import { Event } from '@shared/events';

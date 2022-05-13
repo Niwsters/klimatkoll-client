@@ -20,7 +20,6 @@ function getRouteComponent(route: string, services: MenuServices, setRoute: SetR
     case "/multiplayer":
       return (<MultiPlayerMenu
         appWidth={services.appWidth}
-        addEvent={services.addEvent}
         httpServerURL={services.httpServerURL}
         text={services.text}
         mpServer={services.mpServer}
