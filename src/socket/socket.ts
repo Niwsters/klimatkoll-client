@@ -29,26 +29,19 @@ export class Socket {
     })
   }
 
+  private send(event: Event) {
+    this.websocket.send(JSON.stringify(event))
+  }
+
   handleEvent(event: Event): void {
-    const func: ((e: Event) => Event[]) | undefined = (Socket as any)[event.event_type]
-    if (func)
-      func(event).forEach((e: Event) => this.websocket.send(JSON.stringify(e)));
-  }
- 
-  static create_game(event: Event): Event[] {
-    return [event]
-  }
-
-  static join_game(event: Event): Event[] {
-    return [event]
-  }
-
-  static leave_game(event: Event): Event[] {
-    return [event]
-  }
-
-  static play_card_request(event: Event): Event[] {
-    return [event]
+    switch (event.event_type) {
+      case "play_card_request":
+      case "leave_game":
+      case "join_game":
+      case "create_game": {
+        this.send(event)
+      }
+    }
   }
 }
 
