@@ -1,14 +1,13 @@
-import { Card } from './card'
-import { Hand } from './hand'
-import { OpponentHand } from './opponent-hand'
-import { Event, EventToAdd, playCardRequestEvent } from '../../../event/event'
+import { Card } from 'core/card'
+import { Hand } from 'core/hand'
+import { OpponentHand } from 'core/opponent-hand'
+import { Event, EventToAdd, playCardRequestEvent } from 'event/event'
 import {
   DECK_POSITION
-} from './constants'
-
-import { EmissionsLine } from './emissionsline'
-import { Deck } from './deck'
-import { DiscardPile } from './discard-pile'
+} from 'core/constants'
+import { EmissionsLine } from 'core/emissionsline'
+import { Deck } from 'core/deck'
+import { DiscardPile } from 'core/discard-pile'
 import { TextConfig } from '@shared/models'
 
 export class GameState {

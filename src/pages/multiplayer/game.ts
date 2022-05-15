@@ -1,7 +1,7 @@
-import { Event, EventToAdd } from '../../../event/event'
+import { Event, EventToAdd } from 'event/event'
 import { GameState } from './gamestate'
 import { TextConfig } from '@shared/models'
-import { Stream, StreamChannel, StreamSource } from '../../../stream'
+import { Stream, StreamChannel, StreamSource } from '../../stream'
 
 export class Game {
   events$: StreamChannel<EventToAdd> = new StreamChannel()

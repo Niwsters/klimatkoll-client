@@ -1,6 +1,6 @@
 import React from 'react'
-import { Card } from './core/card';
-import { Game } from './core/game';
+import { Card } from 'core/card';
+import { Game } from './game';
 import { StatusBar } from './UI';
 import { Page } from '../../pages/page'
 import { TextConfig } from '@shared/models';
