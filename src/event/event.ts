@@ -1,15 +1,16 @@
 export type EventToAdd = {
-  event_type: string
-  payload: any
+  readonly event_type: string
+  readonly payload: any
+  readonly timestamp: number
 }
 
 export type Event = EventToAdd & {
-  event_id: number
+  readonly event_id: number,
 }
 
 
 function eventToAdd(event_type: string, payload: any): EventToAdd {
-  return { event_type, payload } as const
+  return { event_type, payload, timestamp: Date.now() } as const
 }
 
 export function createEvent(event_id: number, event_type: string, payload: any): Event {

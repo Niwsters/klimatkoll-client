@@ -118,13 +118,15 @@ export class Hand {
     return new Hand(cards)
   }
 
+  animate(currentTime: number): Hand {
+    return new Hand(this.cards.map(card => card.update(currentTime)))
+  }
+
   update(currentTime: number, mouseX: number, mouseY: number): Hand {
     let hand = new Hand(this._cards)
 
     let cards = hand.zoomHoveredCards(currentTime, mouseX, mouseY)
-    cards = cards.map(card => card.update(currentTime))
-
-    return new Hand(cards) 
+    return new Hand(cards).animate(currentTime)
   }
 
   removeCard(card: Card): Hand {
