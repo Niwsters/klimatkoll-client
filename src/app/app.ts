@@ -58,6 +58,10 @@ export class App {
     )
 
     root.resolution$.subscribe(resolution => this.canvas.resize(resolution.width, resolution.height))
+
+    setInterval(() => {
+      this.canvas.render(this.router.page.cards)
+    }, 1000/60)
   }
 }
 

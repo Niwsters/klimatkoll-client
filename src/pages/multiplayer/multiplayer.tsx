@@ -8,22 +8,6 @@ import { AddEventFunc } from '@shared/models';
 import { Resolution } from 'root';
 import { Stream } from '../../stream'
 import { Event } from '@shared/events';
-import { Canvas } from 'canvas/canvas';
-
-class GameLoop {
-  canvas: Canvas
-  game: Game
-
-  constructor(canvas: Canvas, game: Game) {
-    this.canvas = canvas
-    this.game = game
-  }
-
-  loop(cards: Card[]) {
-    this.canvas.render(cards)
-    this.game.update(Date.now())
-  }
-}
 
 export class MPGamePage implements Page {
   readonly component: React.ReactElement 
@@ -35,8 +19,7 @@ export class MPGamePage implements Page {
     addEvent: AddEventFunc,
     resolution$: Stream<Resolution>,
     socketID: number,
-    events$: Stream<Event>,
-    canvas: Canvas
+    events$: Stream<Event>
   ) {
     this.game = new Game(text, socketID)
     this.game.events$.subscribe(addEvent)
@@ -45,9 +28,8 @@ export class MPGamePage implements Page {
       this.game.handleEvent(event)
     })
 
-    const gameLoop = new GameLoop(canvas, this.game)
     setInterval(() => {
-      gameLoop.loop(this.cards)
+      this.game.update(Date.now())
     }, 1000/60)
 
     this.component = <StatusBar

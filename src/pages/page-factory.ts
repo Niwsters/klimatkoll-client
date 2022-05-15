@@ -38,12 +38,12 @@ export class PageFactory {
   }
 
   private multiPlayerPage() {
-    const { text, addEvent, resolution$, socketID, events$, canvas } = this.services
-    return new MPGamePage(text, addEvent, resolution$, socketID, events$, canvas)
+    const { text, addEvent, resolution$, socketID, events$ } = this.services
+    return new MPGamePage(text, addEvent, resolution$, socketID, events$)
   }
 
   private singlePlayerPage() {
-    return new SinglePlayerPage()
+    return new SinglePlayerPage(this.services)
   }
 
   get(page: PageType): Page {

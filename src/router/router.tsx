@@ -33,6 +33,10 @@ export class Router {
     return this._page$
   }
 
+  get page(): Page {
+    return this._page$.value
+  }
+
   get cards(): ICard[] {
     return this._page$.value.cards
   }
