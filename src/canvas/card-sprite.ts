@@ -1,7 +1,6 @@
 import vsSource from './shader.vert'
 import fsSource from './shader.frag'
-import { CardData } from '../cards'
-import { ICard } from '@shared/models'
+import { ICard, CardData } from '@shared/models'
 
 const IMAGE_WIDTH = 906/2
 const IMAGE_HEIGHT = 1328/2

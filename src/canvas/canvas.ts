@@ -1,8 +1,12 @@
-import { ICard } from '@shared/models'
+import { ICard, CardData } from '@shared/models'
 import { CardSprite } from './card-sprite'
 import { EventToAdd, mouseMovedEvent, mouseClickedEvent } from '../event/event'
-import { CardData } from '../cards'
 import { StreamChannel } from '../stream'
+
+async function fetchCardData(baseUrl: string): Promise<CardData[]> {
+  const response = await fetch(`${baseUrl}/cards.json`)
+  return response.json()
+}
 
 export class Canvas {
   gl: WebGLRenderingContext
@@ -46,8 +50,7 @@ export class Canvas {
   }
 
   prepare(baseUrl: string): void {
-    fetch(`${baseUrl}/cards.json`)
-      .then(response => response.json())
+    fetchCardData(baseUrl)
       .then((cards: CardData[]) => {
         cards = cards.map((c: CardData, i: number) => {
           return {
