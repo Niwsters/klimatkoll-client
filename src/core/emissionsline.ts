@@ -114,6 +114,8 @@ export class EmissionsLine {
     const lowerBoundsX = EMISSIONS_LINE_POSITION.x - this.width / 2
     const upperBoundsX = EMISSIONS_LINE_POSITION.x + this.width / 2
 
+    console.log(mouseX, lowerBoundsX, upperBoundsX)
+
     return mouseX > lowerBoundsX &&
            mouseX < upperBoundsX &&
            mouseY > lowerBoundsY &&
