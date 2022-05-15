@@ -6,6 +6,7 @@ import {
   HAND_Y_RADIUS,
   HAND_ANGLE_FACTOR
 } from './constants'
+import { Position } from './position'
 
 function distance(a: number, b: number) {
   return Math.abs(a - b)
@@ -14,6 +15,7 @@ function distance(a: number, b: number) {
 export class Hand {
 
   private _cards: Card[]
+  private mousePosition: Position = new Position(0, 0)
 
   private getCardAngle(i: number) {
     const n = this.cards.length - 1
@@ -79,7 +81,7 @@ export class Hand {
            mouseX < HAND_POSITION.x + width / 2
   }
 
-  private zoomHoveredCards(currentTime: number, mouseX: number, mouseY: number): Card[] {
+  private zoomHoveredCards(currentTime: number, mouseX: number, mouseY: number): Hand {
     const cards = this._cards.map((card: Card, cardIndex: number) => {
       if (this.isCardFocused(card, mouseX, mouseY))
         return this.zoomInOnCard(card, currentTime)
@@ -87,7 +89,7 @@ export class Hand {
       return this.moveCardDefault(card, cardIndex, currentTime)
     })
 
-    return cards
+    return new Hand(cards)
   }
 
   constructor(cards: Card[] = []) {
@@ -123,10 +125,7 @@ export class Hand {
   }
 
   update(currentTime: number, mouseX: number, mouseY: number): Hand {
-    let hand = new Hand(this._cards)
-
-    let cards = hand.zoomHoveredCards(currentTime, mouseX, mouseY)
-    return new Hand(cards).animate(currentTime)
+    return new Hand(this._cards).zoomHoveredCards(currentTime, mouseX, mouseY).animate(currentTime)
   }
 
   removeCard(card: Card): Hand {

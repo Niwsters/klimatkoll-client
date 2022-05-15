@@ -24,8 +24,8 @@ export class Canvas {
       this.events$.next(mouseMovedEvent(e.clientX * ratio, e.clientY * ratio))
     }, false)
 
-    canvas.addEventListener('click', () => {
-      this.events$.next(mouseClickedEvent())
+    canvas.addEventListener('click', (e: MouseEvent) => {
+      this.events$.next(mouseClickedEvent(e.clientX, e.clientY))
     }, false)
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)

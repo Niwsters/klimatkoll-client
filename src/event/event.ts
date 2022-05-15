@@ -29,8 +29,8 @@ export function leaveGameEvent(): EventToAdd {
   return eventToAdd("leave_game", {})
 }
 
-export function mouseClickedEvent(): EventToAdd {
-  return eventToAdd("mouse_clicked", {})
+export function mouseClickedEvent(mouseX: number, mouseY: number): EventToAdd {
+  return eventToAdd("mouse_clicked", { mouseX, mouseY })
 }
 
 export function mouseMovedEvent(mouseX: number, mouseY: number): EventToAdd {

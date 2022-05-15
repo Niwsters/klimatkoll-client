@@ -1,11 +1,13 @@
 import { Event } from "@shared/events";
 import { Card } from "core/card";
 import { Hand } from "core/hand";
+import { Position } from "core/position";
 import { Page } from "pages/page";
 import { Services } from "pages/page-factory";
 import React from "react";
 import { fetchCardData } from "shared/fetch-card-data";
 import { getHand } from './hand'
+import { getMousePosition } from "./mouse-position";
 
 async function getCards(baseUrl: string): Promise<Card[]> {
   const cardData = await fetchCardData(baseUrl)
@@ -34,12 +36,16 @@ export class SinglePlayerPage implements Page {
     this.events.push(event)
   }
 
+  get mousePosition(): Position {
+    return getMousePosition(this.events)
+  }
+
   get cards(): Card[] {
     return [...this.hand.cards]
   }
 
   get hand(): Hand {
-    return getHand(this.events, Date.now())
+    return getHand(this.events, Date.now(), this.mousePosition)
   }
 
   constructor(services: Services) {
