@@ -14,7 +14,7 @@ function getColorHex(color: ButtonColor): string {
 }
 
 type Props = {
-  label: string,
+  label?: string,
   onClick: OnClick,
   color: ButtonColor 
 }
@@ -52,12 +52,12 @@ export class Button extends React.Component<Props, State> {
   }
 
   render() {
-    const { onClick, label } = this.props
+    const { onClick, label, children } = this.props
     const hover = () => this.setHover(true)
     const unhover = () => this.setHover(false)
     const style = this.style
 
-    return <button onClick={onClick} style={style} onMouseEnter={hover} onMouseLeave={unhover}>{ label }</button>
+    return <button onClick={onClick} style={style} onMouseEnter={hover} onMouseLeave={unhover}>{ label }{ children }</button>
   }
 }
 
