@@ -1,4 +1,4 @@
-import { Card } from '../pages/game/core/card'
+import { Card } from '../pages/multiplayer/core/card'
 import { ICard } from '@shared/models'
 import {
   HAND_POSITION,
@@ -6,11 +6,11 @@ import {
   HAND_Y_RADIUS,
   HAND_CARD_ANGLE,
   ANIMATION_DURATION_MS,
-} from '../pages/game/core/constants'
+} from '../pages/multiplayer/core/constants'
 import { Factory } from './test-factory'
 import { spec } from './spec'
 import { mouseMovedEvent } from '../event/event'
-import { Position } from '../pages/game/core/position'
+import { Position } from '../pages/multiplayer/core/position'
 
 const currentTime = 1337
 

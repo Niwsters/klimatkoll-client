@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextConfig } from '@shared/models'
+import { AddEventFunc, TextConfig } from '@shared/models'
 import { Stream } from '../../../stream'
 import { Resolution } from '../../../root'
 import { Logo } from './Logo'
@@ -13,6 +13,7 @@ interface Props {
   text: TextConfig
   resolution$: Stream<Resolution>
   mpServer: Inbox<EventToAdd>
+  addEvent: AddEventFunc
 }
 
 interface State {
@@ -32,7 +33,7 @@ export class Menu extends React.Component<Props, State> {
   }
 
   render() {
-    const { text, httpServerURL, mpServer } = this.props
+    const { text, httpServerURL, mpServer, addEvent } = this.props
     const { resolution } = this.state
     const { width, height } = resolution
 
@@ -40,7 +41,8 @@ export class Menu extends React.Component<Props, State> {
       appWidth: width,
       httpServerURL,
       text,
-      mpServer
+      mpServer,
+      addEvent
     }
 
     const style = {

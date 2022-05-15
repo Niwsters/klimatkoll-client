@@ -1,4 +1,4 @@
-import { GameState } from "../pages/game/core/gamestate"
+import { GameState } from "../pages/multiplayer/core/gamestate"
 
 export const Factory = {
   GameState: function() {

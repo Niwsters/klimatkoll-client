@@ -4,8 +4,9 @@ import { Stream, StreamSource } from '../stream'
 import { Page, PageFactory, PageType } from '../pages'
 
 const eventPageMapping: { [event_type: string]: PageType } = {
-  "room_joined": "game",
-  "game_removed": "menu"
+  "room_joined": "multiplayer",
+  "game_removed": "menu",
+  "singleplayer_started": "singleplayer"
 } as const;
 
 export class Router {

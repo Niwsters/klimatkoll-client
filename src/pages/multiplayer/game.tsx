@@ -25,7 +25,7 @@ class GameLoop {
   }
 }
 
-export class GamePage implements Page {
+export class MPGamePage implements Page {
   readonly component: React.ReactElement 
 
   private readonly game: Game

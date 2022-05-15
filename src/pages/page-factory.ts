@@ -1,6 +1,7 @@
 import { Page } from '../pages/page'
 import { MenuPage } from '../pages/menu'
-import { GamePage } from '../pages/game'
+import { MPGamePage } from './multiplayer'
+import { SinglePlayerPage } from './singleplayer'
 
 import { TextConfig } from '@shared/models'
 import { EventToAdd } from '../event/event'
@@ -11,7 +12,7 @@ import { Environment } from '../root/environment'
 import { Stream } from '../stream'
 import { Inbox } from 'inbox'
 
-export type PageType = "game" | "menu";
+export type PageType = "multiplayer" | "singleplayer" | "menu";
 
 export type Services = {
   environment: Environment,
@@ -32,19 +33,25 @@ export class PageFactory {
   }
 
   private menuPage() {
-    const { text, environment, resolution$, mpServer } = this.services;
-    return new MenuPage(text, environment, resolution$, mpServer)
+    const { text, environment, resolution$, mpServer, addEvent } = this.services;
+    return new MenuPage(text, environment, resolution$, mpServer, addEvent)
   }
 
-  private gamePage() {
+  private multiPlayerPage() {
     const { text, addEvent, resolution$, socketID, events$, canvas } = this.services
-    return new GamePage(text, addEvent, resolution$, socketID, events$, canvas)
+    return new MPGamePage(text, addEvent, resolution$, socketID, events$, canvas)
+  }
+
+  private singlePlayerPage() {
+    return new SinglePlayerPage()
   }
 
   get(page: PageType): Page {
     switch (page) {
-      case "game":
-        return this.gamePage()
+      case "multiplayer":
+        return this.multiPlayerPage()
+      case "singleplayer":
+        return this.singlePlayerPage()
       case "menu":
         return this.menuPage()
       default:

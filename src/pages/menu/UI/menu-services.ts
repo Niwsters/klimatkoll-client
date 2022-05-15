@@ -1,5 +1,5 @@
 import { EventToAdd } from '@shared/events'
-import { TextConfig } from '@shared/models'
+import { AddEventFunc, TextConfig } from '@shared/models'
 import { Inbox } from 'inbox'
 
 export type MenuServices = {
@@ -7,4 +7,5 @@ export type MenuServices = {
   text: TextConfig
   appWidth: number
   mpServer: Inbox<EventToAdd>
+  addEvent: AddEventFunc
 }

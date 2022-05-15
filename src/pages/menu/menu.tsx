@@ -1,5 +1,5 @@
 import React from 'react'
-import { ICard, TextConfig } from '@shared/models';
+import { AddEventFunc, ICard, TextConfig } from '@shared/models';
 import { Menu } from './UI'
 import { Page } from '../../pages/page'
 import { Environment } from 'root/environment';
@@ -16,7 +16,8 @@ export class MenuPage implements Page {
     text: TextConfig,
     environment: Environment,
     resolution$: Stream<Resolution>,
-    mpServer: Inbox<EventToAdd>
+    mpServer: Inbox<EventToAdd>,
+    addEvent: AddEventFunc
   ) {
     this.cards = []
 
@@ -25,6 +26,7 @@ export class MenuPage implements Page {
       httpServerURL={environment.httpServerURL}
       resolution$={resolution$}
       mpServer={mpServer}
+      addEvent={addEvent}
     >
     </Menu>
   }

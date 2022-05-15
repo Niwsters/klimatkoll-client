@@ -1,6 +1,6 @@
-import { Card } from '../pages/game/core/card'
-import { ANIMATION_DURATION_MS } from '../pages/game/core/constants'
-import { Position } from '../pages/game/core/position'
+import { Card } from '../pages/multiplayer/core/card'
+import { ANIMATION_DURATION_MS } from '../pages/multiplayer/core/constants'
+import { Position } from '../pages/multiplayer/core/position'
 import { spec } from './spec'
 
 function finishAnimation(card: Card): Card {

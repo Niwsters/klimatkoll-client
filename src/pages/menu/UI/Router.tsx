@@ -30,6 +30,7 @@ function getRouteComponent(route: string, services: MenuServices, setRoute: SetR
         <SinglePlayerMenu
           appWidth={services.appWidth}
           setRoute={setRoute}
+          addEvent={services.addEvent}
         />
       )
     default:

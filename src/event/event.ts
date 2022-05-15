@@ -39,3 +39,7 @@ export function mouseMovedEvent(mouseX: number, mouseY: number): EventToAdd {
 export function playCardRequestEvent(cardID: number, position: number): EventToAdd {
   return eventToAdd("play_card_request", { cardID, position })
 }
+
+export function singlePlayerStartedEvent(): EventToAdd {
+  return eventToAdd("singleplayer_started", {})
+}
