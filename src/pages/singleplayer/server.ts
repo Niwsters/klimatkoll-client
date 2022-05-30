@@ -1,8 +1,7 @@
 import { EventToAdd } from "@shared/events";
 import { Card } from "core/card";
 import { fetchCardData } from "shared/fetch-card-data";
-import { StreamChannel } from "stream";
-import { StreamSource } from "stream";
+import { StreamChannel } from "../../stream";
 
 const SP_SOCKET_ID = 1;
 
@@ -54,7 +53,7 @@ type SPState = {
 }
 
 export class SPServer {
-  private _events$: StreamSource<EventToAdd> = new StreamSource({})
+  readonly events$: StreamChannel<EventToAdd> = new StreamChannel()
 
   private state: SPState = {
     deck: []
@@ -75,11 +74,10 @@ export class SPServer {
     return this.state.deck
   }
 
-  get events$(): StreamChannel {
-    return this._events$
-  }
-
   handleEvent(event: EventToAdd) {
-
+    const result = handleGameEvent(this.deck, event)
+    if (result !== NO_EVENT) {
+      result.forEach(event => this.events$.next(event))
+    }
   }
 }
