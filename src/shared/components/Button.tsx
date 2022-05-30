@@ -39,15 +39,15 @@ export class Button extends React.Component<Props, State> {
 
   private get style() {
     return {
-      "background-color": this.colorHex,
+      "backgroundColor": this.colorHex,
       'width': '100%',
       'display': 'block',
       'border': 'none',
-      'border-radius': 0,
+      'borderRadius': 0,
       'padding': '0.52% 1.04%',
-      'box-sizing': 'border-box',
-      'font-family': "'Poppins', sans-serif",
-      'font-size': '1em',
+      'boxSizing': 'border-box',
+      'fontFamily': "'Poppins', sans-serif",
+      'fontSize': '1em',
     }
   }
 

@@ -2,7 +2,7 @@ import React, { ReactElement } from "react"
 
 function ButtonWrapper(button: ReactElement, appWidth: number) {
   const style: any = {
-    'margin-top': 0.0104*appWidth,
+    'marginTop': 0.0104*appWidth,
   }
 
   return <div style={style}>{button}</div>
@@ -14,10 +14,15 @@ export function ButtonLayout(props: { children: ReactElement[], appWidth: number
   const style: any = {
     'width': 0.271 * appWidth,
     'margin': '0 auto',
-    'font-family': "'Poppins', sans-serif",
+    'fontFamily': "'Poppins', sans-serif",
   }
 
-  const children = props.children.map(elem => ButtonWrapper(elem, appWidth))
+  const children = props.children.map((elem, i) => {
+    return {
+      ...ButtonWrapper(elem, appWidth),
+      key: i
+    }
+  })
 
   return <div style={style}>
     { children }

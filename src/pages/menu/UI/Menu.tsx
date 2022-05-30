@@ -49,8 +49,8 @@ export class Menu extends React.Component<Props, State> {
       'background': '#181543',
       'width': width + 'px',
       'height': height + 'px',
-      'padding-top': 0.104 * width + 'px',
-      'box-sizing': 'border-box',
+      'paddingTop': 0.104 * width + 'px',
+      'boxSizing': 'border-box',
     }
 
     return (
