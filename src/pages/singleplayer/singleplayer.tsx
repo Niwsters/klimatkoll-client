@@ -1,15 +1,10 @@
 import { Event, EventToAdd } from "@shared/events";
 import { Card } from "core/card";
-import { EmissionsLine } from "core/emissionsline";
-import { Hand } from "core/hand";
-import { Position } from "core/position";
+import { Game } from "core/game";
 import { Page } from "pages/page";
 import { Services } from "pages/page-factory";
 import React from "react";
 import { fetchCardData } from "shared/fetch-card-data";
-import { getEmissionsLine } from "./emissions-line";
-import { getHand } from './hand'
-import { getMousePosition } from "./mouse-position";
 
 async function getCards(baseUrl: string): Promise<Card[]> {
   const cardData = await fetchCardData(baseUrl)
@@ -17,10 +12,10 @@ async function getCards(baseUrl: string): Promise<Card[]> {
   return cardData.map((c, i) => new Card(i, c.name))
 }
 
-function drawCard(cards: Card[]): EventToAdd {
+function drawCard(cards: Card[], socketID: number): EventToAdd {
   return {
     event_type: "draw_card",
-    payload: { card: cards[0] },
+    payload: { card: cards[0], socketID },
     timestamp: Date.now()
   }
 }
@@ -35,38 +30,31 @@ function playCardFromDeck(cards: Card[]): EventToAdd {
 
 export class SinglePlayerPage implements Page {
   component: React.ReactElement = <h1>oh hi</h1>;
-  private events: any[] = []
-
-  private async getCards(baseUrl: string) {
-    const allCards = await getCards(baseUrl)
-    this.events = [...this.events, drawCard(allCards), playCardFromDeck(allCards)]
-  }
-
-  private addEvent(event: Event) {
-    this.events.push(event)
-  }
-
-  get mousePosition(): Position {
-    return getMousePosition(this.events)
-  }
-
-  get cards(): Card[] {
-    return [
-      ...this.hand.cards,
-      ...this.emissionsLine.cards
-    ]
-  }
-
-  get hand(): Hand {
-    return getHand(this.events, Date.now(), this.mousePosition)
-  }
-
-  get emissionsLine(): EmissionsLine {
-    return getEmissionsLine(this.events, this.mousePosition, this.hand.selectedCard)
-  }
+  private game: Game
+  private socketID: number
 
   constructor(services: Services) {
     services.events$.subscribe(event => this.addEvent(event))
     this.getCards(`${services.environment.httpServerURL}/${services.environment.language}`)
+    this.socketID = services.socketID
+    this.game = new Game(services.text, this.socketID)
+
+    setInterval(() => this.game.update(Date.now()), 1000/60)
+  }
+
+  private async getCards(baseUrl: string) {
+    const allCards = await getCards(baseUrl)
+    this.game.handleEvent(drawCard(allCards, this.socketID) as any)
+    this.game.handleEvent(playCardFromDeck(allCards) as any)
+  }
+
+  private addEvent(event: Event) {
+    this.game.handleEvent(event)
+  }
+
+  get cards(): Card[] {
+    return [
+      ...this.game.state.cards
+    ]
   }
 }
