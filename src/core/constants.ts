@@ -13,3 +13,4 @@ export const EMISSIONS_LINE_POSITION: Position = new Position(482, HEIGHT/2)
 export const EMISSIONS_LINE_MAX_LENGTH = 450
 export const DECK_POSITION: Position = new Position(WIDTH-100, HEIGHT/2-154/2-20)
 export const DISCARD_PILE_POSITION: Position = new Position(WIDTH-100, HEIGHT/2+154/2+20)
+export const SP_SOCKET_ID = 1;

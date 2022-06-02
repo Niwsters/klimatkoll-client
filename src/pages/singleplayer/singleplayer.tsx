@@ -5,27 +5,8 @@ import { Page } from "pages/page";
 import { Services } from "pages/page-factory";
 import React from "react";
 import { SPServer } from './server'
-
-const SP_SOCKET_ID = 1;
-
-function drawCard(cards: Card[], socketID: number): EventToAdd {
-  const cardID = Math.floor(Math.random() * cards.length)
-
-  return {
-    event_type: "draw_card",
-    payload: { card: cards[cardID], socketID },
-    timestamp: Date.now()
-  }
-}
-
-function playCardFromDeck(cards: Card[]): EventToAdd {
-  const cardID = Math.floor(Math.random() * cards.length)
-  return {
-    event_type: "card_played_from_deck",
-    payload: { card: cards[cardID] },
-    timestamp: Date.now()
-  }
-}
+import { drawCard, playCardFromDeck } from './events'
+import { SP_SOCKET_ID } from "core/constants";
 
 export class SinglePlayerPage implements Page {
   component: React.ReactElement = <h1>oh hi</h1>;
@@ -39,7 +20,6 @@ export class SinglePlayerPage implements Page {
 
   constructor(services: Services) {
     services.events$.subscribe(event => this.addEvent(event))
-    this.getCards(`${services.environment.httpServerURL}/${services.environment.language}`)
 
     this.game = new Game(services.text, this.socketID)
     this.game.events$.subscribe(this.onGameEvent.bind(this))
@@ -47,6 +27,8 @@ export class SinglePlayerPage implements Page {
     this.server.events$.subscribe(this.onServerEvent.bind(this))
 
     setInterval(() => this.game.update(Date.now()), 1000/60)
+
+    this.getCards(`${services.environment.httpServerURL}/${services.environment.language}`)
   }
 
   private onServerEvent(event: EventToAdd) {
@@ -59,8 +41,6 @@ export class SinglePlayerPage implements Page {
 
   private async getCards(baseUrl: string) {
     await this.server.fetchDeck(baseUrl)
-    this.game.handleEvent(drawCard(this.deck, this.socketID) as any)
-    this.game.handleEvent(playCardFromDeck(this.deck) as any)
   }
 
   private addEvent(event: EventToAdd) {
