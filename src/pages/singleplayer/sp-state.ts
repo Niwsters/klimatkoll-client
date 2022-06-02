@@ -1,5 +1,6 @@
 import { Card } from 'core/card'
 
 export type SPState = {
-  deck: Card[]
+  deck: Card[],
+  emissionsLine: Card[]
 }

@@ -19,7 +19,8 @@ export class SPServer {
   readonly events$: StreamChannel<EventToAdd> = new StreamChannel()
 
   private state: SPState = {
-    deck: []
+    deck: [],
+    emissionsLine: []
   }
 
   private setDeck(deck: Card[]) {
@@ -46,5 +47,8 @@ export class SPServer {
     if (result !== NO_EVENT) {
       result.forEach(event => this.events$.next(event))
     }
+
+    console.log(event.event_type)
+    console.log(this.state)
   }
 }

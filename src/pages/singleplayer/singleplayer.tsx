@@ -5,7 +5,6 @@ import { Page } from "pages/page";
 import { Services } from "pages/page-factory";
 import React from "react";
 import { SPServer } from './server'
-import { drawCard, playCardFromDeck } from './events'
 import { SP_SOCKET_ID } from "core/constants";
 
 export class SinglePlayerPage implements Page {
@@ -13,10 +12,6 @@ export class SinglePlayerPage implements Page {
   private game: Game
   private server: SPServer = new SPServer()
   private readonly socketID: number = SP_SOCKET_ID
-
-  private get deck(): Card[] {
-    return this.server.deck
-  }
 
   constructor(services: Services) {
     services.events$.subscribe(event => this.addEvent(event))
