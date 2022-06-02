@@ -1,6 +1,7 @@
 import { EventToAdd } from "@shared/events"
 import { Card } from "core/card"
 import { SPState } from "./sp-state"
+import { insertCardIntoEmissionsLine } from './spaced-emissions-line'
 
 function cardDrawn(state: SPState, event: EventToAdd): SPState {
   return {
@@ -16,18 +17,10 @@ function removeCardFromDeck(state: SPState, card: Card): SPState {
   }
 }
 
-type CardSpace = null
-const CARD_SPACE = null
-
 function playCardToEmissionsLine(state: SPState, card: Card, position: number): SPState {
-  const el = state.emissionsLine.reduce((el: (Card | CardSpace)[], card: Card) => {
-    return [...el, card, CARD_SPACE]
-  }, [CARD_SPACE])
-  el[position] = card
-
   return {
     ...state,
-    emissionsLine: el.filter(c => c !== CARD_SPACE) as Card[]
+    emissionsLine: insertCardIntoEmissionsLine(state.emissionsLine, card, position)
   }
 }
 
