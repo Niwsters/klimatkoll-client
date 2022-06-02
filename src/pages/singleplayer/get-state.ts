@@ -3,10 +3,11 @@ import { Card } from "core/card"
 import { SPState } from "./sp-state"
 import { insertCardIntoEmissionsLine } from './spaced-emissions-line'
 
-function cardDrawn(state: SPState, event: EventToAdd): SPState {
+function drawCard(state: SPState, event: EventToAdd): SPState {
   return {
     ...state,
-    deck: state.deck.filter(c => c.id !== event.payload.card.id)
+    deck: state.deck.filter(c => c.id !== event.payload.card.id),
+    hand: [...state.hand, event.payload.card]
   }
 }
 
@@ -33,16 +34,20 @@ function cardPlayedFromDeck(state: SPState, event: EventToAdd): SPState {
 }
 
 function cardPlayedFromHand(state: SPState, event: EventToAdd): SPState {
+  const card = state.hand.find(c => c.id === event.payload.cardID)
+
+  if (!card) return {...state}
+
   return {
     ...state,
-    ...playCardToEmissionsLine(state, event.payload.card, event.payload.position)
+    ...playCardToEmissionsLine(state, card, event.payload.position)
   }
 }
 
 export function getState(state: SPState, event: EventToAdd): SPState {
   switch (event.event_type) {
     case "draw_card":
-      return cardDrawn(state, event)
+      return drawCard(state, event)
     case "card_played_from_deck":
       return cardPlayedFromDeck(state, event)
     case "card_played_from_hand":

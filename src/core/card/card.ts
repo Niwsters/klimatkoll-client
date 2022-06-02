@@ -2,6 +2,16 @@ import { Position } from '../position'
 import { ICard } from '@shared/models'
 import { Entity } from './entity'
 
+export type CardSpecs = {
+  id: number,
+  name: string,
+  emissions: number
+}
+
+export function createCard({ id, name, emissions }: CardSpecs): Card {
+  return new Card(id, name, new Position(0, 0), 0, 0, Card.DEFAULT_SCALE, emissions)
+}
+
 export class Card extends Entity implements ICard {
   static DEFAULT_WIDTH = 445
   static DEFAULT_HEIGHT = 656
@@ -9,6 +19,7 @@ export class Card extends Entity implements ICard {
 
   readonly id: number
   readonly name: string
+  readonly emissions: number
 
   zLevel: number = 0
   visible: boolean = true
@@ -22,11 +33,13 @@ export class Card extends Entity implements ICard {
     position: Position = new Position(0, 0),
     rotation: number = 0,
     addedRotation: number = 0,
-    scale: number = Card.DEFAULT_SCALE
+    scale: number = Card.DEFAULT_SCALE,
+    emissions: number = 0
   ) {
     super(position, rotation, addedRotation, scale)
     this.id = id
     this.name = name
+    this.emissions = emissions
   }
 
   protected new(): Card {

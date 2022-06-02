@@ -1,5 +1,5 @@
 import { EventToAdd } from "@shared/events";
-import { Card } from "core/card";
+import { Card, createCard } from "core/card";
 import { SP_SOCKET_ID } from "core/constants";
 import { fetchCardData } from "shared/fetch-card-data";
 import { StreamChannel } from "../../stream";
@@ -12,7 +12,7 @@ import { getState } from './get-state'
 async function getCards(baseUrl: string): Promise<Card[]> {
   const cardData = await fetchCardData(baseUrl)
 
-  return cardData.map((c, i) => new Card(i, c.name))
+  return cardData.map((c, i) => createCard({...c, id: i }))
 }
 
 export class SPServer {
@@ -20,7 +20,8 @@ export class SPServer {
 
   private state: SPState = {
     deck: [],
-    emissionsLine: []
+    emissionsLine: [],
+    hand: []
   }
 
   private setDeck(deck: Card[]) {
