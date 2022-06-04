@@ -48,8 +48,5 @@ export class SPServer {
     if (result !== NO_EVENT) {
       result.forEach(event => this.events$.next(event))
     }
-
-    console.log(event.event_type)
-    console.log(this.state)
   }
 }

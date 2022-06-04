@@ -6,15 +6,26 @@ import { Services } from "pages/page-factory";
 import React from "react";
 import { SPServer } from './server'
 import { SP_SOCKET_ID } from "core/constants";
+import { SPUI } from './ui/spui'
+
+function leaveGame(): EventToAdd {
+  return {
+    event_type: "singleplayer_left_game",
+    payload: {},
+    timestamp: Date.now()
+  }
+}
 
 export class SinglePlayerPage implements Page {
-  component: React.ReactElement = <h1>oh hi</h1>;
+  component: React.ReactElement = <SPUI leaveGame={this.leaveGame.bind(this)}/>;
   private game: Game
   private server: SPServer = new SPServer()
   private readonly socketID: number = SP_SOCKET_ID
+  private readonly services: Services
 
   constructor(services: Services) {
-    services.events$.subscribe(event => this.addEvent(event))
+    this.services = services
+    this.services.events$.subscribe(event => this.addEvent(event))
 
     this.game = new Game(services.text, this.socketID)
     this.game.events$.subscribe(this.onGameEvent.bind(this))
@@ -24,6 +35,10 @@ export class SinglePlayerPage implements Page {
     setInterval(() => this.game.update(Date.now()), 1000/60)
 
     this.getCards(`${services.environment.httpServerURL}/${services.environment.language}`)
+  }
+
+  private leaveGame() {
+    this.services.addEvent(leaveGame())
   }
 
   private onServerEvent(event: EventToAdd) {

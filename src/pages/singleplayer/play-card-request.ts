@@ -37,12 +37,8 @@ export function playCardRequest(state: SPState, event: EventToAdd): EventToAdd[]
   if (!card) return []
 
   const el = spacedEmissionsLine(state.emissionsLine)
-  console.log(el)
   const cardBefore = el[position-1]
   const cardAfter = el[position+1]
-  console.log(position)
-
-  console.log(cardBefore, card, cardAfter)
 
   if (isCorrectCardPlacement(cardBefore, card, cardAfter)) {
     return [

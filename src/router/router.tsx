@@ -6,7 +6,8 @@ import { Page, PageFactory, PageType } from '../pages'
 const eventPageMapping: { [event_type: string]: PageType } = {
   "room_joined": "multiplayer",
   "game_removed": "menu",
-  "singleplayer_started": "singleplayer"
+  "singleplayer_started": "singleplayer",
+  "singleplayer_left_game": "menu"
 } as const;
 
 export class Router {
