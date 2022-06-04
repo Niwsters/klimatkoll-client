@@ -2,10 +2,10 @@ import { EventToAdd } from "@shared/events"
 import { Card } from "core/card"
 
 export function playCardFromDeck(cards: Card[]): EventToAdd {
-  const cardID = Math.floor(Math.random() * cards.length)
+  const cardIndex = 0
   return {
     event_type: "card_played_from_deck",
-    payload: { card: cards[cardID] },
+    payload: { card: cards[cardIndex] },
     timestamp: Date.now()
   }
 }

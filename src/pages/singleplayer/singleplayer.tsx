@@ -17,11 +17,15 @@ function leaveGame(): EventToAdd {
 }
 
 export class SinglePlayerPage implements Page {
-  component: React.ReactElement = <SPUI leaveGame={this.leaveGame.bind(this)}/>;
   private game: Game
   private server: SPServer = new SPServer()
   private readonly socketID: number = SP_SOCKET_ID
   private readonly services: Services
+
+  component: React.ReactElement = <SPUI
+    getState={() => this.server.spState}
+    leaveGame={this.leaveGame.bind(this)}
+  />;
 
   constructor(services: Services) {
     this.services = services

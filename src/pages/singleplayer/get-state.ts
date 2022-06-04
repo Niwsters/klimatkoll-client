@@ -5,8 +5,7 @@ import { insertCardIntoEmissionsLine } from './spaced-emissions-line'
 
 function drawCard(state: SPState, event: EventToAdd): SPState {
   return {
-    ...state,
-    deck: state.deck.filter(c => c.id !== event.payload.card.id),
+    ...removeCardFromDeck(state, event.payload.card),
     hand: [...state.hand, event.payload.card]
   }
 }
@@ -25,12 +24,14 @@ function playCardToEmissionsLine(state: SPState, card: Card, position: number): 
   }
 }
 
-function cardPlayedFromDeck(state: SPState, event: EventToAdd): SPState {
-  return {
-    ...state,
-    ...removeCardFromDeck(state, event.payload.card),
-    ...playCardToEmissionsLine(state, event.payload.card, 0)
-  }
+function cardPlayedFromDeck(state: SPState, _: EventToAdd): SPState {
+  const card = state.deck[0]
+
+  return playCardToEmissionsLine(
+    removeCardFromDeck(state, card),
+    card,
+    0
+  )
 }
 
 function cardPlayedFromHand(state: SPState, event: EventToAdd): SPState {
@@ -38,10 +39,7 @@ function cardPlayedFromHand(state: SPState, event: EventToAdd): SPState {
 
   if (!card) return {...state}
 
-  return {
-    ...state,
-    ...playCardToEmissionsLine(state, card, event.payload.position)
-  }
+  return playCardToEmissionsLine(state, card, event.payload.position)
 }
 
 export function getState(state: SPState, event: EventToAdd): SPState {

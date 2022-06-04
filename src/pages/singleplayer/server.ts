@@ -15,6 +15,20 @@ async function getCards(baseUrl: string): Promise<Card[]> {
   return cardData.map((c, i) => createCard({...c, id: i }))
 }
 
+function shuffle(deck: Card[]): Card[] {
+  deck = deck.slice()
+  const random = () => Math.random()
+
+  for (let i = deck.length - 1; i > 0; i--) {
+    var j = Math.floor(random() * (i + 1));
+    var temp = deck[i];
+    deck[i] = deck[j];
+    deck[j] = temp;
+  }
+
+  return deck
+}
+
 export class SPServer {
   readonly events$: StreamChannel<EventToAdd> = new StreamChannel()
 
@@ -32,13 +46,17 @@ export class SPServer {
   }
 
   async fetchDeck(baseUrl: string) {
-    this.setDeck(await getCards(baseUrl))
+    this.setDeck(shuffle(await getCards(baseUrl)))
     this.events$.next(drawCard(this.deck, SP_SOCKET_ID))
     this.events$.next(playCardFromDeck(this.deck))
   }
 
   get deck(): Card[] {
     return this.state.deck
+  }
+
+  get spState(): SPState {
+    return this.state
   }
 
   handleEvent(event: EventToAdd) {

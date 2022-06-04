@@ -1,9 +1,11 @@
-export function drawCard(cards: Card[], socketID: number): EventToAdd {
-  const cardID = Math.floor(Math.random() * cards.length)
+import { EventToAdd } from "@shared/events"
+import { Card } from "core/card"
 
+export function drawCard(cards: Card[], socketID: number): EventToAdd {
+  const cardIndex = 0
   return {
     event_type: "draw_card",
-    payload: { card: cards[cardID], socketID },
+    payload: { card: cards[cardIndex], socketID },
     timestamp: Date.now()
   }
 }
