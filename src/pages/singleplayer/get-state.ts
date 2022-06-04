@@ -17,6 +17,13 @@ function removeCardFromDeck(state: SPState, card: Card): SPState {
   }
 }
 
+function removeCardFromHand(state: SPState, card: Card): SPState {
+  return {
+    ...state,
+    hand: state.hand.filter(c => c.id !== card.id)
+  }
+}
+
 function playCardToEmissionsLine(state: SPState, card: Card, position: number): SPState {
   return {
     ...state,
@@ -39,7 +46,17 @@ function cardPlayedFromHand(state: SPState, event: EventToAdd): SPState {
 
   if (!card) return {...state}
 
-  return playCardToEmissionsLine(state, card, event.payload.position)
+  return playCardToEmissionsLine(
+    removeCardFromHand(state, card),
+    card,
+    event.payload.position
+  )
+}
+
+function incorrectCardPlacement(state: SPState, event: EventToAdd): SPState {
+  const card = state.hand.find(c => c.id === event.payload.cardID)
+  if (!card) return {...state}
+  return removeCardFromHand(state, card)
 }
 
 export function getState(state: SPState, event: EventToAdd): SPState {
@@ -50,6 +67,8 @@ export function getState(state: SPState, event: EventToAdd): SPState {
       return cardPlayedFromDeck(state, event)
     case "card_played_from_hand":
       return cardPlayedFromHand(state, event)
+    case "incorrect_card_placement":
+      return incorrectCardPlacement(state, event) 
     default:
       return state
   }
