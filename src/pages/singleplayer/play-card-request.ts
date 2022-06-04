@@ -29,26 +29,42 @@ function isCorrectCardPlacement(
   return true
 }
 
-export function playCardRequest(state: SPState, event: EventToAdd): EventToAdd[] {
-  const position = event.payload.position
-  const cardID = event.payload.cardID
-  const card = state.hand.find(c => c.id === cardID)
+function cardBefore(emissionsLine: Card[], position: number): Card | NoCard {
+  return spacedEmissionsLine(emissionsLine)[position-1]
+}
 
+function cardAfter(emissionsLine: Card[], position: number): Card | NoCard {
+  return spacedEmissionsLine(emissionsLine)[position+1]
+}
+
+function isCorrectPlay(state: SPState, card: Card, position: number): boolean {
+  return isCorrectCardPlacement(
+    cardBefore(state.emissionsLine, position),
+    card,
+    cardAfter(state.emissionsLine, position)
+  )
+}
+
+function drawCardIfExist(deck: Card[]): EventToAdd[] {
+  if (deck.length === 0) return []
+
+  return [drawCard(deck, SP_SOCKET_ID)]
+}
+
+export function playCardRequest(state: SPState, event: EventToAdd): EventToAdd[] {
+  const card = state.hand.find(c => c.id === event.payload.cardID)
   if (!card) return []
 
-  const el = spacedEmissionsLine(state.emissionsLine)
-  const cardBefore = el[position-1]
-  const cardAfter = el[position+1]
-
-  if (isCorrectCardPlacement(cardBefore, card, cardAfter)) {
-    return [
-      playCardFromHand(event.payload.cardID, event.payload.position),
-      drawCard(state.deck, SP_SOCKET_ID)
-    ]
+  switch (isCorrectPlay(state, card, event.payload.position)) {
+    case true:
+      return [
+        playCardFromHand(event.payload.cardID, event.payload.position),
+        ...drawCardIfExist(state.deck)
+      ]
+    case false:
+      return [
+        incorrectCardPlacement(card.id),
+        ...drawCardIfExist(state.deck)
+      ]
   }
-
-  return [
-    incorrectCardPlacement(card.id),
-    drawCard(state.deck, SP_SOCKET_ID)
-  ]
 }
