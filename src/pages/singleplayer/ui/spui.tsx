@@ -20,14 +20,33 @@ function Container(props: any): React.ReactElement {
 
 type Style = {[key: string]: string}
 
-function StatusInfo(props: { cardsLeft: number }) {
-  const style: Style = {
-    "flex-grow": "1"
+function Instructions() {
+  const style = {
+    "padding": "1em"
   }
 
   return (
     <div style={style}>
-      Cards left: { props.cardsLeft }
+      Try to play as many cards as you can
+    </div>
+  )
+}
+
+function StatusInfo(props: { cardsLeft: number, correctCards: number }) {
+  const style: Style = {
+    "flex-grow": "1",
+    "padding": "1em"
+  }
+
+  return (
+    <div style={style}>
+      <div>
+        Cards left: { props.cardsLeft }
+      </div>
+      <br />
+      <div>
+        Correct placements: { props.correctCards }
+      </div>
     </div>
   )
 }
@@ -55,7 +74,11 @@ export class SPUI extends React.Component<Props, State> {
   render() {
     return (
       <Container>
-        <StatusInfo cardsLeft={this.state.spState.deck.length}/>
+        <Instructions />
+        <StatusInfo
+          cardsLeft={this.state.spState.deck.length}
+          correctCards={this.state.spState.emissionsLine.length - 1}
+        />
         <Button color="pink" onClick={this.props.leaveGame}>Leave game</Button>
       </Container>
     )
