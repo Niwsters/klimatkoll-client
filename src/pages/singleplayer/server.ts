@@ -12,7 +12,7 @@ import { getState } from './get-state'
 async function getCards(baseUrl: string): Promise<Card[]> {
   const cardData = await fetchCardData(baseUrl)
 
-  return cardData.map((c, i) => createCard({...c, id: i })).slice(0, 3)
+  return cardData.map((c, i) => createCard({...c, id: i })).slice(0, 11)
 }
 
 function shuffle(deck: Card[]): Card[] {
