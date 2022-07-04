@@ -145,7 +145,8 @@ export class CardSprite {
       cardsToLoad.forEach((cardData: CardData) => {
         const image = new Image()
         image.crossOrigin = baseURL
-        image.src = `${baseURL}/cards/${cardData.name}-pair.small.png`
+        console.log(cardData)
+        image.src = `${baseURL}/image${cardData.image}`
         image.onload = () => {
           // Create a texture.
           const texture = gl.createTexture();
