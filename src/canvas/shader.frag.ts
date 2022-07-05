@@ -8,8 +8,8 @@ uniform bool u_visible;
 
 varying vec2 v_texcoord;
 
-vec2 CARD_SIZE = vec2(445, 656);
-vec2 TEXTURE_SIZE = vec2(1024, 1024);
+vec2 CARD_SIZE = vec2(1024, 1536);
+vec2 TEXTURE_SIZE = vec2(2048, 2048);
 
 void main() {
   if (u_visible == false)

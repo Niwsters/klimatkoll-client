@@ -1,5 +1,7 @@
 export interface CardData {
-  id: number
+  id: string
   name: string
   emissions: number
+  image: string
+  language: string
 }

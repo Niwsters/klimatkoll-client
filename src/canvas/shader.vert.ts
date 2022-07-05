@@ -13,7 +13,7 @@ void main() {
     cos(u_rotation), -sin(u_rotation),
     sin(u_rotation), cos(u_rotation)
   );
-  vec2 position = a_position * rotation_matrix * vec2(u_scale) + u_translation;
+  vec2 position = a_position * rotation_matrix * vec2(u_scale) * 0.4423828 + u_translation;
 
   vec2 zeroToOne = position / vec2(960.0, 540.0);
 

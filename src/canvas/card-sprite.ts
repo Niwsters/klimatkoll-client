@@ -2,11 +2,11 @@ import vsSource from './shader.vert'
 import fsSource from './shader.frag'
 import { ICard, CardData } from '@shared/models'
 
-const IMAGE_WIDTH = 906/2
-const IMAGE_HEIGHT = 1328/2
-const IMAGE_MARGIN = 16/2
-const TEXTURE_WIDTH = 2048/2
-const TEXTURE_HEIGHT = 2048/2
+const IMAGE_WIDTH = 1024
+const IMAGE_HEIGHT = 1536
+const IMAGE_MARGIN = 16
+const TEXTURE_WIDTH = 2048
+const TEXTURE_HEIGHT = 2048
 
 const CARD_WIDTH = IMAGE_WIDTH - IMAGE_MARGIN
 const CARD_HEIGHT = IMAGE_HEIGHT - IMAGE_MARGIN
@@ -141,7 +141,7 @@ export class CardSprite {
   ): Promise<null> {
     return new Promise(resolve => {
       let loadedCardImages = 0;
-      const cardsToLoad = [...cards, { id: -1, name: "space", emissions: 0 }]
+      const cardsToLoad = [...cards, { id: "space", name: "space", emissions: 0, language: "any", image: "/space.png" }]
       cardsToLoad.forEach((cardData: CardData) => {
         const image = new Image()
         image.crossOrigin = baseURL
