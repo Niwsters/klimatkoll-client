@@ -4,7 +4,7 @@ import { ICard, CardData } from '@shared/models'
 
 const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 1536
-const IMAGE_MARGIN = 16
+const IMAGE_MARGIN = 0
 const TEXTURE_WIDTH = 2048
 const TEXTURE_HEIGHT = 2048
 
