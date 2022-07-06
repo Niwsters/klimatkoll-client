@@ -1,18 +1,19 @@
 import React from 'react'
 import { TextInput } from './TextInput'
 import { ButtonLayout } from '../ButtonLayout'
-import { TextConfig } from '@shared/models'
 import { SetRoute } from '../set-route'
 import { Button } from '@shared/components'
 import { createGameEvent, EventToAdd, joinGameEvent } from '@shared/events'
 import { Inbox } from 'inbox'
 
 interface Props {
-  httpServerURL: string
-  text: TextConfig
-  appWidth: number
-  setRoute: SetRoute
-  mpServer: Inbox<EventToAdd>
+  services: {
+    httpServerURL: string
+    appWidth: number
+    setRoute: SetRoute
+    mpServer: Inbox<EventToAdd>,
+    t: (key: string) => string
+  }
 }
 
 interface State {
@@ -30,33 +31,33 @@ export class MultiPlayerMenu extends React.Component<Props, State> {
   }
 
   private createGame() {
-    this.props.mpServer.send(createGameEvent(this.state.roomID))
+    this.props.services.mpServer.send(createGameEvent(this.state.roomID))
   }
 
   private joinGame() {
-    this.props.mpServer.send(joinGameEvent(this.state.roomID))
+    this.props.services.mpServer.send(joinGameEvent(this.state.roomID))
   }
 
   render() {
-    const { text, appWidth, setRoute } = this.props
+    const { appWidth, setRoute, t } = this.props.services
     const setRoomID = this.setRoomID.bind(this)
 
     return (
       <div>
         <ButtonLayout appWidth={appWidth}>
-          { TextInput(text.inputRoomID, setRoomID, appWidth) }
+          { TextInput(t('room-id'), setRoomID, appWidth) }
           <Button
-            label={text.btnCreateGame}
+            label={t('create-game')}
             onClick={() => this.createGame()}
             color="pink"
           />
           <Button
-            label={text.btnJoinGame}
+            label={t('join-game')}
             onClick={() => this.joinGame()}
             color="yellow"
           />
           <Button
-            label={"Tillbaka"}
+            label={t('go-back')}
             onClick={() => setRoute("/")}
             color="pink"
           />

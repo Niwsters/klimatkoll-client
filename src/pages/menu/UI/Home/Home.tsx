@@ -9,8 +9,7 @@ export function Home(props: { appWidth: number, setRoute: SetRoute }): React.Rea
   return (
     <ButtonLayout appWidth={appWidth}>
       <Button color="yellow" onClick={() => setRoute("/singleplayer")}>
-        Singleplayer<br />
-        (work in progress)
+        Singleplayer
       </Button>
       <Button color="pink" label="Multiplayer" onClick={() => setRoute("/multiplayer")} />
     </ButtonLayout>

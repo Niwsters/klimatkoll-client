@@ -19,14 +19,15 @@ function Container(props: any): React.ReactElement {
   )
 }
 
-function Instructions() {
+function Instructions(props: { t: (key: string) => string }) {
   const style = {
     "padding": "1em"
   }
 
   return (
     <div style={style}>
-      Try to play as many cards as you can
+      {props.t('sp-instructions')}
+      
     </div>
   )
 }
@@ -34,6 +35,7 @@ function Instructions() {
 type Props = {
   leaveGame: () => void
   getState: () => SPState
+  t: (key: string) => string
 }
 
 type State = {
@@ -52,13 +54,16 @@ export class SPUI extends React.Component<Props, State> {
   }
 
   render() {
+    const { t } = this.props
+
     return (
       <Container>
-        <Instructions />
+        <Instructions t={t} />
         <StatusInfo
           spState={this.state.spState}
+          t={t}
         />
-        <Button color="pink" onClick={this.props.leaveGame}>Leave game</Button>
+        <Button color="pink" onClick={this.props.leaveGame}>{t('leave-game')}</Button>
       </Container>
     )
   }

@@ -4,6 +4,7 @@ import React from 'react'
 
 type Props = {
   spState: SPState
+  t: (key: string, props?: any) => string
 }
 
 function cardsLeft(spState: SPState): number {
@@ -22,11 +23,11 @@ function Info(props: Props): React.ReactElement {
   return (
     <div>
       <div>
-        Cards left: { cardsLeft(props.spState) }
+        {props.t('cards-left')}: { cardsLeft(props.spState) }
       </div>
       <br />
       <div>
-        Correct placements: { correctCards(props.spState) }
+        {props.t('correct-placements')}: { correctCards(props.spState) }
       </div>
     </div>
   )
@@ -35,7 +36,7 @@ function Info(props: Props): React.ReactElement {
 function GameOver(props: Props): React.ReactElement {
   return (
     <div>
-      Game over! You placed { correctCards(props.spState) } cards correctly
+      {props.t('sp-game-over', { cards: correctCards(props.spState) })}
     </div>
   )
 }
@@ -43,9 +44,9 @@ function GameOver(props: Props): React.ReactElement {
 function StatusMessage(props: Props): React.ReactElement {
   switch (isGameOver(props.spState)) {
     case true:
-      return <GameOver spState={props.spState} />
+      return <GameOver spState={props.spState} t={props.t} />
     case false:
-      return <Info spState={props.spState} />
+      return <Info spState={props.spState} t={props.t} />
   }
 }
 
@@ -57,7 +58,7 @@ export function StatusInfo(props: Props): React.ReactElement {
 
   return (
     <div style={style}>
-      <StatusMessage spState={props.spState} />
+      <StatusMessage spState={props.spState} t={props.t} />
     </div>
   )
 }

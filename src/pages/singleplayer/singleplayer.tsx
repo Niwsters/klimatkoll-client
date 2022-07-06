@@ -22,10 +22,7 @@ export class SinglePlayerPage implements Page {
   private readonly socketID: number = SP_SOCKET_ID
   private readonly services: Services
 
-  component: React.ReactElement = <SPUI
-    getState={() => this.server.spState}
-    leaveGame={this.leaveGame.bind(this)}
-  />;
+  component: React.ReactElement;
 
   constructor(services: Services) {
     this.services = services
@@ -39,6 +36,12 @@ export class SinglePlayerPage implements Page {
     setInterval(() => this.game.update(Date.now()), 1000/60)
 
     this.getCards(`${services.environment.httpServerURL}/${services.environment.language}`)
+
+    this.component = <SPUI
+      getState={() => this.server.spState}
+      leaveGame={this.leaveGame.bind(this)}
+      t={this.services.t}
+    />
   }
 
   private leaveGame() {

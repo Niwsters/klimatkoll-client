@@ -16,23 +16,11 @@ type State = {
 function getRouteComponent(route: string, services: MenuServices, setRoute: SetRoute): React.ReactElement {
   switch (route) {
     case "/":
-      return (<Home appWidth={services.appWidth} setRoute={setRoute} />)
+      return <Home appWidth={services.appWidth} setRoute={setRoute} />
     case "/multiplayer":
-      return (<MultiPlayerMenu
-        appWidth={services.appWidth}
-        httpServerURL={services.httpServerURL}
-        text={services.text}
-        mpServer={services.mpServer}
-        setRoute={setRoute}
-        />)
+      return <MultiPlayerMenu services={{...services, setRoute}} />
     case "/singleplayer":
-      return (
-        <SinglePlayerMenu
-          appWidth={services.appWidth}
-          setRoute={setRoute}
-          addEvent={services.addEvent}
-        />
-      )
+      return <SinglePlayerMenu services={{...services, setRoute}} />
     default:
       throw new Error(`Could not find component for route: ${route}`)
   }

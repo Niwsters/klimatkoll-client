@@ -8,4 +8,5 @@ export type MenuServices = {
   appWidth: number
   mpServer: Inbox<EventToAdd>
   addEvent: AddEventFunc
+  t: (key: string) => string
 }

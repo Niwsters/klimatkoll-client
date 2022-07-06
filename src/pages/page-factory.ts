@@ -22,7 +22,8 @@ export type Services = {
   events$: EventStream,
   canvas: Canvas,
   socketID: number,
-  mpServer: Inbox<EventToAdd>
+  mpServer: Inbox<EventToAdd>,
+  t: (key: string) => string
 }
 
 export class PageFactory {
@@ -33,8 +34,7 @@ export class PageFactory {
   }
 
   private menuPage() {
-    const { text, environment, resolution$, mpServer, addEvent } = this.services;
-    return new MenuPage(text, environment, resolution$, mpServer, addEvent)
+    return new MenuPage(this.services)
   }
 
   private multiPlayerPage() {

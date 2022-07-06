@@ -7,6 +7,11 @@ import { Root } from '../root'
 import { Router } from '../router'
 import { PageFactory, Services } from '../pages'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
+import i18next from 'i18next'
+
+async function localisation(httpServerURL: string) {
+  return (await fetch(`${httpServerURL}/localisation`)).json()
+}
 
 export class App {
   private readonly socket: Socket
@@ -22,7 +27,7 @@ export class App {
     this.router.handleEvent(e)
   }
 
-  constructor(root: Root, socket: Socket) {
+  constructor(root: Root, socket: Socket, localisationResource: any) {
     this.socket = socket
     this.events$ = new EventStream()
     const events$ = this.events$
@@ -38,6 +43,11 @@ export class App {
 
     const mpServer = new MultiPlayerServer(socket)
 
+    i18next.init({
+      lng: root.environment.language,
+      resources: localisationResource
+    })
+
     const services: Services = {
       addEvent,
       environment: root.environment,
@@ -46,7 +56,8 @@ export class App {
       events$,
       canvas: this.canvas,
       socketID: this.socket.socketID,
-      mpServer: mpServer.inbox
+      mpServer: mpServer.inbox,
+      t: i18next.t
     }
     this.router = new Router(new PageFactory(services))
 
@@ -67,5 +78,5 @@ export class App {
 
 export async function createApp(root: Root) {
   const socket = await createSocket(root.environment.wsServerURL, root.environment.language)
-  return new App(root, socket)
+  return new App(root, socket, await localisation(root.environment.httpServerURL))
 }

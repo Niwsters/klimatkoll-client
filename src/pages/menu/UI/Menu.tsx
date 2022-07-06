@@ -14,6 +14,7 @@ interface Props {
   resolution$: Stream<Resolution>
   mpServer: Inbox<EventToAdd>
   addEvent: AddEventFunc
+  t: (key: string) => string
 }
 
 interface State {
@@ -33,7 +34,7 @@ export class Menu extends React.Component<Props, State> {
   }
 
   render() {
-    const { text, httpServerURL, mpServer, addEvent } = this.props
+    const { text, t, httpServerURL, mpServer, addEvent } = this.props
     const { resolution } = this.state
     const { width, height } = resolution
 
@@ -42,15 +43,16 @@ export class Menu extends React.Component<Props, State> {
       httpServerURL,
       text,
       mpServer,
-      addEvent
+      addEvent,
+      t
     }
 
     const style = {
       'background': '#181543',
       'width': width + 'px',
       'height': height + 'px',
-      'paddingTop': 0.104 * width + 'px',
-      'boxSizing': 'border-box',
+      'padding-top': 0.104 * width + 'px',
+      'box-sizing': 'border-box',
     }
 
     return (
@@ -59,6 +61,7 @@ export class Menu extends React.Component<Props, State> {
           httpServerURL={httpServerURL}
           text={text}
           appWidth={width}
+          t={t}
         />
         <Router services={services} />
       </div>

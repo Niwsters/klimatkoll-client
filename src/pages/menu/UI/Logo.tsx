@@ -5,10 +5,11 @@ type Props = {
   httpServerURL: string
   text: TextConfig
   appWidth: number
+  t: (key: string) => string
 }
 
 export function Logo(props: Props): React.ReactElement {
-  const { appWidth, httpServerURL, text } = props
+  const { appWidth, httpServerURL, t } = props
 
   const style: any = {
     "display": "block",
@@ -17,5 +18,5 @@ export function Logo(props: Props): React.ReactElement {
     'paddingBottom': 0.03125 * appWidth,
   }
 
-  return <img src={httpServerURL + "/logo.webp"} alt={text.altClimateCallLogo} style={style} />
+  return <img src={httpServerURL + "/logo.webp"} alt={t('altLogo')} style={style} />
 }
