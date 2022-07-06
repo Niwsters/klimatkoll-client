@@ -9,6 +9,7 @@ uniform bool u_visible;
 varying vec2 v_texcoord;
 
 vec2 CARD_SIZE = vec2(1024, 1536);
+float CARD_MARGIN = 16.0;
 vec2 TEXTURE_SIZE = vec2(2048, 2048);
 float CORNER_SIZE = 64.0;
 
@@ -85,9 +86,16 @@ vec2 card_coord(vec2 texcoord) {
   return vec2(mod(uv(texcoord).x, CARD_SIZE.x), uv(texcoord).y);
 }
 
+vec2 texcoord(vec2 coord) {
+  float new_width = TEXTURE_SIZE.x - CARD_MARGIN * 4.0;
+  float ratio = new_width / TEXTURE_SIZE.x;
+  float m = float(coord.x > CARD_SIZE.x / TEXTURE_SIZE.x);
+  return coord * ratio + vec2(CARD_MARGIN) / TEXTURE_SIZE + vec2(CARD_MARGIN * 2.0 / TEXTURE_SIZE.x * m, 0);
+}
+
 void main() {
   gl_FragColor = 
-    texture2D(u_texture, v_texcoord) *
+    texture2D(u_texture, texcoord(v_texcoord)) *
     selection_border(u_selected, uv(v_texcoord)) *
     round_corners(card_coord(v_texcoord)) *
     alpha(u_isspace) *
