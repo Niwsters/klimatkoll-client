@@ -71,7 +71,7 @@ export class EmissionsLine {
   
   private reformSpaceCards(): Card[] {
     return this._cards
-      .filter(c => c.id >= 0)
+      .filter(c => !c.isSpace)
       .reduce((cards: Card[], card, i) => {
         return [
           ...cards,
