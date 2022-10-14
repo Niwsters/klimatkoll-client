@@ -28,7 +28,7 @@ export class SinglePlayerPage implements Page {
     this.services = services
     this.services.events$.subscribe(event => this.addEvent(event))
 
-    this.game = new Game(services.text, this.socketID)
+    this.game = new Game(this.socketID, services.t)
     this.game.events$.subscribe(this.onGameEvent.bind(this))
 
     this.server.events$.subscribe(this.onServerEvent.bind(this))

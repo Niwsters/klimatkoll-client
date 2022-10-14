@@ -1,19 +1,18 @@
 import React from 'react'
-import { GameState } from 'pages/multiplayer/gamestate'
+import { GameState } from 'core/gamestate'
 import { EventToAdd } from '../../../event/event'
 import { RoomID } from './RoomID'
 import { LeaveGameBtn } from './LeaveGameBtn'
 import { StatusMessage } from './StatusMessage'
 import { Layout } from './Layout'
-import { TextConfig } from '@shared/models'
 import { Resolution } from '../../../root'
 import { Stream } from '../../../stream'
 
 type Props = {
-  text: TextConfig,
   gamestate: GameState,
   addEvent: (e: EventToAdd) => void,
-  resolution$: Stream<Resolution>
+  resolution$: Stream<Resolution>,
+  t: (key: string) => string
 }
 
 type State = {
@@ -31,7 +30,7 @@ export class StatusBar extends React.Component<Props, State> {
   }
 
   render() {
-    const { gamestate, addEvent, text } = this.props
+    const { gamestate, addEvent, t } = this.props
     const { resolution } = this.state
     const { width } = resolution
     const statusMessage: string = gamestate.statusMessage
@@ -48,8 +47,8 @@ export class StatusBar extends React.Component<Props, State> {
 
     return (
       <div id="status-bar" style={style}>
-        <Layout bottomButton={LeaveGameBtn(text, addEvent)} appWidth={width}>
-          { RoomID(text, roomID) }
+        <Layout bottomButton={LeaveGameBtn(addEvent, t)} appWidth={width}>
+          { RoomID(roomID, t) }
           { StatusMessage(statusMessage, width) }
         </Layout>
       </div>

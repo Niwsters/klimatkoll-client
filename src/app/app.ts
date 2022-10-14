@@ -9,8 +9,13 @@ import { PageFactory, Services } from '../pages'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
 import i18next from 'i18next'
 
-async function localisation(httpServerURL: string) {
-  return (await fetch(`${httpServerURL}/localisation`)).json()
+async function localisation(httpServerURL: string): Promise<object> {
+  try {
+    return (await fetch(`${httpServerURL}/localisation`)).json()
+  } catch (e) {
+    console.log("Failed to fetch localisation data:", e)
+    return {}
+  }
 }
 
 export class App {
@@ -51,7 +56,6 @@ export class App {
     const services: Services = {
       addEvent,
       environment: root.environment,
-      text: root.text,
       resolution$: root.resolution$,
       events$,
       canvas: this.canvas,

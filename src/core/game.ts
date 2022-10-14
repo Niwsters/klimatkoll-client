@@ -1,14 +1,13 @@
 import { Event, EventToAdd } from 'event/event'
 import { GameState } from './gamestate'
-import { TextConfig } from '@shared/models'
 import { Stream, StreamChannel, StreamSource } from '../stream'
 
 export class Game {
   events$: StreamChannel<EventToAdd> = new StreamChannel()
   _state$: StreamSource<GameState>
 
-  constructor(text: TextConfig, socketID: number) {
-    this._state$ = new StreamSource(new GameState(text, socketID))
+  constructor(socketID: number, t: (key: string) => string) {
+    this._state$ = new StreamSource(new GameState(socketID, t))
   }
 
   handleEvent(event: Event): void {

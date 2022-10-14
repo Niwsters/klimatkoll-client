@@ -14,7 +14,6 @@ export class MenuPage implements Page {
     this.cards = []
 
     this.component = <Menu
-      text={services.text}
       t={services.t}
       httpServerURL={services.environment.httpServerURL}
       resolution$={services.resolution$}

@@ -1,7 +1,7 @@
 import { mouseClickedEvent, mouseMovedEvent } from "../event/event"
 import { Card } from "core/card"
 import { ANIMATION_DURATION_MS, EMISSIONS_LINE_POSITION } from "core/constants"
-import { GameState } from "pages/multiplayer/gamestate"
+import { GameState } from "core/gamestate"
 import { Factory } from './test-factory'
 import { spec } from './spec'
 
@@ -78,7 +78,7 @@ function hoverHandCard(state: GameState): GameState {
 }
 
 function clickMouse(state: GameState): GameState {
-  return state.mouse_clicked({ event_id: 1, ...mouseClickedEvent() })[0]
+  return state.mouse_clicked({ event_id: 1, ...mouseClickedEvent(0, 0) })[0]
 }
 
 function selectHandCard(state: GameState): GameState {

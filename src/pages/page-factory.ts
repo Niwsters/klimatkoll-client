@@ -3,7 +3,6 @@ import { MenuPage } from '../pages/menu'
 import { MPGamePage } from './multiplayer'
 import { SinglePlayerPage } from './singleplayer'
 
-import { TextConfig } from '@shared/models'
 import { EventToAdd } from '../event/event'
 import { EventStream } from '../event/event-stream'
 import { Canvas } from '../canvas/canvas'
@@ -17,7 +16,6 @@ export type PageType = "multiplayer" | "singleplayer" | "menu";
 export type Services = {
   environment: Environment,
   addEvent: (e: EventToAdd) => void,
-  text: TextConfig,
   resolution$: Stream<Resolution>,
   events$: EventStream,
   canvas: Canvas,
@@ -38,8 +36,8 @@ export class PageFactory {
   }
 
   private multiPlayerPage() {
-    const { text, addEvent, resolution$, socketID, events$ } = this.services
-    return new MPGamePage(text, addEvent, resolution$, socketID, events$)
+    const { addEvent, resolution$, socketID, events$, t } = this.services
+    return new MPGamePage(addEvent, resolution$, socketID, t ,events$)
   }
 
   private singlePlayerPage() {

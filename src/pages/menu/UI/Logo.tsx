@@ -1,9 +1,7 @@
 import React from 'react'
-import { TextConfig } from '@shared/models'
 
 type Props = {
   httpServerURL: string
-  text: TextConfig
   appWidth: number
   t: (key: string) => string
 }

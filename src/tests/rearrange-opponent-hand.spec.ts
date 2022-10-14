@@ -2,7 +2,7 @@ import { Card } from 'core/card'
 import { ANIMATION_DURATION_MS, HAND_CARD_ANGLE, HAND_X_RADIUS, HAND_Y_RADIUS, OPPONENT_HAND_POSITION } from 'core/constants'
 import { Factory } from './test-factory'
 import { spec } from './spec'
-import { GameState } from 'pages/multiplayer/gamestate'
+import { GameState } from 'core/gamestate'
 import { Position } from 'core/position'
 
 function getOpponentHandCardPosition(i: number, cardCount: number): Position {

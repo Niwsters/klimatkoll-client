@@ -3,8 +3,6 @@ import { Frame, FrameElement } from "./frame"
 import { Environment, getEnvironment } from './environment'
 import { Stream, StreamSource } from '../stream'
 import { Resolution, getResolution } from './resolution'
-import { getTextConfig } from "../text-config"
-import { TextConfig } from "@shared/models"
 
 function getRootElem(): HTMLElement {
   const rootElem = document.getElementById('climate-call')
@@ -16,7 +14,6 @@ export type Root = {
   readonly environment: Environment
   readonly frame: FrameElement
   readonly resolution$: Stream<Resolution>
-  readonly text: TextConfig
 }
 
 export async function mountRoot(): Promise<Root> {
@@ -32,12 +29,10 @@ export async function mountRoot(): Promise<Root> {
   element.appendChild(baseFontSize.element)
 
   const environment = getEnvironment(element)
-  const text = await getTextConfig(environment)
 
   return {
     environment,
     resolution$,
-    frame,
-    text
+    frame
   } as const
 }

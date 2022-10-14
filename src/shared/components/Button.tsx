@@ -37,7 +37,7 @@ export class Button extends React.Component<Props, State> {
     return this.state.hover ? getColorHex("hover") : getColorHex(this.props.color)
   }
 
-  private get style() {
+  private get style(): any {
     return {
       "backgroundColor": this.colorHex,
       'width': '100%',

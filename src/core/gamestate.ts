@@ -8,7 +8,6 @@ import {
 import { EmissionsLine } from 'core/emissionsline'
 import { Deck } from 'core/deck'
 import { DiscardPile } from 'core/discard-pile'
-import { TextConfig } from '@shared/models'
 
 export class GameState {
   isMyTurn: boolean = false
@@ -17,7 +16,6 @@ export class GameState {
   roomID: string = ""
   lastUpdate: number = 0
 
-  private text: TextConfig
   emissionsLine: EmissionsLine = new EmissionsLine()
   opponentHand: OpponentHand = new OpponentHand()
   hand: Hand = new Hand()
@@ -26,9 +24,10 @@ export class GameState {
 
   private mouseX: number = 0
   private mouseY: number = 0
+  private t: (key: string) => string
 
   new(): GameState {
-    return Object.assign(new GameState(this.text, this.socketID), this)
+    return Object.assign(new GameState(this.socketID, this.t), this)
   }
 
   private removeHandCard(card: Card): GameState {
@@ -40,9 +39,9 @@ export class GameState {
     return state
   }
 
-  constructor(text: TextConfig, socketID: number) {
-    this.text = text
+  constructor(socketID: number, t: (key: string) => string) {
     this.socketID = socketID
+    this.t = t
   }
 
   get cards(): Card[] {
@@ -69,12 +68,11 @@ export class GameState {
 
   game_won(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
-    const text = this.text
 
     if (state.socketID === event.payload.socketID) {
-      state.statusMessage = text.youWon
+      state.statusMessage = this.t('youWon')
     } else {
-      state.statusMessage = text.youLost
+      state.statusMessage = this.t('youLost')
     }
 
     return [state, []]
@@ -190,21 +188,20 @@ export class GameState {
 
   player_turn(event: Event): [GameState, EventToAdd[]] {
     let state = this.new()
-    const text = this.text
 
     if (state.socketID === event.payload.socketID) {
       state.isMyTurn = true
-      state.statusMessage = text.yourTurn
+      state.statusMessage = this.t('yourTurn')
     } else {
       state.isMyTurn = false
-      state.statusMessage = text.opponentsTurn
+      state.statusMessage = this.t('opponentsTurn')
     }
 
     return [state, []]
   }
 
   private reset(): GameState {
-    let state = new GameState(this.text, this.socketID)
+    let state = new GameState(this.socketID, this.t)
     state.socketID = this.socketID
     return state
   }

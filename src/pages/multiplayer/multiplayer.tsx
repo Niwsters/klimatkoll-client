@@ -3,7 +3,6 @@ import { Card } from 'core/card';
 import { Game } from 'core/game';
 import { StatusBar } from './UI';
 import { Page } from '../../pages/page'
-import { TextConfig } from '@shared/models';
 import { AddEventFunc } from '@shared/models';
 import { Resolution } from 'root';
 import { Stream } from '../../stream'
@@ -15,13 +14,13 @@ export class MPGamePage implements Page {
   private readonly game: Game
 
   constructor(
-    text: TextConfig,
     addEvent: AddEventFunc,
     resolution$: Stream<Resolution>,
     socketID: number,
+    t: (key: string) => string,
     events$: Stream<Event>
   ) {
-    this.game = new Game(text, socketID)
+    this.game = new Game(socketID, t)
     this.game.events$.subscribe(addEvent)
 
     events$.subscribe(event => {
@@ -33,10 +32,10 @@ export class MPGamePage implements Page {
     }, 1000/60)
 
     this.component = <StatusBar
-      text={text}
       gamestate={this.game.state}
       addEvent={addEvent}
       resolution$={resolution$}
+      t={t}
     ></StatusBar>
   }
 

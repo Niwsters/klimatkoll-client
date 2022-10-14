@@ -1,7 +1,7 @@
 import { mouseClickedEvent, mouseMovedEvent } from '../event/event'
 import { Card } from 'core/card'
 import { ANIMATION_DURATION_MS } from 'core/constants'
-import { GameState } from 'pages/multiplayer/gamestate'
+import { GameState } from 'core/gamestate'
 import { spec } from './spec'
 import { Factory } from './test-factory'
 
@@ -44,7 +44,7 @@ function finishAnimations(state: GameState): GameState {
 }
 
 function clickMouse(state: GameState): GameState {
-  return state.mouse_clicked({ event_id: 1, ...mouseClickedEvent()})[0]
+  return state.mouse_clicked({ event_id: 1, ...mouseClickedEvent(0, 0)})[0]
 }
 
 function getCardById(state: GameState, cardID: number): Card {

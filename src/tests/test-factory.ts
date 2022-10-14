@@ -2,8 +2,9 @@ import { GameState } from "core/gamestate"
 
 export const Factory = {
   GameState: function() {
-    return new GameState(this.TextConfig(), 1)
+    return new GameState(1, this.t)
   },
+  t: (_key: string) => "",
   TextConfig: function () {
     return {
       connectedToServer: "string",

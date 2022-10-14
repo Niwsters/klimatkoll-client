@@ -1,7 +1,7 @@
 import { mouseMovedEvent } from "../event/event"
 import { Card } from "core/card"
 import { ANIMATION_DURATION_MS, HAND_POSITION } from "core/constants"
-import { GameState } from "pages/multiplayer/gamestate"
+import { GameState } from "core/gamestate"
 import { Factory } from './test-factory'
 import { spec } from './spec'
 import { Position } from "core/position"

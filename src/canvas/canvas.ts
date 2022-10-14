@@ -51,7 +51,7 @@ export class Canvas {
         cards = cards.map((c: CardData, i: number) => {
           return {
             ...c,
-            id: i
+            id: i.toString()
           }
         })
 

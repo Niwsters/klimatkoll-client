@@ -1,7 +1,7 @@
 import { EventToAdd, mouseClickedEvent, mouseMovedEvent, playCardRequestEvent } from '../event/event'
 import { Card } from 'core/card'
-import { ANIMATION_DURATION_MS, EMISSIONS_LINE_POSITION } from 'core/constants'
-import { GameState } from 'pages/multiplayer/gamestate'
+import { ANIMATION_DURATION_MS } from 'core/constants'
+import { GameState } from 'core/gamestate'
 import { spec } from './spec'
 import { Factory } from './test-factory'
 
@@ -32,10 +32,6 @@ function addEmissionsLineCard(state: GameState): GameState {
   return state
 }
 
-function dontHoverAnyCard(state: GameState): GameState {
-  return moveMouse(state, 0, 0)
-}
-
 function addHandCard(state: GameState): GameState {
   state = state.new()
   state.hand = state.hand.addCard(handCard)
@@ -55,7 +51,7 @@ function hoverHandCard(state: GameState): GameState {
 }
 
 function clickMouse(state: GameState): [GameState, EventToAdd[]] {
-  return state.mouse_clicked({ event_id: 1, ...mouseClickedEvent() })
+  return state.mouse_clicked({ event_id: 1, ...mouseClickedEvent(0, 0) })
 }
 
 function selectHandCard(state: GameState): GameState {

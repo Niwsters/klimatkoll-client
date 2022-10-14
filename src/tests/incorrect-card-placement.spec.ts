@@ -1,6 +1,6 @@
 import { Card } from 'core/card'
 import { Factory } from './test-factory'
-import { GameState } from 'pages/multiplayer/gamestate'
+import { GameState } from 'core/gamestate'
 import { ANIMATION_DURATION_MS, DISCARD_PILE_POSITION } from 'core/constants'
 import { createEvent } from '../event/event'
 import { spec } from './spec'
