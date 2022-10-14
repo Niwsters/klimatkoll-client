@@ -8,7 +8,10 @@ export class Socket {
 
   constructor(websocketURL: string, language: string) {
     this.websocket = new WebSocket(websocketURL, language)
-    this.websocket.onmessage = (e: MessageEvent) => this.onMessage(e)
+    this.websocket.onmessage = (e: MessageEvent) => this.onMessage(e);
+    this.websocket.onerror = function (this: WebSocket, _e: any): any {
+      throw new Error("Failed to connect to web socket. Is the socket's requested language allowed on the server?")
+    }
   }
 
   private onMessage(e: MessageEvent) {
