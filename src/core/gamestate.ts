@@ -70,9 +70,9 @@ export class GameState {
     let state = this.new()
 
     if (state.socketID === event.payload.socketID) {
-      state.statusMessage = this.t('youWon')
+      state.statusMessage = this.t('you-won')
     } else {
-      state.statusMessage = this.t('youLost')
+      state.statusMessage = this.t('you-lost')
     }
 
     return [state, []]
@@ -191,10 +191,10 @@ export class GameState {
 
     if (state.socketID === event.payload.socketID) {
       state.isMyTurn = true
-      state.statusMessage = this.t('yourTurn')
+      state.statusMessage = this.t('your-turn')
     } else {
       state.isMyTurn = false
-      state.statusMessage = this.t('opponentsTurn')
+      state.statusMessage = this.t('opponents-turn')
     }
 
     return [state, []]

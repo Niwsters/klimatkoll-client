@@ -5,5 +5,5 @@ export function RoomID(roomID: string, t: (key: string) => string): React.ReactE
     "font-size": "1em"
   }
 
-  return <div className="room-id" style={style}>{ t('labelRoom') } { roomID }</div>
+  return <div className="room-id" style={style}>{ t('label-room') } { roomID }</div>
 }

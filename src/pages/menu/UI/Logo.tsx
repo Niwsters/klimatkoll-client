@@ -16,5 +16,5 @@ export function Logo(props: Props): React.ReactElement {
     'paddingBottom': 0.03125 * appWidth,
   }
 
-  return <img src={httpServerURL + "/logo.webp"} alt={t('altLogo')} style={style} />
+  return <img src={httpServerURL + "/logo.webp"} alt={t('alt-logo')} style={style} />
 }

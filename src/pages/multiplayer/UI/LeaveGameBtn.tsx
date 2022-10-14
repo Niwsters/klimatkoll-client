@@ -10,5 +10,5 @@ export function LeaveGameBtn(
     addEvent(leaveGameEvent())
   }
 
-  return PinkButton(t('btnLeaveGame'), onClick)
+  return PinkButton(t('btn-leave-game'), onClick)
 }
